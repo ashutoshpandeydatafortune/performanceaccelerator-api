@@ -1,0 +1,13 @@
+{
+    "msalConfig": {
+        "auth": {
+            "clientId": "6cebe24f-5d4a-40b9-83fb-c1caaee3e1e8",
+            "authority": "https://login.microsoftonline.com/7d2f2039-726e-411b-8369-4755df0eaa8c", 
+           "redirectURI":"http://localhost:4200/auth/login"
+        },
+        "cache": {
+            "storeAuthStateInCookie": false
+        }
+    },
+    "msUrl": "https://graph.microsoft.com/v1.0/me"
+}
