@@ -1,8 +1,8 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Services;
-using DF_EvolutionAPI.Services.Submission;
+﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using System;
+
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Services.Submission;
 
 namespace DF_EvolutionAPI.Controllers
 {

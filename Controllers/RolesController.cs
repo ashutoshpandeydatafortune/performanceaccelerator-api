@@ -21,7 +21,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllRoles()
+        public IActionResult GetAllRoleList()
         {
             try
             {

@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI
 {
@@ -13,7 +11,17 @@ namespace DF_EvolutionAPI
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            try
+            {
+                var dotenv = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+                DotEnv.Load(dotenv);
+
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Application failed to start: " + ex.Message);
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

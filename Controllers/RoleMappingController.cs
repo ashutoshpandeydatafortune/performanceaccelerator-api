@@ -46,7 +46,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var rolesMapping = _roleMappingService.GetRoleMappingById(rolesMappingId);
+                var rolesMapping = _roleMappingService.GetRoleMappingByRoleId(rolesMappingId);
                 if (rolesMapping.Result == null) return NotFound();
                 return Ok(rolesMapping.Result);
             }
@@ -107,7 +107,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = _roleMappingService.GetRoleMappingById(roleId);
+                var model = _roleMappingService.GetRoleMappingByRoleId(roleId);
                 return Ok(model.Result);
             }
             catch (Exception)

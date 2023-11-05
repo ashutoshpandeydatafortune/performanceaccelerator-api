@@ -4,6 +4,7 @@ using DF_EvolutionAPI.Services.History;
 using DF_EvolutionAPI.Services.KRA;
 using DF_EvolutionAPI.Services.RolesMapping;
 using DF_EvolutionAPI.Services.Submission;
+using DF_EvolutionAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
 using System.Text;
 
 namespace DF_EvolutionAPI
@@ -23,6 +25,20 @@ namespace DF_EvolutionAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            LoadConfiguration();
+        }
+
+        private void LoadConfiguration()
+        {
+            Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"];
+
+            Constant.AZURE_DOMAIN = Configuration["Azure:Domain"];
+            Constant.AZURE_INSTANCE = Configuration["Azure:Instance"];
+            Constant.AZURE_CLIENT_ID = Configuration["Azure:ClientId"];
+            Constant.AZURE_TENANT_ID = Configuration["Azure:TenantId"];
+            Constant.AZURE_CALLBACK_PATH = Configuration["Azure:CallbackPath"];
+            Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"];
         }
 
         public IConfiguration Configuration { get; }
@@ -34,8 +50,7 @@ namespace DF_EvolutionAPI
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
-            services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer
-            (Configuration.GetConnectionString("DFEV_ConnectionString")));
+            services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Constant.CONNECTION_STRING));
 
             //PRMS Master Tables Services
             services.AddScoped<IBusinessUnitService, BusinessUnitService>();
