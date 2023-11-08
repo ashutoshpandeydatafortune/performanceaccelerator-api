@@ -10,7 +10,6 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 
 using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
 using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.Login
@@ -20,9 +19,8 @@ namespace DF_EvolutionAPI.Services.Login
         static HttpClient msClient;
 
         private IResourceService _resourceService;
-        private readonly DFEvolutionDBContext _dbcontext;
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public LoginService(
             DFEvolutionDBContext dbContext,
@@ -31,7 +29,6 @@ namespace DF_EvolutionAPI.Services.Login
             UserManager<IdentityUser> userManager
         )
         {
-            _dbcontext = dbContext;
             _roleManager = roleManager;
             _userManager = userManager;
 
@@ -66,31 +63,25 @@ namespace DF_EvolutionAPI.Services.Login
                 }
 
                 // find user by email id 
-                var user = await _userManager.FindByEmailAsync(uam.Username);
+                var user = await _userManager.FindByEmailAsync(uam.Username);   
+                if(user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
                 List<Claim> claims = new List<Claim>();
                 claims.Add(new Claim(ClaimTypes.Name, uam.Username));
-                var claim = new[] { new Claim(JwtRegisteredClaimNames.Sub, user.UserName) };
+                //var claim = new[] { new Claim(JwtRegisteredClaimNames.Sub, user.UserName) };
 
                 // get user roles
                 var userRoles = await _userManager.GetRolesAsync(user);
-                IdentityRole userRoleId = new IdentityRole();
+                IdentityRole userRole = new IdentityRole();
                 if (userRoles.Count > 0)
                 {
-                    userRoleId = await _roleManager.FindByNameAsync(userRoles[0]);
+                    userRole = await _roleManager.FindByNameAsync(userRoles[0]);
                 }
 
-                var signinKey = new SymmetricSecurityKey(
-                  Encoding.UTF8.GetBytes(configuration["Jwt:SigningKey"]));
-
-                int expiryInMinutes = Convert.ToInt32(configuration["Jwt:ExpiryInMinutes"]);
-
-                var token = new JwtSecurityToken(
-                  issuer: configuration["Jwt:Site"],
-                  audience: configuration["Jwt:Site"],
-                  expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
-                  signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature),
-                  claims: claims
-                );
+                JwtSecurityToken token = GetAuthToken(configuration, claims);
 
                 int resourceId;
                 int referenceId;
@@ -120,8 +111,8 @@ namespace DF_EvolutionAPI.Services.Login
                     ResourceName = resourceName,
                     ReportingToId = reportingTo,
 
+                    Role = userRole,
                     Roles = userRoles,
-                    Role = userRoleId,
                     IsEmailConfirmed = true,
                     Expiration = token.ValidTo,
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
@@ -131,6 +122,24 @@ namespace DF_EvolutionAPI.Services.Login
             {
                 throw new Exception("Account type not match");
             }
+        }
+
+        private JwtSecurityToken GetAuthToken(IConfiguration configuration, List<Claim> claims)
+        {
+            var signinKey = new SymmetricSecurityKey(
+                              Encoding.UTF8.GetBytes(configuration["Jwt:SigningKey"]));
+
+            int expiryInMinutes = Convert.ToInt32(configuration["Jwt:ExpiryInMinutes"]);
+
+            var token = new JwtSecurityToken(
+              issuer: configuration["Jwt:Site"],
+              audience: configuration["Jwt:Site"],
+              expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
+              signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature),
+              claims: claims
+            );
+
+            return token;
         }
     }
 }
