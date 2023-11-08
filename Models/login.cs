@@ -2,7 +2,7 @@
 
 namespace DF_EvolutionAPI.Models
 {
-    public class login
+    public class Login
     {
         [Required]
         [EmailAddress]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 {
@@ -25,15 +26,25 @@ namespace DF_EvolutionAPI.Models
         public string Remarks { get; set; }
         public DateTime? ActualStartDate { get; set; }
         public DateTime? ActualEndDate { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? MonthlyBillingRate { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? WeeklyBillingRate { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? HourlyBillingRate { get; set; }
+
         public int? CurrencyId { get; set; }
         #endregion
 
         public string ClientCodeReference { get; set; }
         public string CompanyURL { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? ApproxRevenue { get; set; }
+
         public int? ApproxNoOfPeople { get; set; }
         public int? DomainId { get; set; }
         public int? CompanyTypeId { get; set; }
@@ -46,6 +57,8 @@ namespace DF_EvolutionAPI.Models
         public DateTime? ApproxStartDate { get; set; }
         public string AgreementSignedByClient { get; set; }
         public string AgreementSignedByDF { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? AgreementValue { get; set; }
         public string AgreementDuration { get; set; }
         public int? SalesPersonId { get; set; }

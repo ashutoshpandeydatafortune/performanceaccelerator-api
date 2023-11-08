@@ -18,6 +18,8 @@ namespace DF_EvolutionAPI.Models
         //public int? IsActive { get; set; }
         public int? BillingCycleId { get; set; }
         public int? CurrencyId { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? Rate { get; set; }
         public string ResourceRole { get; set; }
 

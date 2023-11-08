@@ -1,8 +1,7 @@
 using DF_EvolutionAPI.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI
 {
@@ -21,7 +20,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<QuarterDetails> QuarterDetails { get; set; }
         public virtual DbSet<StatusLibrary> StatusLibrary { get;  set; }
         public virtual DbSet<UserKRA> UserKRA { get; set; }
-        public virtual DbSet<Roles> Roles { get; set; }
+        public new DbSet<Roles> Roles { get; set; }
         public virtual DbSet<RoleMapping> RoleMapping { get; set; }
         public virtual DbSet<KRALibrary> KRALibrary { get; set; }
         public virtual DbSet<UserApproval> UserApproval { get; set; }
@@ -38,32 +37,28 @@ namespace DF_EvolutionAPI
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
             modelBuilder.Entity<IdentityUser>(entity =>
             {
-               // e.ToTable("UserApproval", "dfev");
-                entity.ToTable("AspNetUsers","dbo");
+                entity.ToTable("AspNetUsers","pa");
                 entity.Property(e => e.Id).HasColumnName("Id");
-
             });
 
             modelBuilder.Entity<IdentityRole>(entity =>
             {
-                entity.ToTable("AspNetRoles","dbo");
-                // entity.Property(e => e.Id).HasColumnName("Id");
-
+                entity.ToTable("AspNetRoles","pa");
             });
 
             modelBuilder.Entity<IdentityUserRole<string>>(entity =>
             {
-                entity.ToTable("AspNetUserRoles","dbo");
-                // entity.Property(e => e.Id).HasColumnName("Id");
-
+                entity.ToTable("AspNetUserRoles","pa");
             });
-            modelBuilder.HasDefaultSchema("dbo");
 
-            modelBuilder.HasDefaultSchema("dbo").Entity<Resource>(e =>
+            modelBuilder.HasDefaultSchema("pa");
+
+            modelBuilder.HasDefaultSchema("pa").Entity<Resource>(e =>
             {
-                e.ToTable("Resource");
+                e.ToTable("Resources");
                 e.HasKey(x => x.ResourceId);
                 e.Property(e => e.ResourceId).HasColumnName("ResourceId");
                 e.Property(e => e.ResourceName).HasColumnName("ResourceName");
@@ -78,9 +73,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.AlternetNumber).HasColumnName("AlternetNumber");
                 e.Property(e => e.ContactNumber).HasColumnName("ContactNumber");
                 e.Property(e => e.Address).HasColumnName("Address");
-                e.Property(e => e.StatusId).HasColumnName("statusid");
-                e.Property(e => e.Primaryskill).HasColumnName("Primaryskill");
-                e.Property(e => e.Secondaryskill).HasColumnName("Secondaryskill");
+                e.Property(e => e.StatusId).HasColumnName("StatusId");
+                e.Property(e => e.Primaryskill).HasColumnName("PrimarySkill");
+                e.Property(e => e.Secondaryskill).HasColumnName("SecondarySkill");
                 e.Property(e => e.Zip).HasColumnName("Zip");
                 e.Property(e => e.Strengths).HasColumnName("Strengths");
                 e.Property(e => e.TechCategoryId).HasColumnName("TechCategoryId");
@@ -99,9 +94,9 @@ namespace DF_EvolutionAPI
                 e.Ignore(e => e.ClientList);
             });
 
-            modelBuilder.HasDefaultSchema("dbo").Entity<ProjectResource>(e =>
+            modelBuilder.HasDefaultSchema("pa").Entity<ProjectResource>(e =>
             {
-                e.ToTable("ProjectResource");
+                e.ToTable("ProjectResources");
                 e.HasKey(x => x.ProjectResourceId);
                 e.Property(e => e.ProjectResourceId).HasColumnName("ProjectResourceId");
                 e.Property(e => e.ResourceId).HasColumnName("ResourceId");
@@ -124,9 +119,9 @@ namespace DF_EvolutionAPI
 
             });
 
-            modelBuilder.HasDefaultSchema("dbo").Entity<Project>(e =>
+            modelBuilder.HasDefaultSchema("pa").Entity<Project>(e =>
             {
-                e.ToTable("Project");
+                e.ToTable("Projects");
                 e.HasKey(x => x.ProjectId);
                 e.Property(e => e.ProjectId).HasColumnName("ProjectId");
                 e.Property(e => e.ClientId).HasColumnName("ClientId");
@@ -150,9 +145,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.ActualStartDate).HasColumnName("ActualStartDate");
             });
 
-            modelBuilder.HasDefaultSchema("dbo").Entity<BusinessUnit>(e =>
+            modelBuilder.HasDefaultSchema("pa").Entity<BusinessUnit>(e =>
             {
-                e.ToTable("BusinessUnit");
+                e.ToTable("BusinessUnits");
                 e.HasKey(x => x.BusinessUnitId);
                 e.Property(e => e.BusinessUnitId).HasColumnName("BusinessUnitId");
                 e.Property(e => e.BusinessUnitName).HasColumnName("BusinessUnitName");
@@ -164,9 +159,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            modelBuilder.HasDefaultSchema("dbo").Entity<Client>(e =>
+            modelBuilder.HasDefaultSchema("pa").Entity<Client>(e =>
             {
-                e.ToTable("Client");
+                e.ToTable("Clients");
                 e.HasKey(x => x.ClientId);
                 e.Property(e => e.ClientId).HasColumnName("ClientId");
                 e.Property(e => e.ClientCode).HasColumnName("ClientCode");
@@ -224,180 +219,180 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<KRAWeightage>(e =>
             {
-                e.ToTable("KRAWeightage", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.Name).HasColumnName("name");
-                e.Property(e => e.DisplayName).HasColumnName("displayname");
-                e.Property(e => e.Description).HasColumnName("description");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("KRAWeightage", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.Name).HasColumnName("Name");
+                e.Property(e => e.DisplayName).HasColumnName("DisplayName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<QuarterDetails>(e =>
             {
-                e.ToTable("QuarterDetails", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.QuarterName).HasColumnName("quartername");
-                e.Property(e => e.QuarterYear).HasColumnName("quarteryear");
-                e.Property(e => e.Description).HasColumnName("description");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.StatusId).HasColumnName("statusid");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("QuarterDetails", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.QuarterName).HasColumnName("QuarterName");
+                e.Property(e => e.QuarterYear).HasColumnName("QuarterYear");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.StatusId).HasColumnName("StatusId");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<StatusLibrary>(e =>
             {
-                e.ToTable("StatusLibrary", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.StatusName).HasColumnName("statusname");
-                e.Property(e => e.StatusType).HasColumnName("statustype");
-                e.Property(e => e.Description).HasColumnName("description");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("StatusLibrary", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.StatusName).HasColumnName("StatusName");
+                e.Property(e => e.StatusType).HasColumnName("StatusType");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<UserApproval>(e =>
             {
-                e.ToTable("UserApproval", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.ApprovalStatus).HasColumnName("approvalstatus");
-                e.Property(e => e.AppraisalRange).HasColumnName("appraisalrange");
-                e.Property(e => e.ApprovedBy).HasColumnName("approvedby");
-                e.Property(e => e.RejectedBy).HasColumnName("rejectedby");
-                e.Property(e => e.Reason).HasColumnName("reason");
-                e.Property(e => e.Comment).HasColumnName("comment");
-                e.Property(e => e.UserId).HasColumnName("userid");
-                e.Property(e => e.KRAId).HasColumnName("kraid");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("UserApproval", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.ApprovalStatus).HasColumnName("ApprovalStatus");
+                e.Property(e => e.AppraisalRange).HasColumnName("AppraisalRange");
+                e.Property(e => e.ApprovedBy).HasColumnName("ApprovedBy");
+                e.Property(e => e.RejectedBy).HasColumnName("RejectedBy");
+                e.Property(e => e.Reason).HasColumnName("Reason");
+                e.Property(e => e.Comment).HasColumnName("Comment");
+                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.KRAId).HasColumnName("KraId");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<UserKRA>(e =>
             {
-                e.ToTable("UserKRA", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.DeveloperComment).HasColumnName("developercomment");
-                e.Property(e => e.ManagerComment).HasColumnName("managercomment");
-                e.Property(e => e.DeveloperRating).HasColumnName("developerrating");
-                e.Property(e => e.ManagerRating).HasColumnName("managerrating");
-                e.Property(e => e.FinalRating).HasColumnName("finalrating");
-                e.Property(e => e.Score).HasColumnName("score");
-                e.Property(e => e.Status).HasColumnName("status");
-                e.Property(e => e.KRAId).HasColumnName("kraid");
-                e.Property(e => e.UserId).HasColumnName("userId");
-                e.Property(e => e.QuarterId).HasColumnName("quarterid");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("UserKRAs", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.DeveloperComment).HasColumnName("DeveloperComment");
+                e.Property(e => e.ManagerComment).HasColumnName("ManagerComment");
+                e.Property(e => e.DeveloperRating).HasColumnName("DeveloperRating");
+                e.Property(e => e.ManagerRating).HasColumnName("ManagerRating");
+                e.Property(e => e.FinalRating).HasColumnName("FinalRating");
+                e.Property(e => e.Score).HasColumnName("Score");
+                e.Property(e => e.Status).HasColumnName("Status");
+                e.Property(e => e.KRAId).HasColumnName("KraId");
+                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.QuarterId).HasColumnName("QuarterId");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<KRALibrary>(e =>
             {
-                e.ToTable("KRALibrary", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.Name).HasColumnName("name");
-                e.Property(e => e.DisplayName).HasColumnName("displayname");
-                e.Property(e => e.Description).HasColumnName("description");
-                e.Property(e => e.Entity).HasColumnName("entity");
-                e.Property(e => e.Entity2).HasColumnName("entity2");
-                e.Property(e => e.ApprovedBy).HasColumnName("approvedby");
-                e.Property(e => e.RejectedBy).HasColumnName("rejectedby");
-                e.Property(e => e.Reason).HasColumnName("reason");
-                e.Property(e => e.Comment).HasColumnName("comment");
-                e.Property(e => e.IsSpecial).HasColumnName("isspecial");
-                e.Property(e => e.IsDefault).HasColumnName("isdefault");
-                e.Property(e => e.WeightageId).HasColumnName("weightageId");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
-                e.Property(e => e.Weightage).HasColumnName("weightage");
+                e.ToTable("KRALibrary", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.Name).HasColumnName("Name");
+                e.Property(e => e.DisplayName).HasColumnName("DisplayName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.Entity).HasColumnName("Entity");
+                e.Property(e => e.Entity2).HasColumnName("Entity2");
+                e.Property(e => e.ApprovedBy).HasColumnName("ApprovedBy");
+                e.Property(e => e.RejectedBy).HasColumnName("RejectedBy");
+                e.Property(e => e.Reason).HasColumnName("Reason");
+                e.Property(e => e.Comment).HasColumnName("Comment");
+                e.Property(e => e.IsSpecial).HasColumnName("IsSpecial");
+                e.Property(e => e.IsDefault).HasColumnName("IsDefault");
+                e.Property(e => e.WeightageId).HasColumnName("WeightageId");
+                e.Property(e => e.Weightage).HasColumnName("Weightage");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<Roles>(e =>
             {
-                e.ToTable("Roles", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.RoleName).HasColumnName("rolename");
-                e.Property(e => e.Description).HasColumnName("description");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("Roles", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.RoleName).HasColumnName("RoleName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<RoleMapping>(e =>
             {
-                e.ToTable("RoleMapping", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.Email).HasColumnName("email");
-                e.Property(e => e.UserId).HasColumnName("userid");
-                e.Property(e => e.RoleId).HasColumnName("roleid");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("RoleMappings", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.Email).HasColumnName("Email");
+                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.RoleId).HasColumnName("RoleId");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<SubmissionStatus>(e =>
             {
-                e.ToTable("SubmissionStatus", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.SubmissionName).HasColumnName("submissionname");
-                e.Property(e => e.Description).HasColumnName("description");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.StatusId).HasColumnName("statusid");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("SubmissionStatus", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.SubmissionName).HasColumnName("SubmissionName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.StatusId).HasColumnName("StatusId");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<AppraisalHistory>(e =>
             {
-                e.ToTable("AppraisalHistory", "dbo");
-                e.Property(e => e.Id).HasColumnName("id");
-                e.Property(e => e.Percentage).HasColumnName("percentage");
-                e.Property(e => e.LastAppraisal).HasColumnName("lastappraisal");
-                e.Property(e => e.LastAppraisalDate).HasColumnName("lastappraisaldate");
-                e.Property(e => e.IsActive).HasColumnName("isactive");
-                e.Property(e => e.IsDeleted).HasColumnName("isdeleted");
-                e.Property(e => e.UserId).HasColumnName("userid");
-                e.Property(e => e.CreateBy).HasColumnName("createby");
-                e.Property(e => e.UpdateBy).HasColumnName("updateby");
-                e.Property(e => e.CreateDate).HasColumnName("createdate");
-                e.Property(e => e.UpdateDate).HasColumnName("updatedate");
+                e.ToTable("AppraisalHistory", "pa");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.Percentage).HasColumnName("Percentage");
+                e.Property(e => e.LastAppraisal).HasColumnName("LastAppraisal");
+                e.Property(e => e.LastAppraisalDate).HasColumnName("LastAppraisalDate");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            modelBuilder.HasDefaultSchema("dbo").Entity<Designation>(e =>
+            modelBuilder.HasDefaultSchema("pa").Entity<Designation>(e =>
             {
-                e.ToTable("Designation", "dbo");
+                e.ToTable("Designations", "pa");
                 e.Property(e => e.DesignationId).HasColumnName("DesignationId");
                 e.Property(e => e.DesignationName).HasColumnName("DesignationName");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");

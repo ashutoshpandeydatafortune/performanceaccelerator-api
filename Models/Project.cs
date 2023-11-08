@@ -15,8 +15,14 @@ namespace DF_EvolutionAPI.Models
         public DateTime? ActualEndDate { get; set; }
         public int? NumberOfResorces { get; set; }
         public string Duration { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? MonthlyBillingRate { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? WeeklyBillingRate { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? HourlyBillingRate { get; set; }
         public int? ReviewCycleId { get; set; }
         public int? ProjectManagerId { get; set; }
