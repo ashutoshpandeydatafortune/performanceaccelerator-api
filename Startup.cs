@@ -15,13 +15,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System;
 using System.Text;
 
 namespace DF_EvolutionAPI
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -41,8 +42,6 @@ namespace DF_EvolutionAPI
             Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"];
         }
 
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -50,7 +49,7 @@ namespace DF_EvolutionAPI
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
-            services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Constant.CONNECTION_STRING));
+            services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DFEV_ConnectionString")));
 
             //PRMS Master Tables Services
             services.AddScoped<IBusinessUnitService, BusinessUnitService>();
@@ -110,11 +109,15 @@ namespace DF_EvolutionAPI
                 builder =>
                 {
                     builder
-                    .WithOrigins("http://localhost:4200", "https://df-dev-performance-accelerator.azurewebsites.net/", "https://login.windows.net","*")
+                    .WithOrigins(
+                        "https://delightful-beach-0135c210f.4.azurestaticapps.net",
+                        "http://localhost:4200",
+                        "https://login.windows.net"
+                     )
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials()
-                    .WithMethods("PUT", "DELETE", "GET", "POST"); 
+                    .WithMethods("PUT", "DELETE", "GET", "POST");
                 });
             });
 

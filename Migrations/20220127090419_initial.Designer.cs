@@ -13,7 +13,7 @@ namespace DF_EvolutionAPI.Migrations
 {
     [DbContext(typeof(DFEvolutionDBContext))]
     [Migration("20220127090419_test123")]
-    partial class test123
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
