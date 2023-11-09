@@ -1,5 +1,4 @@
 ﻿using DF_EvolutionAPI.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -11,60 +10,66 @@ namespace DF_EvolutionAPI.Services.Designations
     public class DesignationService : IDesignationService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        
         public DesignationService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
         }
-        public Task<Designation> GetDesignationDetailsByDesignationName(string designation)
+
+        public Designation GetDesignationDetailsByDesignationName(string designation)
         {
-            Designation designationdetails;
+            Designation designationDetails;
+
             try
             {
-                designationdetails =  (from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
-                                            select new Designation
-                                            {
-                                                DesignationId = pr.DesignationId,
-                                                DesignationName = pr.DesignationName                                                
-                                            }).FirstOrDefault();
+                designationDetails = (
+                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
+                    select new Designation
+                    {
+                        DesignationId = pr.DesignationId,
+                        DesignationName = pr.DesignationName
+                    }).FirstOrDefault();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
-            return Task.FromResult(designationdetails);
+
+            return designationDetails;
         }
 
-        public  List<Resource> GetResourcesByDesignationName(string designation)
+        public List<Resource> GetResourcesByDesignationName(string designation)
         {
             List<Resource> resources = new List<Resource>();
+
             try
             {
-                var designationdetails = (from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
-                                      select new Designation
-                                      {
-                                          DesignationId = pr.DesignationId,
-                                          DesignationName = pr.DesignationName
-                                      }).FirstOrDefault();
-                if (designationdetails != null)
+                var designationDetails = (
+                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
+                    select new Designation
+                    {
+                         DesignationId = pr.DesignationId,
+                         DesignationName = pr.DesignationName
+                    }).FirstOrDefault();
+
+                if (designationDetails != null)
                 {
-                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designationdetails.DesignationId)
-                                       .Select(x => new Resource
-                                       {
-                                           ResourceId = x.ResourceId,
-                                           ResourceName = x.ResourceName,
-                                           ResourceProjectList=x.ResourceProjectList,
-                                           EmailId=x.EmailId,
-                                           DesignationId=x.DesignationId
-                                           
-                                           
-                                                                                      
-                                       })
-                                       .ToList();
+                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designationDetails.DesignationId)
+                                .Select(x => new Resource
+                                {
+                                    ResourceId = x.ResourceId,
+                                    ResourceName = x.ResourceName,
+                                    ResourceProjectList = x.ResourceProjectList,
+                                    EmailId = x.EmailId,
+                                    DesignationId = x.DesignationId
+                                }).ToList();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                throw;
             }
+
             return  resources;
         }
     }

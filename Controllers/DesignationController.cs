@@ -8,7 +8,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class DesignationController : Controller
     {
-        IDesignationService _designationService;
+        private IDesignationService _designationService;
+
         public DesignationController(IDesignationService designationService)
         {
             _designationService = designationService;
@@ -25,8 +26,10 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var designation = _designationService.GetDesignationDetailsByDesignationName(designationName);
-                if (designation.Result == null) return NotFound();
-                return Ok(designation.Result);
+
+                if (designation == null) return NotFound();
+                
+                return Ok(designation);
             }
             catch (Exception)
             {
@@ -46,10 +49,10 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var resources = _designationService.GetResourcesByDesignationName(designationName);
-                if (resources == null) return NoContent();
+
                 return Ok(resources);
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return BadRequest();
             }

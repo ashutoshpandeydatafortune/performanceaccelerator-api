@@ -18,7 +18,8 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<KRAWeightage>> GetAllKRAWeightageList()
         {
-            return await _dbcontext.KRAWeightages.Where(c => c.IsActive == 1).ToListAsync();
+            //return await _dbcontext.KRAWeightages.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.KRAWeightages.ToListAsync();
         }
 
         public async Task<KRAWeightage> GetKRAWeightageDetailsById(int weightageId)
@@ -49,7 +50,7 @@ namespace DF_EvolutionAPI.Services
                     _temp.IsActive = 1;
                     _temp.UpdateBy = 1;
                     _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<KRAWeightage>(_temp);
+                    _dbcontext.Update(_temp);
                     model.Messsage = "KRA Weightage Update Successfully";
                 }
                 else

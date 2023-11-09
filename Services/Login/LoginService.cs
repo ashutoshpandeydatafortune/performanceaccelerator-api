@@ -69,8 +69,10 @@ namespace DF_EvolutionAPI.Services.Login
                     throw new Exception("User not found");
                 }
 
-                List<Claim> claims = new List<Claim>();
-                claims.Add(new Claim(ClaimTypes.Name, uam.Username));
+                List<Claim> claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, uam.Username)
+                };
                 //var claim = new[] { new Claim(JwtRegisteredClaimNames.Sub, user.UserName) };
 
                 // get user roles
@@ -120,14 +122,13 @@ namespace DF_EvolutionAPI.Services.Login
             }
             else
             {
-                throw new Exception("Account type not match");
+                throw new Exception("Account type does not match");
             }
         }
 
         private JwtSecurityToken GetAuthToken(IConfiguration configuration, List<Claim> claims)
         {
-            var signinKey = new SymmetricSecurityKey(
-                              Encoding.UTF8.GetBytes(configuration["Jwt:SigningKey"]));
+            var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SigningKey"]));
 
             int expiryInMinutes = Convert.ToInt32(configuration["Jwt:ExpiryInMinutes"]);
 

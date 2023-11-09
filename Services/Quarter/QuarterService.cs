@@ -1,10 +1,8 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -16,42 +14,48 @@ namespace DF_EvolutionAPI.Services
         {
             _dbcontext = dbContext;
         }
-        public async Task<List<QuarterDetails>> GetAllQuarterList()
+
+        public List<QuarterDetails> GetAllQuarterList()
         {
-            var quarterdetails= await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToListAsync();
-            return quarterdetails;
+            return _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToList();
         }
 
-        public async Task<QuarterDetails> GetQuarterDetailsById(int quarterId)
+        public QuarterDetails GetQuarterDetailsById(int quarterId)
         {
             QuarterDetails quarterdetails;
+            
             try
             {
-                quarterdetails = await _dbcontext.FindAsync<QuarterDetails>(quarterId);
+                quarterdetails = _dbcontext.Find<QuarterDetails>(quarterId);
             }
             catch (Exception) 
             {
                 throw;
             }
+
             return quarterdetails;
         }
 
-        public async Task<ResponseModel> CreateorUpdateQuarter(QuarterDetails quarterModel)
+        public ResponseModel CreateorUpdateQuarter(QuarterDetails quarterModel)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                QuarterDetails _temp = await GetQuarterDetailsById(quarterModel.Id);
-                if (_temp != null)
+                QuarterDetails quarterDetails = GetQuarterDetailsById(quarterModel.Id);
+
+                if (quarterDetails != null)
                 {
-                    _temp.QuarterName = quarterModel.QuarterName;
-                    _temp.QuarterYear = quarterModel.QuarterYear;
-                    _temp.StatusId = quarterModel.StatusId;
-                    _temp.Description = quarterModel.Description;
-                    _temp.IsActive = 1;
-                    _temp.UpdateBy = 1;
-                    _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<QuarterDetails>(_temp);
+                    quarterDetails.QuarterName = quarterModel.QuarterName;
+                    quarterDetails.QuarterYear = quarterModel.QuarterYear;
+                    quarterDetails.StatusId = quarterModel.StatusId;
+                    quarterDetails.Description = quarterModel.Description;
+                    quarterDetails.IsActive = 1;
+                    quarterDetails.UpdateBy = 1;
+                    quarterDetails.UpdateDate = DateTime.Now;
+                    
+                    _dbcontext.Update<QuarterDetails>(quarterDetails);
+                    
                     model.Messsage = "Quarter Details Updated Successfully";
                 }
                 else
@@ -61,10 +65,14 @@ namespace DF_EvolutionAPI.Services
                     quarterModel.UpdateBy = 1;
                     quarterModel.CreateDate = DateTime.Now;
                     quarterModel.UpdateDate = DateTime.Now;
+                    
                     _dbcontext.Add<QuarterDetails>(quarterModel);
+                    
                     model.Messsage = "Quarter Details Inserted Successfully";
                 }
+
                 _dbcontext.SaveChanges();
+                
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -72,20 +80,25 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
-        public async Task<ResponseModel> DeleteQuarter(int quarterId)
+        public ResponseModel DeleteQuarter(int quarterId)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                QuarterDetails _temp = await GetQuarterDetailsById(quarterId);
-                if (_temp != null)
+                QuarterDetails quarterDetails = GetQuarterDetailsById(quarterId);
+
+                if (quarterDetails != null)
                 {
-                    _temp.IsDeleted = 1;
-                    _dbcontext.Update<QuarterDetails>(_temp);
+                    quarterDetails.IsDeleted = 1;
+                    _dbcontext.Update<QuarterDetails>(quarterDetails);
+
                     _dbcontext.SaveChanges();
+
                     model.IsSuccess = true;
                     model.Messsage = "Quarter Details Deleted Successfully";
                 }
@@ -100,53 +113,60 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
-        public async Task<ResponseModel> GetQuarterByStatusId(int statusId)
+        public ResponseModel GetQuarterByStatusId(int statusId)
         {
             ResponseModel model = new ResponseModel();
             var quarterDetails = new List<QuarterDetails>();
+
             try
             {
-                quarterDetails = await(from qd in _dbcontext.QuarterDetails.Where(x => x.StatusId == statusId)
-                                         select new QuarterDetails
-                                         {
-                                             Id = qd.Id,
-                                             Description = qd.Description,
-                                             QuarterName = qd.QuarterName,
-                                             QuarterYear = qd.QuarterYear,
-                                             IsDeleted = qd.IsDeleted,
-                                             IsActive = qd.IsActive,
-                                             StatusId = qd.StatusId,
-                                             CreateBy = qd.CreateBy,
-                                             UpdateBy = qd.UpdateBy,
-                                             CreateDate = qd.CreateDate,
-                                             UpdateDate = qd.UpdateDate,
-                                             
-                                         }).ToListAsync();
+                quarterDetails = (
+                    from qd in _dbcontext.QuarterDetails.Where(x => x.StatusId == statusId)
+                    select new QuarterDetails
+                    {
+                        Id = qd.Id,
+                        Description = qd.Description,
+                        QuarterName = qd.QuarterName,
+                        QuarterYear = qd.QuarterYear,
+                        IsDeleted = qd.IsDeleted,
+                        IsActive = qd.IsActive,
+                        StatusId = qd.StatusId,
+                        CreateBy = qd.CreateBy,
+                        UpdateBy = qd.UpdateBy,
+                        CreateDate = qd.CreateDate,
+                        UpdateDate = qd.UpdateDate                                             
+                    }).ToList();
             }
             catch (Exception ex)
             {
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
-        public async Task<ResponseModel> GetStatusDetailsByQuarterId(int quarterId)
+        public ResponseModel GetStatusDetailsByQuarterId(int quarterId)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                QuarterDetails quarterDetails = await GetQuarterDetailsById(quarterId);
-                var status = await (from s in _dbcontext.KRAWeightages
-                                          where s.Id == quarterDetails.StatusId && s.IsActive == 1
-                                          select s).FirstAsync();
+                QuarterDetails quarterDetails = GetQuarterDetailsById(quarterId);
+
+                var status = (
+                    from s in _dbcontext.KRAWeightages
+                    where s.Id == quarterDetails.StatusId && s.IsActive == 1
+                    select s).First();
+
                 model.IsSuccess = true;
+            
                 if (status == null)
                 {
-
                     model.Messsage = "Status Not Found";
                     return model;
                 }
@@ -158,6 +178,7 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 

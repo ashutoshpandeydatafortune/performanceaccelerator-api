@@ -10,9 +10,9 @@ namespace DF_EvolutionAPI.Models
         [Required]
         public string DisplayName { get; set; }
         public string Description { get; set; }
+        public int WeightageValue { get; set; }
 
         public int IsActive { get; set; }
-
         public int IsDeleted { get; set; }
     }
 }

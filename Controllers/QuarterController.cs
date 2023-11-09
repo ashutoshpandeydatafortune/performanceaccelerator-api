@@ -11,7 +11,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class QuarterController : ControllerBase
     {
-        IQuarterService _quarterService;
+        private IQuarterService _quarterService;
+
         public QuarterController(IQuarterService quarterService)
         {
             _quarterService = quarterService;
@@ -23,12 +24,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetAllQuarterList()
+        public IActionResult GetAllQuarterList()
         {
             try
             {
-                var quarters = await _quarterService.GetAllQuarterList();
-                if (quarters == null) return NotFound();
+                var quarters = _quarterService.GetAllQuarterList();
+
                 return Ok(quarters);
             }
             catch (Exception)
@@ -48,9 +49,11 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var status = _quarterService.GetQuarterDetailsById(quarterId);
-                if (status.Result == null) return NotFound();
-                return Ok(status.Result);
+                var quarterDetails = _quarterService.GetQuarterDetailsById(quarterId);
+                
+                if (quarterDetails == null) return NotFound();
+                
+                return Ok(quarterDetails);
             }
             catch (Exception)
             {
@@ -69,8 +72,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = _quarterService.CreateorUpdateQuarter(quarterdetailsModel);
-                return Ok(model.Result);
+                var response = _quarterService.CreateorUpdateQuarter(quarterdetailsModel);
+                return Ok(response);
             }
             catch (Exception)
             {
@@ -89,8 +92,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = _quarterService.DeleteQuarter(quarterId);
-                return Ok(model.Result);
+                var response = _quarterService.DeleteQuarter(quarterId);
+                return Ok(response);
             }
             catch (Exception)
             {
@@ -110,7 +113,7 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var model = _quarterService.GetStatusDetailsByQuarterId(quarterId);
-                return Ok(model.Result);
+                return Ok(model);
             }
             catch (Exception)
             {
@@ -130,7 +133,7 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var model = _quarterService.GetStatusDetailsByQuarterId(statusId);
-                return Ok(model.Result);
+                return Ok(model);
             }
             catch (Exception)
             {

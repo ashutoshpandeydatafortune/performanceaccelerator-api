@@ -2,6 +2,7 @@ using DF_EvolutionAPI.Services;
 using DF_EvolutionAPI.Services.Designations;
 using DF_EvolutionAPI.Services.History;
 using DF_EvolutionAPI.Services.KRA;
+using DF_EvolutionAPI.Services.Login;
 using DF_EvolutionAPI.Services.RolesMapping;
 using DF_EvolutionAPI.Services.Submission;
 using DF_EvolutionAPI.Utils;
@@ -49,13 +50,15 @@ namespace DF_EvolutionAPI
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
+            System.Console.WriteLine(">> " + Configuration.GetConnectionString("DFEV_ConnectionString"));
             services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DFEV_ConnectionString")));
 
             //PRMS Master Tables Services
-            services.AddScoped<IBusinessUnitService, BusinessUnitService>();
+            services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IClientService, ClientService>();
-            services.AddScoped<IResourceService, ResourceService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IResourceService, ResourceService>();
+            services.AddScoped<IBusinessUnitService, BusinessUnitService>();
             services.AddScoped<IProjectResourceService, ProjectResourceService>();
 
             //DF Evolution tables

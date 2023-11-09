@@ -214,6 +214,8 @@ namespace DF_EvolutionAPI.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WeightageValue = table.Column<int>(type: "int", nullable: false),
+                    
                     IsActive = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<int>(type: "int", nullable: false),
                     CreateBy = table.Column<int>(type: "int", nullable: false),

@@ -1,4 +1,5 @@
 ﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.Login;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,6 @@ namespace DF_EvolutionAPI.Controllers
         [HttpPost("ExternalLogin")]
         public async Task<IActionResult> ExternalLogin(UserAuthModel uam)
         {
-
             if (string.IsNullOrWhiteSpace(uam.Username))
             {
                 return BadRequest(new { isError = true, msgError = "This email is not registered with us!" });
@@ -41,7 +41,7 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex);
+                return StatusCode(500, new ErrorResponse(true, ex.Message, null));
             }
         }
     }

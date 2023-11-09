@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.Services.KRA;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -9,7 +10,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class KRALibraryController : Controller
     {
-        IKRALibraryService _kraLibraryService;
+        private IKRALibraryService _kraLibraryService;
+
         public KRALibraryController(IKRALibraryService kraLibraryService)
         {
             _kraLibraryService = kraLibraryService;
@@ -21,18 +23,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllKRALibraryList()
+        public async Task<IActionResult> GetAllKRALibraryList()
         {
             try
             {
-                var Librarys = _kraLibraryService.GetAllKRALibraryList();
-                if (Librarys.Result == null) return NotFound();
-                return Ok(Librarys.Result);
+                var libraries = await _kraLibraryService.GetAllKRALibraryList();                
+                return Ok(libraries);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -43,18 +43,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetKRALibraryById/{kraLibraryId}")]
-        public IActionResult GetKRALibraryById(int kraLibraryId)
+        public async Task<IActionResult> GetKRALibraryById(int kraLibraryId)
         {
             try
             {
-                var Librarys = _kraLibraryService.GetKRALibraryById(kraLibraryId);
-                if (Librarys.Result == null) return NotFound();
-                return Ok(Librarys.Result);
+                var library = await _kraLibraryService.GetKRALibraryById(kraLibraryId);
+
+                if (library == null) return NotFound();
+                
+                return Ok(library);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -65,17 +66,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateKRALibrary(KRALibrary kraLibraryModel)
+        public async Task<IActionResult> CreateorUpdateKRALibrary(KRALibrary kraLibraryModel)
         {
             try
             {
-                var model = _kraLibraryService.CreateorUpdateKRALibrary(kraLibraryModel);
-                return Ok(model.Result);
+                var response = await _kraLibraryService.CreateorUpdateKRALibrary(kraLibraryModel);
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -86,17 +86,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteKRALibrary(int kraLibraryid)
+        public async Task<IActionResult> DeleteKRALibrary(int kraLibraryid)
         {
             try
             {
-                var model = _kraLibraryService.DeleteKRALibrary(kraLibraryid);
-                return Ok(model.Result);
+                var response = await _kraLibraryService.DeleteKRALibrary(kraLibraryid);
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -104,21 +103,23 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// Get KRA Weightage Details By KRA Library Id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="kraLibraryid"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetKRAWeightageDetailsByKRALibraryId(int kraLibraryid)
+        public async Task<IActionResult> GetKRAWeightageDetailsByKRALibraryId(int kraLibraryid)
         {
             try
             {
-                var weightagedetails = _kraLibraryService.GetKRAWeightageDetailsByKRALibraryId(kraLibraryid);
-                return Ok(weightagedetails.Result);
+                var kraWeightage = await _kraLibraryService.GetKRAWeightageDetailsByKRALibraryId(kraLibraryid);
+
+                if(kraWeightage == null) return NotFound();
+
+                return Ok(kraWeightage);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -126,21 +127,20 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// Get KRA  Details By Weightage Id 
         /// </summary>
-        /// <param name="WeightageId"></param>
+        /// <param name="weightageId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetKRADetailsByWeightageId(int WeightageId)
+        public async Task<IActionResult> GetKRADetailsByWeightageId(int weightageId)
         {
             try
             {
-                var kraLibraries = _kraLibraryService.GetKRADetailsByWeightageId(WeightageId);
-                return Ok(kraLibraries.Result);
+                var kraDetails = await _kraLibraryService.GetKRADetailsByWeightageId(weightageId);
+                return Ok(kraDetails);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

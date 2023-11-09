@@ -464,6 +464,10 @@ namespace DF_EvolutionAPI.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Description");
 
+                    b.Property<int>("WeightageValue")
+                        .HasColumnType("int")
+                        .HasColumnName("WeightageValue");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")

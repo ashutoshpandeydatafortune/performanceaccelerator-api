@@ -8,12 +8,8 @@ namespace DF_EvolutionAPI.Services
     public interface IKRAWeightageService
     {
         public Task<List<KRAWeightage>> GetAllKRAWeightageList();
-
-        public Task<KRAWeightage> GetKRAWeightageDetailsById(int weightageId);
-
-        public Task<ResponseModel> CreateorUpdateKRAWeightage(KRAWeightage weightageModel);
-
         public Task<ResponseModel> DeleteKRAWeightage(int weightageId);
-
+        public Task<KRAWeightage> GetKRAWeightageDetailsById(int weightageId);
+        public Task<ResponseModel> CreateorUpdateKRAWeightage(KRAWeightage weightageModel);
     }
 }

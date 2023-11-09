@@ -16,23 +16,22 @@ namespace DF_EvolutionAPI
            // ChangeTracker.LazyLoadingEnabled = false;
         }
 
-        public virtual DbSet<KRAWeightage> KRAWeightages { get; set; }
-        public virtual DbSet<QuarterDetails> QuarterDetails { get; set; }
-        public virtual DbSet<StatusLibrary> StatusLibrary { get;  set; }
-        public virtual DbSet<UserKRA> UserKRA { get; set; }
         public new DbSet<Roles> Roles { get; set; }
-        public virtual DbSet<RoleMapping> RoleMapping { get; set; }
+        public virtual DbSet<Client> Clients { get; set; }
+        public virtual DbSet<UserKRA> UserKRA { get; set; }
+        public virtual DbSet<Project> Projects { get; set; }
+        public virtual DbSet<Resource> Resources { get; set; }
         public virtual DbSet<KRALibrary> KRALibrary { get; set; }
+        public virtual DbSet<Designation> Designation { get; set; }
+        public virtual DbSet<RoleMapping> RoleMapping { get; set; }
         public virtual DbSet<UserApproval> UserApproval { get; set; }
+        public virtual DbSet<BusinessUnit> BusinessUnits { get; set; }
+        public virtual DbSet<KRAWeightage> KRAWeightages { get; set; }
+        public virtual DbSet<StatusLibrary> StatusLibrary { get;  set; }
+        public virtual DbSet<QuarterDetails> QuarterDetails { get; set; }
+        public virtual DbSet<ProjectResource> ProjectResources { get; set; }
         public virtual DbSet<AppraisalHistory> AppraisalHistory { get; set; }
         public virtual DbSet<SubmissionStatus> SubmissionStatus { get; set; }
-        public virtual DbSet<Resource> Resources { get; set; }
-        public virtual DbSet<ProjectResource> ProjectResources { get; set; }
-        public virtual DbSet<Project> Projects { get; set; }
-        public virtual DbSet<BusinessUnit> BusinessUnits { get; set; }
-        public virtual DbSet<Client> Clients { get; set; }
-        public virtual DbSet<Designation> Designation { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
