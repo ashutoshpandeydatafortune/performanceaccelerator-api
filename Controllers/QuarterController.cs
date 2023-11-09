@@ -24,17 +24,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllQuarterList()
+        public async Task<IActionResult> GetAllQuarterList()
         {
             try
             {
-                var quarters = _quarterService.GetAllQuarterList();
-
+                var quarters = await _quarterService.GetAllQuarterList();
                 return Ok(quarters);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -45,19 +44,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/quarterId")]
-        public IActionResult GetQuarterDetailsById(int quarterId)
+        public async Task<IActionResult> GetQuarterDetailsById(int quarterId)
         {
             try
             {
-                var quarterDetails = _quarterService.GetQuarterDetailsById(quarterId);
+                var quarterDetails = await _quarterService.GetQuarterDetailsById(quarterId);
                 
                 if (quarterDetails == null) return NotFound();
                 
                 return Ok(quarterDetails);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -68,16 +67,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateQuarter(QuarterDetails quarterdetailsModel)
+        public async Task<IActionResult> CreateorUpdateQuarter(QuarterDetails quarterdetailsModel)
         {
             try
             {
-                var response = _quarterService.CreateorUpdateQuarter(quarterdetailsModel);
+                var response = await _quarterService.CreateorUpdateQuarter(quarterdetailsModel);
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -88,16 +87,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteQuarter(int quarterId)
+        public async Task<IActionResult> DeleteQuarter(int quarterId)
         {
             try
             {
-                var response = _quarterService.DeleteQuarter(quarterId);
+                var response = await _quarterService.DeleteQuarter(quarterId);
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -108,16 +107,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetStatusDetailsByQuarterId(int quarterId)
+        public async Task<IActionResult> GetStatusDetailsByQuarterId(int quarterId)
         {
             try
             {
-                var model = _quarterService.GetStatusDetailsByQuarterId(quarterId);
+                var model = await _quarterService.GetStatusDetailsByQuarterId(quarterId);
                 return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -128,16 +127,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetQuarterDetailsByStatusId(int statusId)
+        public async Task<IActionResult> GetQuarterDetailsByStatusId(int statusId)
         {
             try
             {
-                var model = _quarterService.GetStatusDetailsByQuarterId(statusId);
+                var model = await _quarterService.GetStatusDetailsByQuarterId(statusId);
                 return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

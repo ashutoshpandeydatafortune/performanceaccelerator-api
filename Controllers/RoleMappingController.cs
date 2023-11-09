@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -9,7 +10,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class RoleMappingController : Controller
     {
-        IRoleMappingService _roleMappingService;
+        private IRoleMappingService _roleMappingService;
+
         public RoleMappingController(IRoleMappingService roleMappingService)
         {
             _roleMappingService = roleMappingService;
@@ -21,17 +23,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllRoleMappingList()
+        public async Task<IActionResult> GetAllRoleMappingList()
         {
             try
             {
-                var rolesmappinglist = _roleMappingService.GetAllRoleMappingList();
-                if (rolesmappinglist.Result == null) return NotFound();
-                return Ok(rolesmappinglist.Result);
+                var rolesmappinglist = await _roleMappingService.GetAllRoleMappingList();
+                return Ok(rolesmappinglist);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -42,17 +43,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/rolesMappingId")]
-        public IActionResult GetRoleMappingById(int rolesMappingId)
+        public async Task<IActionResult> GetRoleMappingById(int roleId)
         {
             try
             {
-                var rolesMapping = _roleMappingService.GetRoleMappingByRoleId(rolesMappingId);
-                if (rolesMapping.Result == null) return NotFound();
-                return Ok(rolesMapping.Result);
+                var roleMappings = await _roleMappingService.GetRoleMappingByRoleId(roleId);
+                return Ok(roleMappings);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -63,16 +63,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateRoleMapping(RoleMapping rolesMappingModel)
+        public async Task<IActionResult> CreateorUpdateRoleMapping(RoleMapping rolesMappingModel)
         {
             try
             {
-                var model = _roleMappingService.CreateorUpdateRoleMapping(rolesMappingModel);
-                return Ok(model.Result);
+                var model = await _roleMappingService.CreateorUpdateRoleMapping(rolesMappingModel);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -83,16 +83,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteRoleMapping(int roleMappingId)
+        public async Task<IActionResult> DeleteRoleMapping(int roleMappingId)
         {
             try
             {
-                var model = _roleMappingService.DeleteRoleMapping(roleMappingId);
-                return Ok(model.Result);
+                var model = await _roleMappingService.DeleteRoleMapping(roleMappingId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -103,16 +103,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetRoleMappingbyRoleId(int roleId)
+        public async Task<IActionResult> GetRoleMappingbyRoleId(int roleId)
         {
             try
             {
-                var model = _roleMappingService.GetRoleMappingByRoleId(roleId);
-                return Ok(model.Result);
+                var model = await _roleMappingService.GetRoleMappingByRoleId(roleId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -123,16 +123,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetRoleMappingbyUserId(int userId)
+        public async Task<IActionResult> GetRoleMappingbyUserId(int userId)
         {
             try
             {
-                var model = _roleMappingService.GetRoleMappingByUserId(userId);
-                return Ok(model.Result);
+                var model = await _roleMappingService.GetRoleMappingByUserId(userId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using DF_EvolutionAPI.Services.Designations;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -21,19 +22,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetDesignationDetails(string designationName)
+        public async Task<IActionResult> GetDesignationDetails(string designationName)
         {
             try
             {
-                var designation = _designationService.GetDesignationDetailsByDesignationName(designationName);
+                var designation = await _designationService.GetDesignationDetailsByDesignationName(designationName);
 
                 if (designation == null) return NotFound();
                 
                 return Ok(designation);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -44,17 +45,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetResourcesByDesignationName/{designationName}")]
-        public IActionResult GetResourcesByDesignationName(string designationName)
+        public async Task<IActionResult> GetResourcesByDesignationName(string designationName)
         {
             try
             {
-                var resources = _designationService.GetResourcesByDesignationName(designationName);
-
+                var resources = await _designationService.GetResourcesByDesignationName(designationName);
                 return Ok(resources);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

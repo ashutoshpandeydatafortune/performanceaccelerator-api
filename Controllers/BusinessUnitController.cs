@@ -30,13 +30,14 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var businessUnits = await _businessUnitService.GetAllBusinessUnits();
+
                 if (businessUnits == null) return NotFound();
+                
                 return Ok(businessUnits);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -51,17 +52,12 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var clients = await _businessUnitService.GetAllClientsBusinessUnitId(businessUnitId);
-                if (clients == null) return NotFound();
-
                 return Ok(clients);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
-
-
     }
 }

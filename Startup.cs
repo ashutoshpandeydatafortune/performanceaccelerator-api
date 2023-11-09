@@ -62,18 +62,17 @@ namespace DF_EvolutionAPI
             services.AddScoped<IProjectResourceService, ProjectResourceService>();
 
             //DF Evolution tables
-            services.AddScoped<IKRAWeightageService, KRAWeightageService>();
-            services.AddScoped<IQuarterService, QuarterService>();
-            services.AddScoped<IStatusService, StatusService>();
             services.AddScoped<IRolesService, RolesService>();
-            services.AddScoped<IRoleMappingService, RoleMappingService>();
-            services.AddScoped<IKRAService, KRAService>();
-            services.AddScoped<IKRALibraryService, KRALibraryService>();
+            services.AddScoped<IStatusService, StatusService>();
+            services.AddScoped<IQuarterService, QuarterService>();
             services.AddScoped<IUserKRAService, UserKRAService>();
+            services.AddScoped<IKRALibraryService, KRALibraryService>();
+            services.AddScoped<IDesignationService, DesignationService>();
+            services.AddScoped<IRoleMappingService, RoleMappingService>();
+            services.AddScoped<IKRAWeightageService, KRAWeightageService>();
             services.AddScoped<IUserApprovalService, UserApprovalService>();
             services.AddScoped<ISubmissionStatusService, SubmissionStatusService>();
             services.AddScoped<IAppraisalHistoryService, AppraisalHistoryService>();
-            services.AddScoped<IDesignationService, DesignationService>();
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>

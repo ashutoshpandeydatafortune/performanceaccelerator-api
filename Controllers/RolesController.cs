@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -9,7 +10,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class RolesController : Controller
     {
-        IRolesService _rolesService;
+        private IRolesService _rolesService;
+
         public RolesController(IRolesService rolesService)
         {
             _rolesService = rolesService;
@@ -21,17 +23,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllRoleList()
+        public async Task<IActionResult> GetAllRoleList()
         {
             try
             {
-                var roles = _rolesService.GetAllRoleList();
-                if (roles.Result == null) return NotFound();
-                return Ok(roles.Result);
+                var roles = await _rolesService.GetAllRoleList();
+                return Ok(roles);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -42,17 +43,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/roleId")]
-        public IActionResult GetRoleById(int roleId)
+        public async Task<IActionResult> GetRoleById(int roleId)
         {
             try
             {
-                var role = _rolesService.GetRoleById(roleId);
-                if (role.Result == null) return NotFound();
-                return Ok(role.Result);
+                var role = await _rolesService.GetRoleById(roleId);
+                
+                if (role == null) return NotFound();
+                
+                return Ok(role);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -63,16 +66,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateRole(Roles roleModel)
+        public async Task<IActionResult> CreateorUpdateRole(Roles roleModel)
         {
             try
             {
-                var model = _rolesService.CreateorUpdateRole(roleModel);
-                return Ok(model.Result);
+                var model = await _rolesService.CreateorUpdateRole(roleModel);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -83,16 +86,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteRole(int roleId)
+        public async Task<IActionResult> DeleteRole(int roleId)
         {
             try
             {
-                var model = _rolesService.DeleteRole(roleId);
-                return Ok(model.Result);
+                var model = await _rolesService.DeleteRole(roleId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

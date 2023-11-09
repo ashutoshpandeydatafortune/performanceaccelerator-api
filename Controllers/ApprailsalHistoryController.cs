@@ -1,8 +1,8 @@
 ﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Services;
 using DF_EvolutionAPI.Services.History;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -10,7 +10,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class ApprailsalHistoryController : Controller
     {
-        IAppraisalHistoryService _appraisalHistoryService;
+        private IAppraisalHistoryService _appraisalHistoryService;
+
         public ApprailsalHistoryController(IAppraisalHistoryService appraisalHistoryService)
         {
             _appraisalHistoryService = appraisalHistoryService;
@@ -27,12 +28,14 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var appraisals = _appraisalHistoryService.GetAllAppraisalHistoryList();
+
                 if (appraisals.Result == null) return NotFound();
+                
                 return Ok(appraisals.Result);
             }
             catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -43,17 +46,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/appraisalHistoryId")]
-        public IActionResult GetAppraisalHistoryById(int appraisalHistoryId)
+        public async Task<IActionResult> GetAppraisalHistoryById(int appraisalHistoryId)
         {
             try
             {
-                var appraisalHistory = _appraisalHistoryService.GetAppraisalHistoryById(appraisalHistoryId);
-                if (appraisalHistory.Result == null) return NotFound();
-                return Ok(appraisalHistory.Result);
+                var appraisalHistory = await _appraisalHistoryService.GetAppraisalHistoryById(appraisalHistoryId);
+
+                if (appraisalHistory == null) return NotFound();
+                
+                return Ok(appraisalHistory);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -64,12 +69,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateAppraisalHistory(AppraisalHistory appraisalHistoryModel)
+        public async Task<IActionResult> CreateorUpdateAppraisalHistory(AppraisalHistory appraisalHistoryModel)
         {
             try
             {
-                var model = _appraisalHistoryService.CreateorUpdateAppraisalHistory(appraisalHistoryModel);
-                return Ok(model.Result);
+                var model = await _appraisalHistoryService.CreateorUpdateAppraisalHistory(appraisalHistoryModel);
+                return Ok(model);
             }
             catch (Exception)
             {
@@ -84,16 +89,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteAppraisalHistory(int appraisalHistoryId)
+        public async Task<IActionResult> DeleteAppraisalHistory(int appraisalHistoryId)
         {
             try
             {
-                var model = _appraisalHistoryService.DeleteAppraisalHistory(appraisalHistoryId);
-                return Ok(model.Result);
+                var model = await _appraisalHistoryService.DeleteAppraisalHistory(appraisalHistoryId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -104,16 +109,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAppraisalHistoryByUserId(int userId)
+        public async Task<IActionResult> GetAppraisalHistoryByUserId(int userId)
         {
             try
             {
-                var model = _appraisalHistoryService.GetAppraisalHistoryByUserId(userId);
-                return Ok(model.Result);
+                var model = await _appraisalHistoryService.GetAppraisalHistoryByUserId(userId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -124,16 +129,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetUserDetailsByAppraisalHistoryId(int appraisalHistoryId)
+        public async Task<IActionResult> GetUserDetailsByAppraisalHistoryId(int appraisalHistoryId)
         {
             try
             {
-                var model = _appraisalHistoryService.GetUserDetailsByAppraisalHistoryId(appraisalHistoryId);
-                return Ok(model.Result);
+                var model = await _appraisalHistoryService.GetUserDetailsByAppraisalHistoryId(appraisalHistoryId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 

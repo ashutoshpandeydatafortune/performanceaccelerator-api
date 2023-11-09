@@ -1,6 +1,5 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class ResourceController : ControllerBase
     {
-        IResourceService _resourceService;
+        private IResourceService _resourceService;
+
         public ResourceController(IResourceService resourceService)
         {
             _resourceService = resourceService;
@@ -29,14 +29,11 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var resources = await _resourceService.GetAllResources();
-                if (resources == null) return NotFound();
-
                 return Ok(resources);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -50,21 +47,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                List<ProjectResource> projectResources = new List<ProjectResource>();
-                List<Resource> resourcesDetails = new List<Resource>();
-                Project projects = new Project();
-
-                resourcesDetails = await _resourceService.GetAllResourceDetailsByResourceId(resourceId);
-                if (resourcesDetails == null) return NotFound();
-
-                return Ok(resourcesDetails);
+                List<Resource> resources = await _resourceService.GetAllResourceDetailsByResourceId(resourceId);
+                return Ok(resources);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
-
     }
 }

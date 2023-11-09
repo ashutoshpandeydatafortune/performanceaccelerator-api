@@ -4,6 +4,7 @@ using DF_EvolutionAPI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -11,7 +12,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class UserApprovalController : Controller
     {
-        IUserApprovalService _userApprovalService;
+        private IUserApprovalService _userApprovalService;
+
         public UserApprovalController(IUserApprovalService userApprovalService)
         {
             _userApprovalService = userApprovalService;
@@ -23,17 +25,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllUserApprovals()
+        public async Task<IActionResult> GetAllUserApprovals()
         {
             try
             {
-                var approvals = _userApprovalService.GetAllApprovalList();
-                if (approvals.Result == null) return NotFound();
-                return Ok(approvals.Result);
+                var approvals = await _userApprovalService.GetAllApprovalList();
+                return Ok(approvals);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -44,17 +45,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/userApprovalId")]
-        public IActionResult GetUserApprovalById(int userApprovalId)
+        public async Task<IActionResult> GetUserApprovalById(int userApprovalId)
         {
             try
             {
-                var status = _userApprovalService.GetApprovalById(userApprovalId);
-                if (status.Result == null) return NotFound();
-                return Ok(status.Result);
+                var status = await _userApprovalService.GetApprovalById(userApprovalId);
+
+                if (status == null) return NotFound();
+
+                return Ok(status);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -65,25 +68,21 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateUserApproval(List<UserApproval> userApprovalModel)
+        public async Task<IActionResult> CreateorUpdateUserApproval(List<UserApproval> userApprovalModel)
         {
             try
             {
                 ResponseModel model = new ResponseModel();
                 foreach (var item in userApprovalModel)
                 {
-
-                    var model1 = _userApprovalService.CreateorUpdateApproval(item);
-                    model = model1.Result;
-
+                    model = await _userApprovalService.CreateorUpdateApproval(item);
                 }
 
-              //  var model = _userApprovalService.CreateorUpdateApproval(userApprovalModel);
                 return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -94,16 +93,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteUserApproval(int userApprovalId)
+        public async Task<IActionResult> DeleteUserApproval(int userApprovalId)
         {
             try
             {
-                var model = _userApprovalService.DeleteApproval(userApprovalId);
-                return Ok(model.Result);
+                var model = await _userApprovalService.DeleteApproval(userApprovalId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

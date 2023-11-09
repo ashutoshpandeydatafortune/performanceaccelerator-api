@@ -13,7 +13,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class UserKRAController : Controller
     {
-        IUserKRAService _userKRAService;
+        private IUserKRAService _userKRAService;
+
         public UserKRAController(IUserKRAService userKRAService)
         {
             _userKRAService = userKRAService;
@@ -25,17 +26,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllUserKRAs()
+        public async Task<IActionResult> GetAllUserKRAs()
         {
             try
             {
-                var userKRAs = _userKRAService.GetAllUserKRAList();
-                if (userKRAs.Result == null) return NotFound();
-                return Ok(userKRAs.Result);
+                var userKRAs = await _userKRAService.GetAllUserKRAList();
+                return Ok(userKRAs);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -46,17 +46,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/userKRAId")]
-        public IActionResult GetuserKRAById(int userKRAId)
+        public async Task<IActionResult> GetuserKRAById(int userKRAId)
         {
             try
             {
-                var userKRA = _userKRAService.GetUserKRAById(userKRAId);
-                if (userKRA.Result == null) return NotFound();
-                return Ok(userKRA.Result);
+                var userKRA = await _userKRAService.GetUserKRAById(userKRAId);
+
+                if (userKRA == null) return NotFound();
+
+                return Ok(userKRA);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -66,19 +68,14 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var USerKRADetails = await _userKRAService.GetKRAsByUserId(UserId);
-                if (USerKRADetails == null) return NoContent();
-                return Ok(USerKRADetails);
-
-               
+                var userKRADetails = await _userKRAService.GetKRAsByUserId(UserId);
+                return Ok(userKRADetails);               
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
-
-
 
         /// <summary>
         /// create or update user KRA
@@ -87,25 +84,21 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateUserKRA(List<UserKRA> userKRAModel)
+        public async Task<IActionResult> CreateorUpdateUserKRA(List<UserKRA> userKRAModel)
         {
             try
             {
-                // Boolean model;
                 ResponseModel model = new ResponseModel();
                 foreach (var item in userKRAModel)
-                {
-                    
-                    var model1 = _userKRAService.CreateorUpdateUserKRA(item) ;
-                    model = model1.Result;
-                    
+                {                    
+                    model = await _userKRAService.CreateorUpdateUserKRA(item) ;
                 }
 
                 return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -116,18 +109,17 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteUserKRA(int userKRAId)
+        public async Task<IActionResult> DeleteUserKRA(int userKRAId)
         {
             try
             {
-                var model = _userKRAService.DeleteUserKRA(userKRAId);
-                return Ok(model.Result);
+                var model = await _userKRAService.DeleteUserKRA(userKRAId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }
 }
-

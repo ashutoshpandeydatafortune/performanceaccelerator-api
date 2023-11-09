@@ -1,5 +1,4 @@
 ﻿using DF_EvolutionAPI.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -10,7 +9,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class ProjectController : ControllerBase
     {
-        IProjectService _projectService;
+        private IProjectService _projectService;
+
         public ProjectController(IProjectService projectService)
         {
             _projectService = projectService;
@@ -29,13 +29,11 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var projects = await _projectService.GetAllProjects();
-                if (projects == null) return NotFound();
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -49,20 +47,17 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var projects = await _projectService.GetProjectByProjectId(projectId);
-                if (projects == null) return NotFound();
-                return Ok(projects);
+                var project = await _projectService.GetProjectByProjectId(projectId);
+                
+                if (project == null) return NotFound();
+                
+                return Ok(project);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
         #endregion
-
-        //GetProjectstatusbyProjectstatusid
-        //projectleadid
-        //projectmanagerid
     }
 }

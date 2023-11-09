@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -10,7 +11,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class KRAWeightageController : ControllerBase
     {
-        IKRAWeightageService _kraWeightageService;
+        private IKRAWeightageService _kraWeightageService;
+
         public KRAWeightageController(IKRAWeightageService kraWeightageService)
         {
             _kraWeightageService = kraWeightageService;
@@ -22,18 +24,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllKRAWeightages()
+        public async Task<IActionResult> GetAllKRAWeightages()
         {
             try
             {
-                var weightages = _kraWeightageService.GetAllKRAWeightageList();
-                if (weightages.Result == null) return NotFound();
-                return Ok(weightages.Result);
+                var weightages = await _kraWeightageService.GetAllKRAWeightageList();
+                return Ok(weightages);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -44,18 +44,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/weightageid")]
-        public IActionResult GetKRAWeightageById(int weightageId)
+        public async Task<IActionResult> GetKRAWeightageById(int weightageId)
         {
             try
             {
-                var weightages = _kraWeightageService.GetKRAWeightageDetailsById(weightageId);
-                if (weightages.Result == null) return NotFound();
-                return Ok(weightages.Result);
+                var weightage = await _kraWeightageService.GetKRAWeightageDetailsById(weightageId);
+
+                if (weightage == null) return NotFound();
+                
+                return Ok(weightage);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -66,17 +67,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateKRAWeightage(KRAWeightage weightageModel)
+        public async Task<IActionResult> CreateorUpdateKRAWeightage(KRAWeightage weightageModel)
         {
             try
             {
-                var model = _kraWeightageService.CreateorUpdateKRAWeightage(weightageModel);
-                return Ok(model.Result);
+                var model = await _kraWeightageService.CreateorUpdateKRAWeightage(weightageModel);
+                return Ok(model);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -87,17 +87,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteKRAWeightage(int id)
+        public async Task<IActionResult> DeleteKRAWeightage(int id)
         {
             try
             {
-                var model = _kraWeightageService.DeleteKRAWeightage(id);
-                return Ok(model.Result);
+                var model = await _kraWeightageService.DeleteKRAWeightage(id);
+                return Ok(model);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

@@ -10,7 +10,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class ProjectResourceController : ControllerBase
     {
-        IProjectResourceService _projectResourceService;
+        private IProjectResourceService _projectResourceService;
+
         public ProjectResourceController(IProjectResourceService projectResourceService)
         {
             _projectResourceService = projectResourceService;
@@ -29,13 +30,11 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var projectResources = await _projectResourceService.GetAllProjectResources();
-                if (projectResources == null) return NotFound();
                 return Ok(projectResources);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -50,13 +49,11 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var projectResources = await _projectResourceService.GetAllProjectResourcesByResourceId(resourceId);
-                if (projectResources == null) return NotFound();
                 return Ok(projectResources);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -71,13 +68,11 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var projectResources = await _projectResourceService.GetAllProjectResourcesByProjectId(projectId);
-                if (projectResources == null) return NotFound();
                 return Ok(projectResources);
             }
             catch (Exception ex)
             {
-                var error = ex.Message.ToString();
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 

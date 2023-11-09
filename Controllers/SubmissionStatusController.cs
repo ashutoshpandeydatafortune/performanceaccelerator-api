@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services.Submission;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -10,7 +11,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class SubmissionStatusController : Controller
     {
-        ISubmissionStatusService _submissionStatusService;
+        private ISubmissionStatusService _submissionStatusService;
+
         public SubmissionStatusController(ISubmissionStatusService submissionStatusService)
         {
             _submissionStatusService = submissionStatusService;
@@ -22,17 +24,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllSubmissionStatusList()
+        public async Task<IActionResult> GetAllSubmissionStatusList()
         {
             try
             {
-                var submissionstatuses = _submissionStatusService.GetAllSubmissionStatusList();
-                if (submissionstatuses.Result == null) return NotFound();
-                return Ok(submissionstatuses.Result);
+                var submissionstatuses = await _submissionStatusService.GetAllSubmissionStatusList();
+                return Ok(submissionstatuses);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -43,17 +44,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/submissionStatusId")]
-        public IActionResult GetSubmissionStatusById(int submissionStatusId)
+        public async Task<IActionResult> GetSubmissionStatusById(int submissionStatusId)
         {
             try
             {
-                var submissionstatus = _submissionStatusService.GetSubmissionStatusById(submissionStatusId);
-                if (submissionstatus.Result == null) return NotFound();
-                return Ok(submissionstatus.Result);
+                var submissionstatus = await _submissionStatusService.GetSubmissionStatusById(submissionStatusId);
+                
+                if (submissionstatus == null) return NotFound();
+                
+                return Ok(submissionstatus);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -64,16 +67,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateSubmissionStatus(SubmissionStatus submissionStatusModel)
+        public async Task<IActionResult> CreateorUpdateSubmissionStatus(SubmissionStatus submissionStatusModel)
         {
             try
             {
-                var model = _submissionStatusService.CreateorUpdateSubmissionStatus(submissionStatusModel);
-                return Ok(model.Result);
+                var model = await _submissionStatusService.CreateorUpdateSubmissionStatus(submissionStatusModel);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -84,16 +87,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteSubmissionStatus(int submissionStatusId)
+        public async Task<IActionResult> DeleteSubmissionStatus(int submissionStatusId)
         {
             try
             {
-                var model = _submissionStatusService.DeleteSubmissionStatus(submissionStatusId);
-                return Ok(model.Result);
+                var model = await _submissionStatusService.DeleteSubmissionStatus(submissionStatusId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

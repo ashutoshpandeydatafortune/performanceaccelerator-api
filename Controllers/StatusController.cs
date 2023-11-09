@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -9,7 +10,8 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class StatusController : ControllerBase
     {
-        IStatusService _statusService;
+        private IStatusService _statusService;
+
         public StatusController(IStatusService statusService)
         {
             _statusService = statusService;
@@ -21,17 +23,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetAllStatusList()
+        public async Task<IActionResult> GetAllStatusList()
         {
             try
             {
-                var statuses = _statusService.GetAllStatusList();
-                if (statuses.Result == null) return NotFound();
-                return Ok(statuses.Result);
+                var statuses = await _statusService.GetAllStatusList();
+                return Ok(statuses);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -42,17 +43,19 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/statusId")]
-        public IActionResult GetStatusById(int statusId)
+        public async Task<IActionResult> GetStatusById(int statusId)
         {
             try
             {
-                var status = _statusService.GetStatusById(statusId);
-                if (status.Result == null) return NotFound();
-                return Ok(status.Result);
+                var status = await _statusService.GetStatusById(statusId);
+
+                if (status == null) return NotFound();
+
+                return Ok(status);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -63,16 +66,16 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult CreateorUpdateStatus(StatusLibrary statusModel)
+        public async Task<IActionResult> CreateorUpdateStatus(StatusLibrary statusModel)
         {
             try
             {
-                var model = _statusService.CreateorUpdateStatus(statusModel);
-                return Ok(model.Result);
+                var model = await _statusService.CreateorUpdateStatus(statusModel);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -83,19 +86,18 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public IActionResult DeleteStatus(int statusId)
+        public async Task<IActionResult> DeleteStatus(int statusId)
         {
             try
             {
-                var model = _statusService.DeleteStatus(statusId);
-                return Ok(model.Result);
+                var model = await _statusService.DeleteStatus(statusId);
+                return Ok(model);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
-
     }
 }
 
