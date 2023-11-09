@@ -16,19 +16,19 @@ namespace DF_EvolutionAPI.Services.Designations
             _dbcontext = dbContext;
         }
 
-        public Designation GetDesignationDetailsByDesignationName(string designation)
+        public async Task<Designation> GetDesignationDetailsByDesignationName(string designation)
         {
             Designation designationDetails;
 
             try
             {
-                designationDetails = (
+                designationDetails = await (
                     from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
                     select new Designation
                     {
                         DesignationId = pr.DesignationId,
                         DesignationName = pr.DesignationName
-                    }).FirstOrDefault();
+                    }).FirstOrDefaultAsync();
             }
             catch (Exception)
             {
@@ -38,23 +38,23 @@ namespace DF_EvolutionAPI.Services.Designations
             return designationDetails;
         }
 
-        public List<Resource> GetResourcesByDesignationName(string designation)
+        public async Task<List<Resource>> GetResourcesByDesignationName(string designation)
         {
             List<Resource> resources = new List<Resource>();
 
             try
             {
-                var designationDetails = (
+                var designationDetail = await (
                     from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
                     select new Designation
                     {
                          DesignationId = pr.DesignationId,
                          DesignationName = pr.DesignationName
-                    }).FirstOrDefault();
+                    }).FirstOrDefaultAsync();
 
-                if (designationDetails != null)
+                if (designationDetail != null)
                 {
-                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designationDetails.DesignationId)
+                    resources = await _dbcontext.Resources.Where(a => a.DesignationId == designationDetail.DesignationId)
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
@@ -62,7 +62,7 @@ namespace DF_EvolutionAPI.Services.Designations
                                     ResourceProjectList = x.ResourceProjectList,
                                     EmailId = x.EmailId,
                                     DesignationId = x.DesignationId
-                                }).ToList();
+                                }).ToListAsync();
                 }
             }
             catch (Exception)

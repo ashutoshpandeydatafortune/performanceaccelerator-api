@@ -7,10 +7,8 @@ namespace DF_EvolutionAPI.Services
     public interface IBusinessUnitService
     {
         public Task<List<BusinessUnit>> GetAllBusinessUnits();
-
-        public Task<List<BusinessUnit>> GetAllClientsBusinessUnits(int? businessUnitId);
-
         public Task<List<Client>> GetAllClientsBusinessUnitId(int? businessUnitId);
+        public Task<List<BusinessUnit>> GetAllClientsBusinessUnits(int? businessUnitId);
 
     }
 }

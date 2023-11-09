@@ -5,7 +5,6 @@ namespace DF_EvolutionAPI.Models
 {
     public class UserKRA : BaseEntity
     {
-        public int Id { get; set; }
         public string DeveloperComment { get; set; }
         public string ManagerComment { get; set; }
         public int? DeveloperRating { get; set; }
@@ -21,12 +20,12 @@ namespace DF_EvolutionAPI.Models
         public int? RejectedBy { get; set; }
         public string Reason { get; set; }
         public string Comment { get; set; }
-        public int? AppraisalRange {get; set; }
+        public int? AppraisalRange { get; set; }
         public int IsActive { get; set; }
         public int IsDeleted { get; set; }
     }
 
-    public class UserKRADetails:BaseEntity
+    public class UserKRADetails : BaseEntity
     {
         [NotMapped]
         public int Id { get; set; }
@@ -35,7 +34,7 @@ namespace DF_EvolutionAPI.Models
         public int? DeveloperRating { get; set; }
         public int? ManagerRating { get; set; }
         public int? FinalRating { get; set; }
-        public string FinalComment { get;set; }
+        public string FinalComment { get; set; }
         public double Score { get; set; }
         public int Status { get; set; }
         public string StatusName { get; set; }

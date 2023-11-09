@@ -10,6 +10,7 @@ namespace DF_EvolutionAPI.Services
     public class ClientService: IClientService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public ClientService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
@@ -23,6 +24,7 @@ namespace DF_EvolutionAPI.Services
         public async Task<Client> GetClientByClientId(int clientId)
         {
             Client client;
+
             try
             {
                 client = await _dbcontext.FindAsync<Client>(clientId);
@@ -31,6 +33,7 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
+            
             return client;
         }
     }

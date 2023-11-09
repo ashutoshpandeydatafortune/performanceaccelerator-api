@@ -11,6 +11,7 @@ namespace DF_EvolutionAPI.Services
     public class StatusService : IStatusService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public StatusService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
@@ -24,6 +25,7 @@ namespace DF_EvolutionAPI.Services
         public async Task<StatusLibrary> GetStatusById(int statusId)
         {
             StatusLibrary statuslibrary;
+
             try
             {
                 statuslibrary = await _dbcontext.FindAsync<StatusLibrary>(statusId);
@@ -32,25 +34,30 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
+            
             return statuslibrary;
         }
 
         public async Task<ResponseModel> CreateorUpdateStatus(StatusLibrary statusModel)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                StatusLibrary _temp = await GetStatusById(statusModel.Id);
-                if (_temp != null)
+                StatusLibrary statusLibrary = await GetStatusById(statusModel.Id);
+
+                if (statusLibrary != null)
                 {
-                    _temp.Id = statusModel.Id;
-                    _temp.StatusName = statusModel.StatusName;
-                    _temp.StatusType = statusModel.StatusType;
-                    _temp.Description = statusModel.Description;
-                    _temp.IsActive = 1;
-                    _temp.UpdateBy = 1;
-                    _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<StatusLibrary>(_temp);
+                    statusLibrary.Id = statusModel.Id;
+                    statusLibrary.StatusName = statusModel.StatusName;
+                    statusLibrary.StatusType = statusModel.StatusType;
+                    statusLibrary.Description = statusModel.Description;
+                    statusLibrary.IsActive = 1;
+                    statusLibrary.UpdateBy = 1;
+                    statusLibrary.UpdateDate = DateTime.Now;
+                    
+                    _dbcontext.Update(statusLibrary);
+                    
                     model.Messsage = "Status Updated Successfully";
                 }
                 else
@@ -60,10 +67,14 @@ namespace DF_EvolutionAPI.Services
                     statusModel.UpdateBy = 1;
                     statusModel.CreateDate = DateTime.Now;
                     statusModel.UpdateDate = DateTime.Now;
-                    _dbcontext.Add<StatusLibrary>(statusModel);
+
+                    _dbcontext.Add(statusModel);
+                    
                     model.Messsage = "Status Inserted Successfully";
                 }
+
                 _dbcontext.SaveChanges();
+                
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -71,6 +82,7 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
@@ -79,12 +91,15 @@ namespace DF_EvolutionAPI.Services
             ResponseModel model = new ResponseModel();
             try
             {
-                StatusLibrary _temp = await GetStatusById(statusId);
-                if (_temp != null)
+                StatusLibrary statusLibrary = await GetStatusById(statusId);
+
+                if (statusLibrary != null)
                 {
-                    _temp.IsDeleted = 1;
-                    _dbcontext.Update<StatusLibrary>(_temp);
+                    statusLibrary.IsDeleted = 1;
+
+                    _dbcontext.Update(statusLibrary);
                     _dbcontext.SaveChanges();
+
                     model.IsSuccess = true;
                     model.Messsage = "Status Deleted Successfully";
                 }
@@ -99,6 +114,7 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
     }

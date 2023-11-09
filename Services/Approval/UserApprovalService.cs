@@ -11,10 +11,12 @@ namespace DF_EvolutionAPI.Services
     public class UserApprovalService : IUserApprovalService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public UserApprovalService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
         }
+
         public async Task<List<UserApproval>> GetAllApprovalList()
         {
             return await _dbcontext.UserApproval.Where(c => c.IsActive == 1).ToListAsync();
@@ -23,6 +25,7 @@ namespace DF_EvolutionAPI.Services
         public async Task<UserApproval> GetApprovalById(int userApprovalId)
         {
             UserApproval userApproval;
+            
             try
             {
                 userApproval = await _dbcontext.FindAsync<UserApproval>(userApprovalId);
@@ -31,26 +34,31 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
+        
             return userApproval;
         }
         public async Task<ResponseModel> CreateorUpdateApproval(UserApproval userApprovalModel)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                UserApproval _temp = await GetApprovalById(userApprovalModel.Id);
-                if (_temp != null)
+                UserApproval userApproval = await GetApprovalById(userApprovalModel.Id);
+
+                if (userApproval != null)
                 {
-                    _temp.Comment = userApprovalModel.Comment;
-                    _temp.ApprovalStatus = userApprovalModel.ApprovalStatus;
-                    _temp.ApprovedBy = userApprovalModel.ApprovedBy;
-                    _temp.Reason = userApprovalModel.Reason;
-                    _temp.RejectedBy = userApprovalModel.RejectedBy;
-                    _temp.AppraisalRange = userApprovalModel.AppraisalRange;
-                    _temp.IsActive = 1;
-                    _temp.UpdateBy = 1;
-                    _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<UserApproval>(_temp);
+                    userApproval.Comment = userApprovalModel.Comment;
+                    userApproval.ApprovalStatus = userApprovalModel.ApprovalStatus;
+                    userApproval.ApprovedBy = userApprovalModel.ApprovedBy;
+                    userApproval.Reason = userApprovalModel.Reason;
+                    userApproval.RejectedBy = userApprovalModel.RejectedBy;
+                    userApproval.AppraisalRange = userApprovalModel.AppraisalRange;
+                    userApproval.IsActive = 1;
+                    userApproval.UpdateBy = 1;
+                    userApproval.UpdateDate = DateTime.Now;
+
+                    _dbcontext.Update(userApproval);
+                    
                     model.Messsage = "User Approval Update Successfully";
                 }
                 else
@@ -62,10 +70,14 @@ namespace DF_EvolutionAPI.Services
                     userApprovalModel.UpdateBy = 1;
                     userApprovalModel.CreateDate = DateTime.Now;
                     userApprovalModel.UpdateDate = DateTime.Now;
-                    _dbcontext.Add<UserApproval>(userApprovalModel);
+
+                    _dbcontext.Add(userApprovalModel);
+                    
                     model.Messsage = "User Approval Inserted Successfully";
                 }
+
                 _dbcontext.SaveChanges();
+                
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -73,19 +85,24 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
         public async Task<ResponseModel> DeleteApproval(int userApprovalId)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                UserApproval _temp = await GetApprovalById(userApprovalId);
-                if (_temp != null)
+                UserApproval userApproval = await GetApprovalById(userApprovalId);
+            
+                if (userApproval != null)
                 {
-                    _temp.IsDeleted = 1;
-                    _dbcontext.Update<UserApproval>(_temp);
+                    userApproval.IsDeleted = 1;
+
+                    _dbcontext.Update(userApproval);
                     _dbcontext.SaveChanges();
+                    
                     model.IsSuccess = true;
                     model.Messsage = "User ApprovalDeleted Successfully";
                 }
@@ -100,6 +117,7 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
     }

@@ -8,11 +8,8 @@ namespace DF_EvolutionAPI.Services
     public interface IStatusService
     {
         public Task<List<StatusLibrary>> GetAllStatusList();
-
-        public Task<StatusLibrary> GetStatusById(int statusId);
-
-        public Task<ResponseModel> CreateorUpdateStatus(StatusLibrary statusModel);
-
         public Task<ResponseModel> DeleteStatus(int statusId);
+        public Task<StatusLibrary> GetStatusById(int statusId);
+        public Task<ResponseModel> CreateorUpdateStatus(StatusLibrary statusModel);
     }
 }

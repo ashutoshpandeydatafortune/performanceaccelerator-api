@@ -8,11 +8,8 @@ namespace DF_EvolutionAPI.Services
     public interface IRolesService
     {
         public Task<List<Roles>> GetAllRoleList();
-
         public Task<Roles> GetRoleById(int roleId);
-
-        public Task<ResponseModel> CreateorUpdateRole(Roles rolesModel);
-
         public Task<ResponseModel> DeleteRole(int roleId);
+        public Task<ResponseModel> CreateorUpdateRole(Roles rolesModel);
     }
 }

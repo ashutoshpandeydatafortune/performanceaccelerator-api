@@ -11,6 +11,7 @@ namespace DF_EvolutionAPI.Services.Submission
     public class SubmissionStatusService : ISubmissionStatusService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public SubmissionStatusService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
@@ -24,6 +25,7 @@ namespace DF_EvolutionAPI.Services.Submission
         public async Task<SubmissionStatus> GetSubmissionStatusById(int submissionStatusId)
         {
             SubmissionStatus submissionStatus;
+
             try
             {
                 submissionStatus = await _dbcontext.FindAsync<SubmissionStatus>(submissionStatusId);
@@ -32,23 +34,28 @@ namespace DF_EvolutionAPI.Services.Submission
             {
                 throw;
             }
+            
             return submissionStatus;
         }
         public async Task<ResponseModel> CreateorUpdateSubmissionStatus(SubmissionStatus submissionstatusModel)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                SubmissionStatus _temp = await GetSubmissionStatusById(submissionstatusModel.Id);
-                if (_temp != null)
+                SubmissionStatus submissionStatus = await GetSubmissionStatusById(submissionstatusModel.Id);
+            
+                if (submissionStatus != null)
                 {
-                    _temp.SubmissionName = submissionstatusModel.SubmissionName;
-                    _temp.Description = submissionstatusModel.Description;
-                    _temp.StatusId = submissionstatusModel.StatusId;
-                    _temp.IsActive = 1;
-                    _temp.UpdateBy = 1;
-                    _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<SubmissionStatus>(_temp);
+                    submissionStatus.SubmissionName = submissionstatusModel.SubmissionName;
+                    submissionStatus.Description = submissionstatusModel.Description;
+                    submissionStatus.StatusId = submissionstatusModel.StatusId;
+                    submissionStatus.IsActive = 1;
+                    submissionStatus.UpdateBy = 1;
+                    submissionStatus.UpdateDate = DateTime.Now;
+
+                    _dbcontext.Update(submissionStatus);
+                    
                     model.Messsage = "Submission Status Update Successfully";
                 }
                 else
@@ -58,10 +65,14 @@ namespace DF_EvolutionAPI.Services.Submission
                     submissionstatusModel.UpdateBy = 1;
                     submissionstatusModel.CreateDate = DateTime.Now;
                     submissionstatusModel.UpdateDate = DateTime.Now;
-                    _dbcontext.Add<SubmissionStatus>(submissionstatusModel);
+
+                    _dbcontext.Add(submissionstatusModel);
+                    
                     model.Messsage = "Submission Status Inserted Successfully";
                 }
+
                 _dbcontext.SaveChanges();
+                
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -69,6 +80,7 @@ namespace DF_EvolutionAPI.Services.Submission
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
@@ -77,12 +89,15 @@ namespace DF_EvolutionAPI.Services.Submission
             ResponseModel model = new ResponseModel();
             try
             {
-                SubmissionStatus _temp = await GetSubmissionStatusById(submissionStatusId);
-                if (_temp != null)
+                SubmissionStatus submissionStatus = await GetSubmissionStatusById(submissionStatusId);
+
+                if (submissionStatus != null)
                 {
-                    _temp.IsDeleted = 1;
-                    _dbcontext.Update<SubmissionStatus>(_temp);
+                    submissionStatus.IsDeleted = 1;
+
+                    _dbcontext.Update(submissionStatus);
                     _dbcontext.SaveChanges();
+                    
                     model.IsSuccess = true;
                     model.Messsage = "Submission Status Deleted Successfully";
                 }
@@ -97,6 +112,7 @@ namespace DF_EvolutionAPI.Services.Submission
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
     }

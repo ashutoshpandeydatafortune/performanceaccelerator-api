@@ -2,7 +2,9 @@
 using DF_EvolutionAPI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -15,18 +17,18 @@ namespace DF_EvolutionAPI.Services
             _dbcontext = dbContext;
         }
 
-        public List<QuarterDetails> GetAllQuarterList()
+        public async Task<List<QuarterDetails>> GetAllQuarterList()
         {
-            return _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToList();
+            return await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToListAsync();
         }
 
-        public QuarterDetails GetQuarterDetailsById(int quarterId)
+        public async Task<QuarterDetails> GetQuarterDetailsById(int quarterId)
         {
             QuarterDetails quarterdetails;
             
             try
             {
-                quarterdetails = _dbcontext.Find<QuarterDetails>(quarterId);
+                quarterdetails = await _dbcontext.FindAsync<QuarterDetails>(quarterId);
             }
             catch (Exception) 
             {
@@ -36,13 +38,13 @@ namespace DF_EvolutionAPI.Services
             return quarterdetails;
         }
 
-        public ResponseModel CreateorUpdateQuarter(QuarterDetails quarterModel)
+        public async Task<ResponseModel> CreateorUpdateQuarter(QuarterDetails quarterModel)
         {
             ResponseModel model = new ResponseModel();
 
             try
             {
-                QuarterDetails quarterDetails = GetQuarterDetailsById(quarterModel.Id);
+                QuarterDetails quarterDetails = await GetQuarterDetailsById(quarterModel.Id);
 
                 if (quarterDetails != null)
                 {
@@ -54,7 +56,7 @@ namespace DF_EvolutionAPI.Services
                     quarterDetails.UpdateBy = 1;
                     quarterDetails.UpdateDate = DateTime.Now;
                     
-                    _dbcontext.Update<QuarterDetails>(quarterDetails);
+                    _dbcontext.Update(quarterDetails);
                     
                     model.Messsage = "Quarter Details Updated Successfully";
                 }
@@ -66,7 +68,7 @@ namespace DF_EvolutionAPI.Services
                     quarterModel.CreateDate = DateTime.Now;
                     quarterModel.UpdateDate = DateTime.Now;
                     
-                    _dbcontext.Add<QuarterDetails>(quarterModel);
+                    _dbcontext.Add(quarterModel);
                     
                     model.Messsage = "Quarter Details Inserted Successfully";
                 }
@@ -84,18 +86,18 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public ResponseModel DeleteQuarter(int quarterId)
+        public async Task<ResponseModel> DeleteQuarter(int quarterId)
         {
             ResponseModel model = new ResponseModel();
 
             try
             {
-                QuarterDetails quarterDetails = GetQuarterDetailsById(quarterId);
+                QuarterDetails quarterDetails = await GetQuarterDetailsById(quarterId);
 
                 if (quarterDetails != null)
                 {
                     quarterDetails.IsDeleted = 1;
-                    _dbcontext.Update<QuarterDetails>(quarterDetails);
+                    _dbcontext.Update(quarterDetails);
 
                     _dbcontext.SaveChanges();
 
@@ -117,14 +119,14 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public ResponseModel GetQuarterByStatusId(int statusId)
+        public async Task<ResponseModel> GetQuarterByStatusId(int statusId)
         {
             ResponseModel model = new ResponseModel();
             var quarterDetails = new List<QuarterDetails>();
 
             try
             {
-                quarterDetails = (
+                quarterDetails = await (
                     from qd in _dbcontext.QuarterDetails.Where(x => x.StatusId == statusId)
                     select new QuarterDetails
                     {
@@ -139,7 +141,7 @@ namespace DF_EvolutionAPI.Services
                         UpdateBy = qd.UpdateBy,
                         CreateDate = qd.CreateDate,
                         UpdateDate = qd.UpdateDate                                             
-                    }).ToList();
+                    }).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -150,13 +152,13 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public ResponseModel GetStatusDetailsByQuarterId(int quarterId)
+        public async Task<ResponseModel> GetStatusDetailsByQuarterId(int quarterId)
         {
             ResponseModel model = new ResponseModel();
 
             try
             {
-                QuarterDetails quarterDetails = GetQuarterDetailsById(quarterId);
+                QuarterDetails quarterDetails = await GetQuarterDetailsById(quarterId);
 
                 var status = (
                     from s in _dbcontext.KRAWeightages
@@ -181,6 +183,5 @@ namespace DF_EvolutionAPI.Services
 
             return model;
         }
-
     }
 }

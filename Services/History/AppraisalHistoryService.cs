@@ -11,10 +11,12 @@ namespace DF_EvolutionAPI.Services.History
     public class AppraisalHistoryService : IAppraisalHistoryService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public AppraisalHistoryService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
         }
+        
         public async Task<List<AppraisalHistory>> GetAllAppraisalHistoryList()
         {
             return await _dbcontext.AppraisalHistory.Where(c => c.IsActive == 1).ToListAsync();
@@ -22,33 +24,39 @@ namespace DF_EvolutionAPI.Services.History
 
         public async Task<AppraisalHistory> GetAppraisalHistoryById(int appraisalHistoryId)
         {
-            AppraisalHistory userApproval;
+            AppraisalHistory appraisalHistory;
+
             try
             {
-                userApproval = await _dbcontext.FindAsync<AppraisalHistory>(appraisalHistoryId);
+                appraisalHistory = await _dbcontext.FindAsync<AppraisalHistory>(appraisalHistoryId);
             }
             catch (Exception)
             {
                 throw;
             }
-            return userApproval;
+
+            return appraisalHistory;
         }
         public async Task<ResponseModel> CreateorUpdateAppraisalHistory(AppraisalHistory appraisalHistoryModel)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                AppraisalHistory _temp = await GetAppraisalHistoryById(appraisalHistoryModel.Id);
-                if (_temp != null)
+                AppraisalHistory appraisalHistory = await GetAppraisalHistoryById(appraisalHistoryModel.Id);
+
+                if (appraisalHistory != null)
                 {
-                    _temp.UserId = appraisalHistoryModel.UserId;
-                    _temp.LastAppraisal = appraisalHistoryModel.LastAppraisal;
-                    _temp.Percentage = appraisalHistoryModel.Percentage;
-                    _temp.LastAppraisalDate = appraisalHistoryModel.LastAppraisalDate;
-                    _temp.IsActive = 1;
-                    _temp.UpdateBy = 1;
-                    _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<AppraisalHistory>(_temp);
+                    appraisalHistory.UserId = appraisalHistoryModel.UserId;
+                    appraisalHistory.LastAppraisal = appraisalHistoryModel.LastAppraisal;
+                    appraisalHistory.Percentage = appraisalHistoryModel.Percentage;
+                    appraisalHistory.LastAppraisalDate = appraisalHistoryModel.LastAppraisalDate;
+                    appraisalHistory.IsActive = 1;
+                    appraisalHistory.UpdateBy = 1;
+                    appraisalHistory.UpdateDate = DateTime.Now;
+
+                    _dbcontext.Update(appraisalHistory);
+                    
                     model.Messsage = "Appraisal History Update Successfully";
                 }
                 else
@@ -58,10 +66,14 @@ namespace DF_EvolutionAPI.Services.History
                     appraisalHistoryModel.UpdateBy = 1;
                     appraisalHistoryModel.CreateDate = DateTime.Now;
                     appraisalHistoryModel.UpdateDate = DateTime.Now;
-                    _dbcontext.Add<AppraisalHistory>(appraisalHistoryModel);
+
+                    _dbcontext.Add(appraisalHistoryModel);
+                    
                     model.Messsage = "Appraisal History Inserted Successfully";
                 }
+
                 _dbcontext.SaveChanges();
+
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -69,20 +81,25 @@ namespace DF_EvolutionAPI.Services.History
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
         public async Task<ResponseModel> DeleteAppraisalHistory(int appraisalHistoryId)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                AppraisalHistory _temp = await GetAppraisalHistoryById(appraisalHistoryId);
-                if (_temp != null)
+                AppraisalHistory appraisalHistory = await GetAppraisalHistoryById(appraisalHistoryId);
+
+                if (appraisalHistory != null)
                 {
-                    _temp.IsDeleted = 1;
-                    _dbcontext.Update<AppraisalHistory>(_temp);
+                    appraisalHistory.IsDeleted = 1;
+
+                    _dbcontext.Update(appraisalHistory);
                     _dbcontext.SaveChanges();
+                    
                     model.IsSuccess = true;
                     model.Messsage = "User ApprovalDeleted Successfully";
                 }
@@ -97,42 +114,50 @@ namespace DF_EvolutionAPI.Services.History
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
-
 
         public async Task<ResponseModel> GetAppraisalHistoryByUserId(int userId)
         {
             ResponseModel model = new ResponseModel();
-            var appraisalHistoryDetails = new List<AppraisalHistory>();
+            var appraisalHistoryList = new List<AppraisalHistory>();
+
             try
             {
-                appraisalHistoryDetails = await (from ah in _dbcontext.AppraisalHistory.Where(x => x.UserId == userId)
-                                                 select new AppraisalHistory
-                                                 {
-                                                     CreateDate = ah.CreateDate,
-                                                     UpdateDate = ah.UpdateDate,
+                appraisalHistoryList = await (
+                    from ah in _dbcontext.AppraisalHistory.Where(x => x.UserId == userId)
+                    select new AppraisalHistory
+                    {
+                        CreateDate = ah.CreateDate,
+                        UpdateDate = ah.UpdateDate,
 
-                                                 }).ToListAsync();
+                    }).ToListAsync();
             }
             catch (Exception ex)
             {
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
         public async Task<ResponseModel> GetUserDetailsByAppraisalHistoryId(int appraisalHistoryId)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
                 AppraisalHistory appraisalHistory = await GetAppraisalHistoryById(appraisalHistoryId);
-                var userInfo = await (from s in _dbcontext.UserKRA
-                                      where s.Id == appraisalHistory.UserId && s.IsActive == 1
-                                      select s).FirstAsync();
+
+                var userInfo = await (
+                    from s in _dbcontext.UserKRA
+                    where s.Id == appraisalHistory.UserId && s.IsActive == 1
+                    select s).FirstAsync();
+
                 model.IsSuccess = true;
+
                 if (userInfo == null)
                 {
                     model.Messsage = "User Details Not Found";
@@ -146,6 +171,7 @@ namespace DF_EvolutionAPI.Services.History
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
     }

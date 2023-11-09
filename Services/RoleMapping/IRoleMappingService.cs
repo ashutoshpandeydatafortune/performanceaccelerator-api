@@ -13,7 +13,5 @@ namespace DF_EvolutionAPI.Services
         public Task<List<RoleMapping>> GetRoleMappingByRoleId(int roleId);
         public Task<List<RoleMapping>> GetRoleMappingByUserId(int userId);
         public Task<ResponseModel> CreateorUpdateRoleMapping(RoleMapping roleMappingModel);
-
-        //public Task<ResponseModel> GetRoleMappingByEmail(int roleMappingId);
     }
 }

@@ -21,13 +21,13 @@ namespace DF_EvolutionAPI.Services
             return await _dbcontext.Resources.Where(c => c.IsActive == 1).ToListAsync();
         }
 
-        public Task<Resource> GetResourceByEmailId(string emailId)
+        public async Task<Resource> GetResourceByEmailId(string emailId)
         {
             Resource resource;
 
             try
             {
-                resource = (
+                resource = await (
                     from r in _dbcontext.Resources.Where(x => x.EmailId == emailId)
                     select new Resource
                     {
@@ -35,14 +35,14 @@ namespace DF_EvolutionAPI.Services
                         ResourceName = r.ResourceName,
                         ReportingTo = r.ReportingTo
                     }
-                ).FirstOrDefault();
+                ).FirstOrDefaultAsync();
             }
             catch (Exception)
             {
                 throw;
             }
 
-            return Task.FromResult(resource);
+            return resource;
         }
 
         public async Task<List<Resource>> GetAllResourceDetailsByResourceId(int? resourceId)

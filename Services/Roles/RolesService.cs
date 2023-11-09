@@ -10,6 +10,7 @@ namespace DF_EvolutionAPI.Services
     public class RolesService : IRolesService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public RolesService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
@@ -22,32 +23,38 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<Roles> GetRoleById(int roleId)
         {
-            Roles quarterdetails;
+            Roles roles;
+
             try
             {
-                quarterdetails = await _dbcontext.FindAsync<Roles>(roleId);
+                roles = await _dbcontext.FindAsync<Roles>(roleId);
             }
             catch (Exception)
             {
                 throw;
             }
-            return quarterdetails;
+
+            return roles;
         }
 
         public async Task<ResponseModel> CreateorUpdateRole(Roles rolesModel)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                Roles _temp = await GetRoleById(rolesModel.Id);
-                if (_temp != null)
+                Roles role = await GetRoleById(rolesModel.Id);
+
+                if (role != null)
                 {
-                    _temp.RoleName = rolesModel.RoleName;
-                    _temp.Description = rolesModel.Description;
-                    _temp.IsActive = 1;
-                    _temp.UpdateBy = 1;
-                    _temp.UpdateDate = DateTime.Now;
-                    _dbcontext.Update<Roles>(_temp);
+                    role.RoleName = rolesModel.RoleName;
+                    role.Description = rolesModel.Description;
+                    role.IsActive = 1;
+                    role.UpdateBy = 1;
+                    role.UpdateDate = DateTime.Now;
+
+                    _dbcontext.Update(role);
+                    
                     model.Messsage = "Role Updated Successfully";
                 }
                 else
@@ -57,10 +64,14 @@ namespace DF_EvolutionAPI.Services
                     rolesModel.UpdateBy = 1;
                     rolesModel.CreateDate = DateTime.Now;
                     rolesModel.UpdateDate = DateTime.Now;
-                    _dbcontext.Add<Roles>(rolesModel);
+
+                    _dbcontext.Add(rolesModel);
+                    
                     model.Messsage = "Role Inserted Successfully";
                 }
+
                 _dbcontext.SaveChanges();
+                
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -68,20 +79,25 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
 
         public async Task<ResponseModel> DeleteRole(int roleId)
         {
             ResponseModel model = new ResponseModel();
+
             try
             {
-                Roles _temp = await GetRoleById(roleId);
-                if (_temp != null)
+                Roles role = await GetRoleById(roleId);
+
+                if (role != null)
                 {
-                    _temp.IsDeleted = 1;
-                    _dbcontext.Update<Roles>(_temp);
+                    role.IsDeleted = 1;
+
+                    _dbcontext.Update<Roles>(role);
                     _dbcontext.SaveChanges();
+                    
                     model.IsSuccess = true;
                     model.Messsage = "Role Deleted Successfully";
                 }
@@ -96,6 +112,7 @@ namespace DF_EvolutionAPI.Services
                 model.IsSuccess = false;
                 model.Messsage = "Error : " + ex.Message;
             }
+
             return model;
         }
     }
