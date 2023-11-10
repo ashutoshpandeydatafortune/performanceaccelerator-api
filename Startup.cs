@@ -50,8 +50,7 @@ namespace DF_EvolutionAPI
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
-            System.Console.WriteLine(">> " + Configuration.GetConnectionString("DFEV_ConnectionString"));
-            services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Configuration.GetConnectionString("DFEV_ConnectionString")));
+            services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Constant.CONNECTION_STRING));
 
             //PRMS Master Tables Services
             services.AddScoped<ILoginService, LoginService>();

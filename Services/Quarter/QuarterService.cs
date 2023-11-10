@@ -19,7 +19,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<QuarterDetails>> GetAllQuarterList()
         {
-            return await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToListAsync();
+            return _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToList();
         }
 
         public async Task<QuarterDetails> GetQuarterDetailsById(int quarterId)

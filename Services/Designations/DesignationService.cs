@@ -44,17 +44,17 @@ namespace DF_EvolutionAPI.Services.Designations
 
             try
             {
-                var designationDetail = await (
+                var designationDetail = (
                     from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
                     select new Designation
                     {
                          DesignationId = pr.DesignationId,
                          DesignationName = pr.DesignationName
-                    }).FirstOrDefaultAsync();
+                    }).FirstOrDefault();
 
                 if (designationDetail != null)
                 {
-                    resources = await _dbcontext.Resources.Where(a => a.DesignationId == designationDetail.DesignationId)
+                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designationDetail.DesignationId)
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
@@ -62,10 +62,10 @@ namespace DF_EvolutionAPI.Services.Designations
                                     ResourceProjectList = x.ResourceProjectList,
                                     EmailId = x.EmailId,
                                     DesignationId = x.DesignationId
-                                }).ToListAsync();
+                                }).ToList();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }
