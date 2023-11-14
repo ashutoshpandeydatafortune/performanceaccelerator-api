@@ -39,25 +39,25 @@ namespace DF_EvolutionAPI
             
             modelBuilder.Entity<IdentityUser>(entity =>
             {
-                entity.ToTable("AspNetUsers","pa");
+                entity.ToTable("AspNetUsers","dbo");
                 entity.Property(e => e.Id).HasColumnName("Id");
             });
 
             modelBuilder.Entity<IdentityRole>(entity =>
             {
-                entity.ToTable("AspNetRoles","pa");
+                entity.ToTable("AspNetRoles","dbo");
             });
 
             modelBuilder.Entity<IdentityUserRole<string>>(entity =>
             {
-                entity.ToTable("AspNetUserRoles","pa");
+                entity.ToTable("AspNetUserRoles","dbo");
             });
 
-            modelBuilder.HasDefaultSchema("pa");
+            modelBuilder.HasDefaultSchema("dbo");
 
-            modelBuilder.HasDefaultSchema("pa").Entity<Resource>(e =>
+            modelBuilder.HasDefaultSchema("dbo").Entity<Resource>(e =>
             {
-                e.ToTable("Resources");
+                e.ToTable("Resource");
                 e.HasKey(x => x.ResourceId);
                 e.Property(e => e.ResourceId).HasColumnName("ResourceId");
                 e.Property(e => e.ResourceName).HasColumnName("ResourceName");
@@ -93,9 +93,9 @@ namespace DF_EvolutionAPI
                 e.Ignore(e => e.ClientList);
             });
 
-            modelBuilder.HasDefaultSchema("pa").Entity<ProjectResource>(e =>
+            modelBuilder.HasDefaultSchema("dbo").Entity<ProjectResource>(e =>
             {
-                e.ToTable("ProjectResources");
+                e.ToTable("ProjectResource");
                 e.HasKey(x => x.ProjectResourceId);
                 e.Property(e => e.ProjectResourceId).HasColumnName("ProjectResourceId");
                 e.Property(e => e.ResourceId).HasColumnName("ResourceId");
@@ -118,9 +118,9 @@ namespace DF_EvolutionAPI
 
             });
 
-            modelBuilder.HasDefaultSchema("pa").Entity<Project>(e =>
+            modelBuilder.HasDefaultSchema("dbo").Entity<Project>(e =>
             {
-                e.ToTable("Projects");
+                e.ToTable("Project");
                 e.HasKey(x => x.ProjectId);
                 e.Property(e => e.ProjectId).HasColumnName("ProjectId");
                 e.Property(e => e.ClientId).HasColumnName("ClientId");
@@ -144,9 +144,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.ActualStartDate).HasColumnName("ActualStartDate");
             });
 
-            modelBuilder.HasDefaultSchema("pa").Entity<BusinessUnit>(e =>
+            modelBuilder.HasDefaultSchema("dbo").Entity<BusinessUnit>(e =>
             {
-                e.ToTable("BusinessUnits");
+                e.ToTable("BusinessUnit");
                 e.HasKey(x => x.BusinessUnitId);
                 e.Property(e => e.BusinessUnitId).HasColumnName("BusinessUnitId");
                 e.Property(e => e.BusinessUnitName).HasColumnName("BusinessUnitName");
@@ -158,9 +158,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            modelBuilder.HasDefaultSchema("pa").Entity<Client>(e =>
+            modelBuilder.HasDefaultSchema("dbo").Entity<Client>(e =>
             {
-                e.ToTable("Clients");
+                e.ToTable("Client");
                 e.HasKey(x => x.ClientId);
                 e.Property(e => e.ClientId).HasColumnName("ClientId");
                 e.Property(e => e.ClientCode).HasColumnName("ClientCode");
@@ -218,7 +218,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<KRAWeightage>(e =>
             {
-                e.ToTable("KRAWeightage", "pa");
+                e.ToTable("KRAWeightage", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.Name).HasColumnName("Name");
                 e.Property(e => e.DisplayName).HasColumnName("DisplayName");
@@ -233,7 +233,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<QuarterDetails>(e =>
             {
-                e.ToTable("QuarterDetails", "pa");
+                e.ToTable("QuarterDetails", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.QuarterName).HasColumnName("QuarterName");
                 e.Property(e => e.QuarterYear).HasColumnName("QuarterYear");
@@ -249,7 +249,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<StatusLibrary>(e =>
             {
-                e.ToTable("StatusLibrary", "pa");
+                e.ToTable("StatusLibrary", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.StatusName).HasColumnName("StatusName");
                 e.Property(e => e.StatusType).HasColumnName("StatusType");
@@ -264,7 +264,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<UserApproval>(e =>
             {
-                e.ToTable("UserApproval", "pa");
+                e.ToTable("UserApproval", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.ApprovalStatus).HasColumnName("ApprovalStatus");
                 e.Property(e => e.AppraisalRange).HasColumnName("AppraisalRange");
@@ -284,7 +284,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<UserKRA>(e =>
             {
-                e.ToTable("UserKRAs", "pa");
+                e.ToTable("UserKRAs", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.DeveloperComment).HasColumnName("DeveloperComment");
                 e.Property(e => e.ManagerComment).HasColumnName("ManagerComment");
@@ -306,7 +306,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<KRALibrary>(e =>
             {
-                e.ToTable("KRALibrary", "pa");
+                e.ToTable("KRALibrary", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.Name).HasColumnName("Name");
                 e.Property(e => e.DisplayName).HasColumnName("DisplayName");
@@ -331,7 +331,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<Roles>(e =>
             {
-                e.ToTable("Roles", "pa");
+                e.ToTable("Roles", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.RoleName).HasColumnName("RoleName");
                 e.Property(e => e.Description).HasColumnName("Description");
@@ -345,7 +345,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<RoleMapping>(e =>
             {
-                e.ToTable("RoleMappings", "pa");
+                e.ToTable("RoleMappings", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.Email).HasColumnName("Email");
                 e.Property(e => e.UserId).HasColumnName("UserId");
@@ -360,7 +360,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<SubmissionStatus>(e =>
             {
-                e.ToTable("SubmissionStatus", "pa");
+                e.ToTable("SubmissionStatus", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.SubmissionName).HasColumnName("SubmissionName");
                 e.Property(e => e.Description).HasColumnName("Description");
@@ -375,7 +375,7 @@ namespace DF_EvolutionAPI
 
             modelBuilder.Entity<AppraisalHistory>(e =>
             {
-                e.ToTable("AppraisalHistory", "pa");
+                e.ToTable("AppraisalHistory", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.Percentage).HasColumnName("Percentage");
                 e.Property(e => e.LastAppraisal).HasColumnName("LastAppraisal");
@@ -389,11 +389,12 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            modelBuilder.HasDefaultSchema("pa").Entity<Designation>(e =>
+            modelBuilder.HasDefaultSchema("dbo").Entity<Designation>(e =>
             {
-                e.ToTable("Designations", "pa");
+                e.ToTable("Designation", "dbo");
                 e.Property(e => e.DesignationId).HasColumnName("DesignationId");
                 e.Property(e => e.DesignationName).HasColumnName("DesignationName");
+                e.Property(e => e.ReferenceId).HasColumnName("ReferenceId");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");

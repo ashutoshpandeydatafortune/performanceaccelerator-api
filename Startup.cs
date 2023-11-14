@@ -27,8 +27,6 @@ namespace DF_EvolutionAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            LoadConfiguration();
         }
 
         private void LoadConfiguration()
@@ -46,6 +44,7 @@ namespace DF_EvolutionAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            LoadConfiguration();
 
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
