@@ -1,9 +1,11 @@
 ﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRA;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,6 +38,29 @@ namespace DF_EvolutionAPI.Services
             }
 
             return userKRA;
+        }
+
+        public List<UserAssignedKRA> GetAssignedKRAsByDesignation(string designation)
+        {
+            try
+            {
+                var query = from resource in _dbcontext.Resources
+                            join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId
+                            join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
+                            select new UserAssignedKRA()
+                            {                                
+                                KRAName = kraLibrary.Name,
+                                UserId = resource.ResourceId,
+                                UserName = resource.ResourceName,
+                                IsSpecialKRA = kraLibrary.IsSpecial
+                            };
+
+                return query.ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<ResponseModel> CreateUserKRA(UserKRA userKRAModel)

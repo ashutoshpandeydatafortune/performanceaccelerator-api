@@ -1,4 +1,5 @@
 ﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,5 +14,6 @@ namespace DF_EvolutionAPI.Services.KRA
         public Task<ResponseModel> CreateUserKRA(UserKRA userKRAModel);
         public Task<List<UserKRADetails>> GetKRAsByUserId(int? UserId);
         public Task<ResponseModel> CreateorUpdateUserKRA(UserKRA userKRAModel);
+        public List<UserAssignedKRA> GetAssignedKRAsByDesignation(string designation);
     }
 }

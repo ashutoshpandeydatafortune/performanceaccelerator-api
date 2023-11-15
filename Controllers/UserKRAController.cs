@@ -77,6 +77,21 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetAssignedKRAsByDesignation/{designation}")]
+        public IActionResult GetAssignedKRAsByDesignation(string designation)
+        {
+            try
+            {
+                var assignedKRAs = _userKRAService.GetAssignedKRAsByDesignation(designation);
+                return Ok(assignedKRAs);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// <summary>
         /// create or update user KRA
         /// </summary>
