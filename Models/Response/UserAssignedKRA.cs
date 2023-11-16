@@ -3,8 +3,8 @@
     public class UserAssignedKRA
     {
         public int UserId { get; set; }
+        public int IsSpecial { get; set; }
         public string KRAName { get; set; }
-        public int IsSpecialKRA { get; set; }
         public string UserName {  get; set; }
     }
 }

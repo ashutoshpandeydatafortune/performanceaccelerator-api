@@ -52,7 +52,7 @@ namespace DF_EvolutionAPI.Services
                                 KRAName = kraLibrary.Name,
                                 UserId = resource.ResourceId,
                                 UserName = resource.ResourceName,
-                                IsSpecialKRA = kraLibrary.IsSpecial
+                                IsSpecial = kraLibrary.IsSpecial
                             };
 
                 return query.ToList();
