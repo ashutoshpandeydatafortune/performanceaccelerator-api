@@ -32,6 +32,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<ProjectResource> ProjectResources { get; set; }
         public virtual DbSet<AppraisalHistory> AppraisalHistory { get; set; }
         public virtual DbSet<SubmissionStatus> SubmissionStatus { get; set; }
+        public virtual DbSet<OrganizationFunction> OrganizationFunctions { get; set; }        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -151,6 +152,19 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.BusinessUnitId).HasColumnName("BusinessUnitId");
                 e.Property(e => e.BusinessUnitName).HasColumnName("BusinessUnitName");
                 e.Property(e => e.Remark).HasColumnName("Remark");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+            });
+
+            modelBuilder.HasDefaultSchema("dbo").Entity<OrganizationFunction>(e =>
+            {
+                e.ToTable("OrganizationFunctions");
+                e.HasKey(x => x.Id);
+                e.Property(e => e.FunctionName).HasColumnName("FunctionName");
+                e.Property(e => e.Description).HasColumnName("Description");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");

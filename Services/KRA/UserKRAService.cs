@@ -48,11 +48,13 @@ namespace DF_EvolutionAPI.Services
                             join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId
                             join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                             select new UserAssignedKRA()
-                            {                                
+                            {
+                                KRAId = userKRA.KRAId,
                                 KRAName = kraLibrary.Name,
                                 UserId = resource.ResourceId,
                                 UserName = resource.ResourceName,
-                                IsSpecial = kraLibrary.IsSpecial
+                                IsSpecial = kraLibrary.IsSpecial,
+                                QuarterId = userKRA.QuarterId.HasValue ? userKRA.QuarterId.Value : 0
                             };
 
                 return query.ToList();
@@ -69,9 +71,10 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                userKRAModel.QuarterId = userKRAModel.QuarterId;
-                userKRAModel.UserId = userKRAModel.UserId;
                 userKRAModel.KRAId = userKRAModel.KRAId;
+                userKRAModel.UserId = userKRAModel.UserId;
+                userKRAModel.QuarterId = userKRAModel.QuarterId;
+
                 userKRAModel.IsActive = 1;
                 userKRAModel.CreateBy = 1;
                 userKRAModel.UpdateBy = 1;
@@ -99,52 +102,80 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                UserKRA userKra = await GetUserKRAById(userKRAModel.Id);
+                UserKRA userKra;
+
+                if (userKRAModel.QuarterId != null)
+                {
+                    userKra = _dbcontext.UserKRA.Where(c => 
+                        c.UserId == userKRAModel.UserId && 
+                        c.KRAId == userKRAModel.KRAId &&
+                        c.QuarterId == userKRAModel.QuarterId
+                    ).FirstOrDefault();
+                }
+                else
+                {
+                    userKra = _dbcontext.UserKRA.Where(c =>
+                        c.KRAId == userKRAModel.KRAId && c.UserId == userKRAModel.UserId
+                    ).FirstOrDefault();
+                }
 
                 if (userKra != null)
                 {
-                    userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? " " : userKRAModel.DeveloperComment; ;
-                    userKra.DeveloperRating = userKRAModel.DeveloperRating;
-                    userKra.ManagerComment = string.IsNullOrEmpty(userKRAModel.ManagerComment) ? " " : userKRAModel.ManagerComment;
-                    userKra.ManagerRating = userKRAModel.ManagerRating;
-                    userKra.FinalRating = userKRAModel.FinalRating;
+                    userKra.Reason = string.IsNullOrEmpty(userKRAModel.Reason) ? userKra.Reason : userKRAModel.Reason;
+                    userKra.Comment = string.IsNullOrEmpty(userKRAModel.Comment) ? userKra.Comment : userKRAModel.Comment;
                     userKra.FinalComment = string.IsNullOrEmpty(userKRAModel.FinalComment) ? " " : userKRAModel.FinalComment;
+                    userKra.ManagerComment = string.IsNullOrEmpty(userKRAModel.ManagerComment) ? userKra.ManagerComment : userKRAModel.ManagerComment;
+                    userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? userKra.DeveloperComment : userKRAModel.DeveloperComment;
+
                     userKra.KRAId = userKRAModel.KRAId;
-                    userKra.QuarterId = userKRAModel.QuarterId;
                     userKra.Score = userKRAModel.Score;
                     userKra.Status = userKRAModel.Status;
                     userKra.UserId = userKRAModel.UserId;
+                    userKra.QuarterId = userKRAModel.QuarterId;
+
                     userKra.ApprovedBy = userKRAModel.ApprovedBy;
                     userKra.RejectedBy = userKRAModel.RejectedBy;
-                    userKra.AppraisalRange = userKRAModel.AppraisalRange;
-                    userKra.Reason = userKRAModel.Reason;
-                    userKra.Comment = userKRAModel.Comment;
+                    
                     userKra.IsActive = 1;
                     userKra.UpdateBy = 1;
                     userKra.UpdateDate = DateTime.Now;
 
-                    _dbcontext.Update<UserKRA>(userKra);
+                    if (userKRAModel.DeveloperRating != null)
+                        userKra.DeveloperRating = userKRAModel.DeveloperRating.Value;
+
+                    if (userKRAModel.ManagerRating != null)
+                        userKra.ManagerRating = userKRAModel.ManagerRating.Value;
+
+                    if (userKRAModel.FinalRating != null)
+                        userKra.FinalRating = userKRAModel.FinalRating.Value;
+
+                    if (userKRAModel.AppraisalRange != null)
+                        userKra.AppraisalRange = userKRAModel.AppraisalRange.Value;
+
+                    _dbcontext.Update(userKra);
 
                     model.Messsage = "User KRA Update Successfully";
                 }
                 else
                 {
-                    userKRAModel.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? " " : userKRAModel.DeveloperComment;
-                    userKRAModel.DeveloperRating = userKRAModel.DeveloperRating;
-                    userKRAModel.ManagerComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? " " : userKRAModel.DeveloperComment;
-                    userKRAModel.ManagerRating = userKRAModel.ManagerRating;
-                    userKRAModel.FinalRating = userKRAModel.FinalRating;
-                    userKRAModel.FinalComment = userKRAModel.FinalComment;
-                    userKRAModel.QuarterId = userKRAModel.QuarterId;
+                    userKRAModel.KRAId = userKRAModel.KRAId;
                     userKRAModel.Score = userKRAModel.Score;
                     userKRAModel.Status = userKRAModel.Status;
                     userKRAModel.UserId = userKRAModel.UserId;
-                    userKRAModel.KRAId = userKRAModel.KRAId;
-                    userKRAModel.ApprovedBy = userKRAModel.ApprovedBy;
-                    userKRAModel.RejectedBy = userKRAModel.RejectedBy;
-                    userKRAModel.AppraisalRange = userKRAModel.AppraisalRange;
                     userKRAModel.Reason = userKRAModel.Reason;
                     userKRAModel.Comment = userKRAModel.Comment;
+                    userKRAModel.QuarterId = userKRAModel.QuarterId;
+                    userKRAModel.FinalRating = userKRAModel.FinalRating;
+                    userKRAModel.FinalComment = userKRAModel.FinalComment;
+                    userKRAModel.ManagerRating = userKRAModel.ManagerRating;
+                    userKRAModel.AppraisalRange = userKRAModel.AppraisalRange;
+                    userKRAModel.DeveloperRating = userKRAModel.DeveloperRating;
+                    userKRAModel.ManagerComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? "" : userKRAModel.DeveloperComment;
+                    userKRAModel.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? "" : userKRAModel.DeveloperComment;
+
+                    userKRAModel.ApprovedBy = userKRAModel.ApprovedBy;
+                    userKRAModel.RejectedBy = userKRAModel.RejectedBy;
+
                     userKRAModel.IsActive = 1;
                     userKRAModel.CreateBy = 1;
                     userKRAModel.UpdateBy = 1;

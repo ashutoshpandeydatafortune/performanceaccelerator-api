@@ -106,7 +106,7 @@ namespace DF_EvolutionAPI.Controllers
                 ResponseModel model = new ResponseModel();
                 foreach (var item in userKRAModel)
                 {                    
-                    model = await _userKRAService.CreateorUpdateUserKRA(item) ;
+                    model = await _userKRAService.CreateorUpdateUserKRA(item);
                 }
 
                 return Ok(model);

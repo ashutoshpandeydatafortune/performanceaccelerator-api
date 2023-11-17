@@ -7,6 +7,6 @@ namespace DF_EvolutionAPI.Services
     public interface IClientService
     {
         public Task<List<Client>> GetAllClients();
-        public Task<Client> GetClientByClientId(int clinetId);
+        public Task<Client> GetClientByClientId(int clientId);
     }
 }
