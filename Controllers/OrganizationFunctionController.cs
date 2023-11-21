@@ -26,8 +26,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var clients = await _organizationFunctionService.GetAllFunctions();
-                return Ok(clients);
+                var functions = await _organizationFunctionService.GetAllFunctions();
+                return Ok(functions);
             }
             catch (Exception ex)
             {

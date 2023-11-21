@@ -44,6 +44,26 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="designationName"></param>
         /// <returns></returns>
         [HttpGet]
+        [Route("GetReportingDesignations/{userName}")]
+        public async Task<IActionResult> GetReportingDesignations(string userName)
+        {
+            try
+            {
+                var designations = await _designationService.GetReportingDesignations(userName);
+                return Ok(designations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// get resources by designation Name
+        /// </summary>
+        /// <param name="designationName"></param>
+        /// <returns></returns>
+        [HttpGet]
         [Route("GetResourcesByDesignationName/{designationName}")]
         public async Task<IActionResult> GetResourcesByDesignationName(string designationName)
         {

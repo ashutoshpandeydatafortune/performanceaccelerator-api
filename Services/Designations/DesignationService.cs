@@ -37,40 +37,64 @@ namespace DF_EvolutionAPI.Services.Designations
 
             return designationDetails;
         }
-
-        public async Task<List<Resource>> GetResourcesByDesignationName(string designation)
+        
+        public async Task<List<Resource>> GetResourcesByDesignationName(string designationName)
         {
             List<Resource> resources = new List<Resource>();
 
             try
             {
-                var designationDetail = (
-                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
+                var designation = (
+                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designationName)
                     select new Designation
                     {
                          DesignationId = pr.DesignationId,
                          DesignationName = pr.DesignationName
                     }).FirstOrDefault();
 
-                if (designationDetail != null)
+                if (designation != null)
                 {
-                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designationDetail.DesignationId)
+                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designation.DesignationId)
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
                                     ResourceName = x.ResourceName,
-                                    ResourceProjectList = x.ResourceProjectList,
+                                    //ResourceProjectList = x.ResourceProjectList,
                                     EmailId = x.EmailId,
                                     DesignationId = x.DesignationId
                                 }).ToList();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
 
             return  resources;
+        }
+        public async Task<List<Designation>> GetReportingDesignations(string userName)
+        {
+            List<Designation> designations = new List<Designation>();
+
+            try
+            {
+                designations = (
+                    from designation in _dbcontext.Designation 
+                    join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
+                    join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId 
+                    where reportingto.EmailId.Equals(userName)
+                    select new Designation
+                    {
+                        DesignationId = designation.DesignationId,
+                        DesignationName = designation.DesignationName
+                    }).Distinct().ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return designations;
         }
     }
 }
