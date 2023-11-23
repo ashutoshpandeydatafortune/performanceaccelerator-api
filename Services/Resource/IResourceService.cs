@@ -6,8 +6,9 @@ namespace DF_EvolutionAPI.Services
 {
     public interface IResourceService
     {
-        public Task<List<Resource>> GetAllResources();
-        public Task<Resource> GetResourceByEmailId(string EmailId);
-        public Task<List<Resource>> GetAllResourceDetailsByResourceId(int? resourceId);
+        Task<List<Resource>> GetAllResources();
+        Task<string> GetChildResources(string userName);
+        Task<Resource> GetResourceByEmailId(string EmailId);
+        Task<List<Resource>> GetAllResourceDetailsByResourceId(int? resourceId);
     }
 }

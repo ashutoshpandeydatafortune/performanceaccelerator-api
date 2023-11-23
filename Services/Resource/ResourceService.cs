@@ -1,8 +1,11 @@
 ﻿using DF_EvolutionAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Resources;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
@@ -149,6 +152,39 @@ namespace DF_EvolutionAPI.Services
             }
 
             return businessUnits;
+        }
+
+        public async Task<string> GetChildResources(string userName)
+        {
+            var resources = _dbcontext.Resources.ToList();
+
+            var currentUser = resources.Where(r => r.EmailId == userName);
+            var someUser = _dbcontext.Resources.Where(r => r.EmailId == userName).FirstOrDefault();
+
+            var tree = currentUser.Select(resource => new
+            {
+                Resource = resource,
+                Children = BuildTree(resources, resource.ResourceId)
+            });
+
+            // Convert to JSON
+            string jsonString = JsonConvert.SerializeObject(tree, Formatting.Indented);
+            Console.WriteLine(jsonString);
+            return jsonString;
+        }
+
+        private List<object> BuildTree(List<Resource> resources, int parentId)
+        {
+            var children = resources
+                .Where(c => c.ReportingTo == parentId)
+                .Select(resource => new
+                {
+                    Resource = resource,
+                    Children = BuildTree(resources, resource.ResourceId)
+                })
+                .ToList<object>();
+
+            return children.Any() ? children.Cast<object>().ToList() : null;
         }
     }
 }

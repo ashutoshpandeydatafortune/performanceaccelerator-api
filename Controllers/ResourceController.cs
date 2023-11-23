@@ -55,5 +55,24 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// get all projects of resource
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetChildResources/{userName}")]
+        public async Task<IActionResult> GetChildResources(string userName)
+        {
+            try
+            {
+                string data = await _resourceService.GetChildResources(userName);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
