@@ -42,11 +42,14 @@ namespace DF_EvolutionAPI.Models
         public int UserId { get; set; }
         public int KRAId { get; set; }
         public int? QuarterId { get; set; }
+        public string QuarterName { get; set; }
+        public int? QuarterYear { get; set; }
+
         public int IsActive { get; set; }
         public int IsDeleted { get; set; }
 
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
+        public string KRAName { get; set; }
+        public string KRADisplayName { get; set; }
         public string Description { get; set; }
         public int? WeightageId { get; set; }
         public int Weightage { get; set; }

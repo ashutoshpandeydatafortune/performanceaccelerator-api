@@ -1,4 +1,5 @@
 ﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -21,7 +22,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<Resource>> GetAllResources()
         {
-            return await _dbcontext.Resources.Where(c => c.IsActive == 1).ToListAsync();
+            return _dbcontext.Resources.Where(c => c.IsActive == 1).ToList();
         }
 
         public async Task<Resource> GetResourceByEmailId(string emailId)
@@ -30,7 +31,7 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                resource = await (
+                resource =(
                     from r in _dbcontext.Resources.Where(x => x.EmailId == emailId)
                     select new Resource
                     {
@@ -38,7 +39,7 @@ namespace DF_EvolutionAPI.Services
                         ResourceName = r.ResourceName,
                         ReportingTo = r.ReportingTo
                     }
-                ).FirstOrDefaultAsync();
+                ).FirstOrDefault();
             }
             catch (Exception)
             {
@@ -54,7 +55,7 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                resources = await (
+                resources = (
                     from r in _dbcontext.Resources.Where(x => x.ResourceId == resourceId && x.IsActive == 1)
                     let projectResources = (_dbcontext.ProjectResources.Where(pr => (int?)pr.ResourceId == r.ResourceId && pr.IsActive == 1)).ToList()
                     select new Resource
@@ -89,7 +90,7 @@ namespace DF_EvolutionAPI.Services
                         CreateDate = r.CreateDate,
                         UpdateDate = r.UpdateDate,
                         ResourceProjectList = projectResources,
-                    }).ToListAsync();
+                    }).ToList();
 
                 foreach (var resource in resources)
                 {
@@ -112,9 +113,9 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var rp in resource.ResourceProjectList)
             {
-                var project = await (from p in _dbcontext.Projects
+                var project = (from p in _dbcontext.Projects
                                      where p.ProjectId == rp.ProjectId && p.IsActive == 1
-                                     select p).FirstAsync();
+                                     select p).First();
 
                 projectList.Add(project);
             }
@@ -128,9 +129,9 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var projectResource in resource.ProjectList)
             {
-                var client = await (from c in _dbcontext.Clients
+                var client = (from c in _dbcontext.Clients
                                     where c.ClientId == projectResource.ClientId && c.IsActive == 1
-                                    select c).FirstAsync();
+                                    select c).First();
 
                 clientList.Add(client);
             }
@@ -144,9 +145,9 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var c in resource.ClientList)
             {
-                var businessUnit = await (from b in _dbcontext.BusinessUnits
+                var businessUnit = (from b in _dbcontext.BusinessUnits
                                           where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == 1
-                                          select b).FirstAsync();
+                                          select b).First();
 
                 businessUnits.Add(businessUnit);
             }
@@ -156,7 +157,21 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<string> GetChildResources(string userName)
         {
-            var resources = _dbcontext.Resources.ToList();
+            var resources = (
+                    from resource in _dbcontext.Resources
+                    join designation in _dbcontext.Designation on resource.DesignationId equals designation.DesignationId
+                    select new Team
+                    {
+                        EmailId = resource.EmailId,
+                        EmployeeId = resource.EmployeeId,
+                        ResourceId = resource.ResourceId,
+                        ReportingTo = resource.ReportingTo,
+                        PrimarySkill = resource.Primaryskill,
+                        ResourceName = resource.ResourceName,
+                        DesignationId = resource.DesignationId,
+                        DesignationName = designation.DesignationName,
+                    }
+                ).ToList();
 
             var currentUser = resources.Where(r => r.EmailId == userName);
             var someUser = _dbcontext.Resources.Where(r => r.EmailId == userName).FirstOrDefault();
@@ -173,10 +188,10 @@ namespace DF_EvolutionAPI.Services
             return jsonString;
         }
 
-        private List<object> BuildTree(List<Resource> resources, int parentId)
+        private List<object> BuildTree(List<Team> resources, int parentId)
         {
             var children = resources
-                .Where(c => c.ReportingTo == parentId)
+                .Where(c => c.ReportingTo.HasValue && c.ReportingTo == parentId)
                 .Select(resource => new
                 {
                     Resource = resource,

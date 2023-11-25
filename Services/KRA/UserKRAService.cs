@@ -239,18 +239,22 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                userKRADetails = await (
+                userKRADetails = (
                     from a in _dbcontext.KRALibrary
                     join c in _dbcontext.UserKRA on a.Id equals c.KRAId
-                    join S in _dbcontext.StatusLibrary on c.Status equals S.Id
+                    join q in _dbcontext.QuarterDetails on c.QuarterId equals q.Id
+                    //join S in _dbcontext.StatusLibrary on c.Status equals S.Id
                     where c.UserId == UserId
                     select new UserKRADetails
                     {
                         Id = c.Id,
-                        Name = a.Name,
+                        KRAName = a.Name,
+                        KRADisplayName = a.DisplayName,
                         UserId = c.UserId,
                         KRAId = c.KRAId,
                         QuarterId = (int)c.QuarterId,
+                        QuarterName = q.QuarterName,
+                        QuarterYear = q.QuarterYear,
                         Weightage = a.Weightage,
                         WeightageId = a.WeightageId,
                         DeveloperComment = c.DeveloperComment,
@@ -261,9 +265,9 @@ namespace DF_EvolutionAPI.Services
                         FinalComment = c.FinalComment,
                         Score = c.Score,
                         Status = c.Status,
-                        StatusName = S.StatusName,
+                        //StatusName = S.StatusName,
                         Reason = c.Reason
-                    }).ToListAsync();
+                    }).ToList();
             }
             catch (Exception)
             {

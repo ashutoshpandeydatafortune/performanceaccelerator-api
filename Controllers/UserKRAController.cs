@@ -46,7 +46,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/userKRAId")]
-        public async Task<IActionResult> GetuserKRAById(int userKRAId)
+        public async Task<IActionResult> GetUserKRAById(int userKRAId)
         {
             try
             {
