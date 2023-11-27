@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Net.Http;
 using System.Security.Claims;
@@ -19,6 +20,7 @@ namespace DF_EvolutionAPI.Services.Login
         static HttpClient msClient;
 
         private IResourceService _resourceService;
+        private readonly DFEvolutionDBContext _dbContext;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
 
@@ -29,6 +31,7 @@ namespace DF_EvolutionAPI.Services.Login
             UserManager<IdentityUser> userManager
         )
         {
+            _dbContext = dbContext;
             _roleManager = roleManager;
             _userManager = userManager;
 
@@ -63,8 +66,8 @@ namespace DF_EvolutionAPI.Services.Login
                 }
 
                 // find user by email id 
-                var user = await _userManager.FindByEmailAsync(uam.Username);   
-                if(user == null)
+                var user = await _userManager.FindByEmailAsync(uam.Username);
+                if (user == null)
                 {
                     throw new Exception("User not found");
                 }
@@ -104,6 +107,13 @@ namespace DF_EvolutionAPI.Services.Login
                     reportingTo = (int)resource.ReportingTo;
                 }
 
+                ResourceFunction resourceFunction = null;
+
+                if (resource.ResourceFunctionId != null && resource.ResourceFunctionId.HasValue)
+                {
+                    resourceFunction = GetResourceFunction(resource.ResourceFunctionId.Value);
+                }
+
                 return new LoginResponse()
                 {
                     Id = user.Id,
@@ -117,6 +127,7 @@ namespace DF_EvolutionAPI.Services.Login
                     Roles = userRoles,
                     IsEmailConfirmed = true,
                     Expiration = token.ValidTo,
+                    ResourceFunction = resourceFunction,
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
                 };
             }
@@ -124,6 +135,15 @@ namespace DF_EvolutionAPI.Services.Login
             {
                 throw new Exception("Account type does not match");
             }
+        }
+
+        private ResourceFunction GetResourceFunction(int resouceFunctionId)
+        {
+            return (
+                    from rf in _dbContext.ResourceFunctions
+                    where rf.ResourceFunctionId == resouceFunctionId
+                    select rf
+                  ).FirstOrDefault();
         }
 
         private JwtSecurityToken GetAuthToken(IConfiguration configuration, List<Claim> claims)

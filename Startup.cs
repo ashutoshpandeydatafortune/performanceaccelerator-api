@@ -58,7 +58,7 @@ namespace DF_EvolutionAPI
             services.AddScoped<IResourceService, ResourceService>();
             services.AddScoped<IBusinessUnitService, BusinessUnitService>();
             services.AddScoped<IProjectResourceService, ProjectResourceService>();
-            services.AddScoped<IOrganizationFunctionService, OrganizationFunctionService>();
+            services.AddScoped<IResourceFunctionService, ResourceFunctionService>();
 
             //DF Evolution tables
             services.AddScoped<IRolesService, RolesService>();

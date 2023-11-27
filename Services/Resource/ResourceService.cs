@@ -37,7 +37,8 @@ namespace DF_EvolutionAPI.Services
                     {
                         ResourceId = r.ResourceId,
                         ResourceName = r.ResourceName,
-                        ReportingTo = r.ReportingTo
+                        ReportingTo = r.ReportingTo,
+                        ResourceFunctionId = r.ResourceFunctionId
                     }
                 ).FirstOrDefault();
             }

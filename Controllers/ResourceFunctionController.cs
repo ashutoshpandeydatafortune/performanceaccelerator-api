@@ -7,13 +7,13 @@ namespace DF_EvolutionAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrganizationFunctionController : ControllerBase
+    public class ResourceFunctionController : ControllerBase
     {
-        private IOrganizationFunctionService _organizationFunctionService;
+        private IResourceFunctionService _resourceFunctionService;
 
-        public OrganizationFunctionController(IOrganizationFunctionService organizationFunctionService)
+        public ResourceFunctionController(IResourceFunctionService resourceFunctionService)
         {
-            _organizationFunctionService = organizationFunctionService;
+            _resourceFunctionService = resourceFunctionService;
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var functions = await _organizationFunctionService.GetAllFunctions();
+                var functions = await _resourceFunctionService.GetAllFunctions();
                 return Ok(functions);
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var client = await _organizationFunctionService.GetFunctionById(functionId);
+                var client = await _resourceFunctionService.GetFunctionById(functionId);
 
                 if (client == null) return NotFound();
 

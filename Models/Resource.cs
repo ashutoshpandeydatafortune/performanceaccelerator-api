@@ -8,6 +8,7 @@ namespace DF_EvolutionAPI.Models
     public class Resource : BaseEntity_PRMS
     {
         public int ResourceId { get; set; }
+        public int? ResourceFunctionId { get; set; }
         public string EmployeeId { get; set; }
         public string ResourceName { get; set; }
         public DateTime? DateOfBirth { get; set; }
