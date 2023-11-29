@@ -16,7 +16,7 @@ namespace DF_EvolutionAPI
            // ChangeTracker.LazyLoadingEnabled = false;
         }
 
-        public new DbSet<Roles> Roles { get; set; }
+        public new DbSet<Role> Roles { get; set; }
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<UserKRA> UserKRA { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
@@ -338,18 +338,12 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            modelBuilder.Entity<Roles>(e =>
+            modelBuilder.Entity<Role>(e =>
             {
-                e.ToTable("Roles", "dbo");
-                e.Property(e => e.Id).HasColumnName("Id");
+                e.ToTable("Role", "dbo");
+                e.Property(e => e.RoleId).HasColumnName("RoleId");
                 e.Property(e => e.RoleName).HasColumnName("RoleName");
-                e.Property(e => e.Description).HasColumnName("Description");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
-                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
-                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
-                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
-                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<RoleMapping>(e =>
@@ -392,6 +386,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
                 e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.StatusId).HasColumnName("StatusId");
+                e.Property(e => e.QuarterId).HasColumnName("QuarterId");
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");

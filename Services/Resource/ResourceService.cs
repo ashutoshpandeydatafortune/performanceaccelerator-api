@@ -1,12 +1,9 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using System.Resources;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
@@ -31,7 +28,7 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                resource =(
+                resource = (
                     from r in _dbcontext.Resources.Where(x => x.EmailId == emailId)
                     select new Resource
                     {

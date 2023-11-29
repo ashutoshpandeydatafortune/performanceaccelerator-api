@@ -96,7 +96,7 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public async Task<ResponseModel> CreateorUpdateUserKRA(UserKRA userKRAModel)
+        public ResponseModel CreateorUpdateUserKRA(UserKRA userKRAModel)
         {
             ResponseModel model = new ResponseModel();
 
@@ -115,7 +115,7 @@ namespace DF_EvolutionAPI.Services
                 else
                 {
                     userKra = _dbcontext.UserKRA.Where(c =>
-                        c.KRAId == userKRAModel.KRAId && c.UserId == userKRAModel.UserId
+                        c.Id == userKRAModel.Id
                     ).FirstOrDefault();
                 }
 
@@ -127,11 +127,13 @@ namespace DF_EvolutionAPI.Services
                     userKra.ManagerComment = string.IsNullOrEmpty(userKRAModel.ManagerComment) ? userKra.ManagerComment : userKRAModel.ManagerComment;
                     userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? userKra.DeveloperComment : userKRAModel.DeveloperComment;
 
+                    /*
                     userKra.KRAId = userKRAModel.KRAId;
                     userKra.Score = userKRAModel.Score;
                     userKra.Status = userKRAModel.Status;
                     userKra.UserId = userKRAModel.UserId;
                     userKra.QuarterId = userKRAModel.QuarterId;
+                    */
 
                     userKra.ApprovedBy = userKRAModel.ApprovedBy;
                     userKra.RejectedBy = userKRAModel.RejectedBy;
@@ -152,7 +154,7 @@ namespace DF_EvolutionAPI.Services
                     if (userKRAModel.AppraisalRange != null)
                         userKra.AppraisalRange = userKRAModel.AppraisalRange.Value;
 
-                    _dbcontext.Update(userKra);
+                    _dbcontext.SaveChanges();
 
                     model.Messsage = "User KRA Update Successfully";
                 }
@@ -233,7 +235,7 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public async Task<List<UserKRADetails>> GetKRAsByUserId(int? UserId)
+        public List<UserKRADetails> GetKRAsByUserId(int? UserId)
         {
             var userKRADetails = new List<UserKRADetails>();
 

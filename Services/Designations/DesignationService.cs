@@ -22,13 +22,13 @@ namespace DF_EvolutionAPI.Services.Designations
 
             try
             {
-                designationDetails = await (
+                designationDetails = (
                     from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
                     select new Designation
                     {
                         DesignationId = pr.DesignationId,
                         DesignationName = pr.DesignationName
-                    }).FirstOrDefaultAsync();
+                    }).FirstOrDefault();
             }
             catch (Exception)
             {

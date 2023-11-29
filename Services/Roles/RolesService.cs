@@ -2,8 +2,7 @@
 using DF_EvolutionAPI.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -16,42 +15,39 @@ namespace DF_EvolutionAPI.Services
             _dbcontext = dbContext;
         }
 
-        public async Task<List<Roles>> GetAllRoleList()
+        public List<Role> GetAllRoleList()
         {
-            return await _dbcontext.Roles.ToListAsync();
+            return _dbcontext.Roles.ToList();
         }
 
-        public async Task<Roles> GetRoleById(int roleId)
+        public Role GetRoleById(int roleId)
         {
-            Roles roles;
+            Role role;
 
             try
             {
-                roles = await _dbcontext.FindAsync<Roles>(roleId);
+                role = _dbcontext.Find<Role>(roleId);
             }
             catch (Exception)
             {
                 throw;
             }
 
-            return roles;
+            return role;
         }
 
-        public async Task<ResponseModel> CreateorUpdateRole(Roles rolesModel)
+        public ResponseModel CreateorUpdateRole(Role rolesModel)
         {
             ResponseModel model = new ResponseModel();
 
             try
             {
-                Roles role = await GetRoleById(rolesModel.Id);
+                Role role = GetRoleById(rolesModel.RoleId);
 
                 if (role != null)
                 {
                     role.RoleName = rolesModel.RoleName;
-                    role.Description = rolesModel.Description;
                     role.IsActive = 1;
-                    role.UpdateBy = 1;
-                    role.UpdateDate = DateTime.Now;
 
                     _dbcontext.Update(role);
                     
@@ -60,10 +56,6 @@ namespace DF_EvolutionAPI.Services
                 else
                 {
                     rolesModel.IsActive = 1;
-                    rolesModel.CreateBy = 1;
-                    rolesModel.UpdateBy = 1;
-                    rolesModel.CreateDate = DateTime.Now;
-                    rolesModel.UpdateDate = DateTime.Now;
 
                     _dbcontext.Add(rolesModel);
                     
@@ -83,19 +75,19 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public async Task<ResponseModel> DeleteRole(int roleId)
+        public ResponseModel DeleteRole(int roleId)
         {
             ResponseModel model = new ResponseModel();
 
             try
             {
-                Roles role = await GetRoleById(roleId);
+                Role role = GetRoleById(roleId);
 
                 if (role != null)
                 {
-                    role.IsDeleted = 1;
+                    role.IsActive = 0;
 
-                    _dbcontext.Update<Roles>(role);
+                    _dbcontext.Update<Role>(role);
                     _dbcontext.SaveChanges();
                     
                     model.IsSuccess = true;

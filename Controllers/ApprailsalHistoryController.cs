@@ -52,7 +52,7 @@ namespace DF_EvolutionAPI.Controllers
             {
                 var appraisalHistory = await _appraisalHistoryService.GetAppraisalHistoryById(appraisalHistoryId);
 
-                if (appraisalHistory == null) return NotFound();
+                if (appraisalHistory == null) return Content("{}", "application/json");
                 
                 return Ok(appraisalHistory);
             }

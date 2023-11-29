@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace DF_EvolutionAPI.Models
+﻿namespace DF_EvolutionAPI.Models
 {
     public class UserKRA : BaseEntity
     {
@@ -27,8 +24,6 @@ namespace DF_EvolutionAPI.Models
 
     public class UserKRADetails : BaseEntity
     {
-        [NotMapped]
-        public int Id { get; set; }
         public string DeveloperComment { get; set; }
         public string ManagerComment { get; set; }
         public int? DeveloperRating { get; set; }
