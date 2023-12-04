@@ -37,7 +37,7 @@ namespace DF_EvolutionAPI.Services.Designations
 
             return designationDetails;
         }
-        
+
         public async Task<List<Resource>> GetResourcesByDesignationName(string designationName)
         {
             List<Resource> resources = new List<Resource>();
@@ -72,6 +72,42 @@ namespace DF_EvolutionAPI.Services.Designations
 
             return  resources;
         }
+
+        public async Task<List<Resource>> GetResourcesByDesignationReporter(string designationName, int resourceId)
+        {
+            List<Resource> resources = new List<Resource>();
+
+            try
+            {
+                var designation = (
+                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designationName)
+                    select new Designation
+                    {
+                        DesignationId = pr.DesignationId,
+                        DesignationName = pr.DesignationName
+                    }).FirstOrDefault();
+
+                if (designation != null)
+                {
+                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designation.DesignationId && a.ReportingTo == resourceId)
+                                .Select(x => new Resource
+                                {
+                                    ResourceId = x.ResourceId,
+                                    ResourceName = x.ResourceName,
+                                    //ResourceProjectList = x.ResourceProjectList,
+                                    EmailId = x.EmailId,
+                                    DesignationId = x.DesignationId
+                                }).ToList();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return resources;
+        }
+
         public async Task<List<Designation>> GetReportingDesignations(string userName)
         {
             List<Designation> designations = new List<Designation>();

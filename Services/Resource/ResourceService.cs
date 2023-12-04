@@ -181,9 +181,7 @@ namespace DF_EvolutionAPI.Services
             });
 
             // Convert to JSON
-            string jsonString = JsonConvert.SerializeObject(tree, Formatting.Indented);
-            Console.WriteLine(jsonString);
-            return jsonString;
+            return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
         private List<object> BuildTree(List<Team> resources, int parentId)
