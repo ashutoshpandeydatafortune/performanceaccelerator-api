@@ -16,7 +16,7 @@ namespace DF_EvolutionAPI
            // ChangeTracker.LazyLoadingEnabled = false;
         }
 
-        public new DbSet<Roles> Roles { get; set; }
+        public new DbSet<Role> Roles { get; set; }
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<UserKRA> UserKRA { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
@@ -33,6 +33,8 @@ namespace DF_EvolutionAPI
         public virtual DbSet<AppraisalHistory> AppraisalHistory { get; set; }
         public virtual DbSet<SubmissionStatus> SubmissionStatus { get; set; }
         public virtual DbSet<ResourceFunction> ResourceFunctions { get; set; }
+        public virtual DbSet<RoleMapping> PA_RoleMappings { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -338,33 +340,12 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            modelBuilder.Entity<Roles>(e =>
+            modelBuilder.Entity<Role>(e =>
             {
-                e.ToTable("Roles", "dbo");
-                e.Property(e => e.Id).HasColumnName("Id");
-                e.Property(e => e.RoleName).HasColumnName("RoleName");
-                e.Property(e => e.Description).HasColumnName("Description");
-                e.Property(e => e.IsActive).HasColumnName("IsActive");
-                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
-                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
-                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
-                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
-            });
-
-            modelBuilder.Entity<RoleMapping>(e =>
-            {
-                e.ToTable("RoleMappings", "dbo");
-                e.Property(e => e.Id).HasColumnName("Id");
-                e.Property(e => e.Email).HasColumnName("Email");
-                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.ToTable("Role", "dbo");
                 e.Property(e => e.RoleId).HasColumnName("RoleId");
+                e.Property(e => e.RoleName).HasColumnName("RoleName");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
-                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
-                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
-                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
-                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<SubmissionStatus>(e =>
@@ -392,6 +373,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
                 e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.StatusId).HasColumnName("StatusId");
+                e.Property(e => e.QuarterId).HasColumnName("QuarterId");
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
@@ -410,6 +393,21 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
+            ////RoleMapping 
+            modelBuilder.Entity<RoleMapping>(e =>
+            {
+                e.ToTable("PA_RoleMappings", "dbo");
+                e.Property(e => e.RoleMappingId).HasColumnName("RoleMappingId");
+                e.Property(e => e.RoleId).HasColumnName("RoleId");
+                e.Property(e => e.ModuleName).HasColumnName("ModuleName");
+                e.Property(e => e.CanRead).HasColumnName("CanRead");
+                e.Property(e => e.CanWrite).HasColumnName("CanWrite");
+                e.Property(e => e.CanDelete).HasColumnName("CanDelete");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+            });
+
         }
     }
 }

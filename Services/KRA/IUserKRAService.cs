@@ -11,9 +11,9 @@ namespace DF_EvolutionAPI.Services.KRA
         public Task<List<UserKRA>> GetAllUserKRAList();
         public Task<UserKRA> GetUserKRAById(int userKRAId);
         public Task<ResponseModel> DeleteUserKRA(int userKRAId);
+        public List<UserKRADetails> GetKRAsByUserId(int? UserId);
         public Task<ResponseModel> CreateUserKRA(UserKRA userKRAModel);
-        public Task<List<UserKRADetails>> GetKRAsByUserId(int? UserId);
-        public Task<ResponseModel> CreateorUpdateUserKRA(UserKRA userKRAModel);
+        public ResponseModel CreateorUpdateUserKRA(UserKRA userKRAModel);
         public List<UserAssignedKRA> GetAssignedKRAsByDesignation(string designation);
     }
 }

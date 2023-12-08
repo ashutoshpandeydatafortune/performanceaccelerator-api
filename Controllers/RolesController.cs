@@ -2,7 +2,6 @@
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -23,11 +22,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetAllRoleList()
+        public IActionResult GetAllRoleList()
         {
             try
             {
-                var roles = await _rolesService.GetAllRoleList();
+                var roles = _rolesService.GetAllRoleList();
                 return Ok(roles);
             }
             catch (Exception ex)
@@ -43,11 +42,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]/roleId")]
-        public async Task<IActionResult> GetRoleById(int roleId)
+        public IActionResult GetRoleById(int roleId)
         {
             try
             {
-                var role = await _rolesService.GetRoleById(roleId);
+                var role = _rolesService.GetRoleById(roleId);
                 
                 if (role == null) return NotFound();
                 
@@ -66,11 +65,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> CreateorUpdateRole(Roles roleModel)
+        public IActionResult CreateorUpdateRole(Role roleModel)
         {
             try
             {
-                var model = await _rolesService.CreateorUpdateRole(roleModel);
+                var model = _rolesService.CreateorUpdateRole(roleModel);
                 return Ok(model);
             }
             catch (Exception ex)
@@ -86,11 +85,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("[action]")]
-        public async Task<IActionResult> DeleteRole(int roleId)
+        public IActionResult DeleteRole(int roleId)
         {
             try
             {
-                var model = await _rolesService.DeleteRole(roleId);
+                var model = _rolesService.DeleteRole(roleId);
                 return Ok(model);
             }
             catch (Exception ex)

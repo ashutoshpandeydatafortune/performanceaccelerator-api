@@ -1,13 +1,11 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-//using System.Data.Entity; Commented for Async await 
 using System.Linq;
-using System.Resources;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -114,7 +112,7 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var rp in resource.ResourceProjectList)
             {
-                var project = await (from p in _dbcontext.Projects
+                var project = await(from p in _dbcontext.Projects
                                      where p.ProjectId == rp.ProjectId && p.IsActive == 1
                                      select p).FirstAsync();
 
@@ -184,9 +182,7 @@ namespace DF_EvolutionAPI.Services
             });
 
             // Convert to JSON
-            string jsonString = JsonConvert.SerializeObject(tree, Formatting.Indented);
-            Console.WriteLine(jsonString);
-            return jsonString;
+            return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
         private List<object> BuildTree(List<Team> resources, int parentId)

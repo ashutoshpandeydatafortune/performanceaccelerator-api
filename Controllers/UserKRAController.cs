@@ -64,11 +64,11 @@ namespace DF_EvolutionAPI.Controllers
 
         [HttpGet]
         [Route("GetKRAsByUserId/{UserId}")]
-        public async Task<IActionResult> GetKRAsByUserId(int UserId)
+        public IActionResult GetKRAsByUserId(int UserId)
         {
             try
             {
-                var userKRADetails = await _userKRAService.GetKRAsByUserId(UserId);
+                var userKRADetails = _userKRAService.GetKRAsByUserId(UserId);
                 return Ok(userKRADetails);               
             }
             catch (Exception ex)
@@ -106,7 +106,7 @@ namespace DF_EvolutionAPI.Controllers
                 ResponseModel model = new ResponseModel();
                 foreach (var item in userKRAModel)
                 {                    
-                    model = await _userKRAService.CreateorUpdateUserKRA(item);
+                    model = _userKRAService.CreateorUpdateUserKRA(item);
                 }
 
                 return Ok(model);

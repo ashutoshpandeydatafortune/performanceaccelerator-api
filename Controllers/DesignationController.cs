@@ -77,5 +77,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// get resources by designation Name
+        /// </summary>
+        /// <param name="designationName"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetResourcesByDesignationReporter/{designationName}/{resourceId}")]
+        public async Task<IActionResult> GetResourcesByDesignationReporter(string designationName, int resourceId)
+        {
+            try
+            {
+                var resources = await _designationService.GetResourcesByDesignationReporter(designationName, resourceId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
