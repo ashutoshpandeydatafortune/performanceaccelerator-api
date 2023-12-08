@@ -1,11 +1,19 @@
-﻿namespace DF_EvolutionAPI.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace DF_EvolutionAPI.Models
 {
-    public class RoleMapping : BaseEntity
+    public class RoleMapping
     {
-        public string Email { get; set; }
-        public int UserId { get; set; }
-        public int RoleId { get; set; }
-        public int IsActive { get; set; }
-        public int IsDeleted { get; set; }
+        [Key]
+        public int RoleMappingId { get; set; }
+        public string RoleId { get; set; }
+        public string ModuleName { get; set; }
+        public bool CanRead { get; set; }
+        public bool CanWrite { get; set; }
+        public bool CanDelete { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? UpdateDate { get; set; }
+        public bool IsActive { get; set; }
     }
 }

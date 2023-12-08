@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
-
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
+using System.Data;
 
 namespace DF_EvolutionAPI.Services.Login
 {
@@ -23,18 +23,19 @@ namespace DF_EvolutionAPI.Services.Login
         private readonly DFEvolutionDBContext _dbContext;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
+              
 
         public LoginService(
             DFEvolutionDBContext dbContext,
             IResourceService resourceService,
             RoleManager<IdentityRole> roleManager,
-            UserManager<IdentityUser> userManager
+            UserManager<IdentityUser> userManager 
+          
         )
         {
             _dbContext = dbContext;
             _roleManager = roleManager;
             _userManager = userManager;
-
             _resourceService = resourceService;
 
             msClient = new HttpClient();
@@ -65,7 +66,6 @@ namespace DF_EvolutionAPI.Services.Login
                     }
                 }
 
-                // find user by email id 
                 var user = await _userManager.FindByEmailAsync(uam.Username);
                 if (user == null)
                 {
@@ -76,14 +76,19 @@ namespace DF_EvolutionAPI.Services.Login
                 {
                     new Claim(ClaimTypes.Name, uam.Username)
                 };
-                //var claim = new[] { new Claim(JwtRegisteredClaimNames.Sub, user.UserName) };
 
                 // get user roles
-                var userRoles = await _userManager.GetRolesAsync(user);
-                IdentityRole userRole = new IdentityRole();
-                if (userRoles.Count > 0)
+                var userRoleNames = await _userManager.GetRolesAsync(user);
+                
+                List<Role> roles = new List<Role>();
+                foreach (var userRoleName in userRoleNames)
                 {
-                    userRole = await _roleManager.FindByNameAsync(userRoles[0]);
+                    var identityRole = await _roleManager.FindByNameAsync(userRoleName);
+
+                    var role = new Role();
+                    role.RoleName = userRoleName;
+                    role.RoleMappings = GetRoleMapping(identityRole);
+                    roles.Add(role);
                 }
 
                 JwtSecurityToken token = GetAuthToken(configuration, claims);
@@ -122,9 +127,7 @@ namespace DF_EvolutionAPI.Services.Login
                     ReferenceId = referenceId,
                     ResourceName = resourceName,
                     ReportingToId = reportingTo,
-
-                    Role = userRole,
-                    Roles = userRoles,
+                    Roles = roles,
                     IsEmailConfirmed = true,
                     Expiration = token.ValidTo,
                     ResourceFunction = resourceFunction,
@@ -136,7 +139,14 @@ namespace DF_EvolutionAPI.Services.Login
                 throw new Exception("Account type does not match");
             }
         }
-
+        private List<RoleMapping> GetRoleMapping(IdentityRole role)
+        {
+            return (
+                    from rm in _dbContext.PA_RoleMappings
+                    where rm.RoleId == role.Id
+                    select rm
+                   ).ToList();
+        }
         private ResourceFunction GetResourceFunction(int resouceFunctionId)
         {
             return (

@@ -3,7 +3,6 @@ using DF_EvolutionAPI.Services.Designations;
 using DF_EvolutionAPI.Services.History;
 using DF_EvolutionAPI.Services.KRA;
 using DF_EvolutionAPI.Services.Login;
-using DF_EvolutionAPI.Services.RolesMapping;
 using DF_EvolutionAPI.Services.Submission;
 using DF_EvolutionAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -67,7 +66,6 @@ namespace DF_EvolutionAPI
             services.AddScoped<IUserKRAService, UserKRAService>();
             services.AddScoped<IKRALibraryService, KRALibraryService>();
             services.AddScoped<IDesignationService, DesignationService>();
-            services.AddScoped<IRoleMappingService, RoleMappingService>();
             services.AddScoped<IKRAWeightageService, KRAWeightageService>();
             services.AddScoped<IUserApprovalService, UserApprovalService>();
             services.AddScoped<ISubmissionStatusService, SubmissionStatusService>();
