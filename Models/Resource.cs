@@ -68,5 +68,7 @@ namespace DF_EvolutionAPI.Models
         [NotMapped]
         public string ReporterName { get; set; }
 
+        [NotMapped]
+        public string DesignationName { get; set; }
     }
 }

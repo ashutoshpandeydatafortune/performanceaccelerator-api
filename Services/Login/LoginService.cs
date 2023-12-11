@@ -122,10 +122,13 @@ namespace DF_EvolutionAPI.Services.Login
                     ReferenceId = referenceId,
                     ResourceName = resourceName,
                     ReportingToId = reportingTo,
+                    DesignationName = resource.DesignationName,
+                    DesignationId = resource.DesignationId.Value,
 
                     Role = userRole,
                     Roles = userRoles,
                     IsEmailConfirmed = true,
+                    
                     Expiration = token.ValidTo,
                     ResourceFunction = resourceFunction,
                     Token = new JwtSecurityTokenHandler().WriteToken(token),

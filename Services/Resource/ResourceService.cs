@@ -29,17 +29,21 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 resource = (
-                    from r in _dbcontext.Resources.Where(x => x.EmailId == emailId)
+                    from r in _dbcontext.Resources
+                    join designation in _dbcontext.Designations on r.DesignationId equals designation.DesignationId
+                    where r.EmailId == emailId 
                     select new Resource
                     {
                         ResourceId = r.ResourceId,
-                        ResourceName = r.ResourceName,
                         ReportingTo = r.ReportingTo,
-                        ResourceFunctionId = r.ResourceFunctionId
+                        ResourceName = r.ResourceName,
+                        ResourceFunctionId = r.ResourceFunctionId,
+                        DesignationId = designation.DesignationId,
+                        DesignationName = designation.DesignationName,
                     }
                 ).FirstOrDefault();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }
@@ -157,7 +161,7 @@ namespace DF_EvolutionAPI.Services
         {
             var resources = (
                     from resource in _dbcontext.Resources
-                    join designation in _dbcontext.Designation on resource.DesignationId equals designation.DesignationId
+                    join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                     select new Team
                     {
                         EmailId = resource.EmailId,
@@ -166,8 +170,7 @@ namespace DF_EvolutionAPI.Services
                         ReportingTo = resource.ReportingTo,
                         PrimarySkill = resource.Primaryskill,
                         ResourceName = resource.ResourceName,
-                        DesignationId = resource.DesignationId,
-                        DesignationName = designation.DesignationName,
+                        DesignationId = resource.DesignationId
                     }
                 ).ToList();
 

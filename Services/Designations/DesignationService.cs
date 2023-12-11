@@ -1,8 +1,8 @@
 ﻿using DF_EvolutionAPI.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services.Designations
@@ -16,19 +16,37 @@ namespace DF_EvolutionAPI.Services.Designations
             _dbcontext = dbContext;
         }
 
+        public async Task<Designation> GetDesignationById(int designationId)
+        {
+            try
+            {
+                return await (
+                    from pr in _dbcontext.Designations.Where(x => x.DesignationId == designationId)
+                    select new Designation
+                    {
+                        DesignationId = pr.DesignationId,
+                        DesignationName = pr.DesignationName
+                    }).FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<Designation> GetDesignationDetailsByDesignationName(string designation)
         {
             Designation designationDetails;
 
             try
             {
-                designationDetails = (
-                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designation)
+                designationDetails = await (
+                    from pr in _dbcontext.Designations.Where(x => x.DesignationName == designation)
                     select new Designation
                     {
                         DesignationId = pr.DesignationId,
                         DesignationName = pr.DesignationName
-                    }).FirstOrDefault();
+                    }).FirstOrDefaultAsync();
             }
             catch (Exception)
             {
@@ -44,17 +62,17 @@ namespace DF_EvolutionAPI.Services.Designations
 
             try
             {
-                var designation = (
-                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designationName)
+                var designation = await (
+                    from pr in _dbcontext.Designations.Where(x => x.DesignationName == designationName)
                     select new Designation
                     {
                          DesignationId = pr.DesignationId,
                          DesignationName = pr.DesignationName
-                    }).FirstOrDefault();
+                    }).FirstOrDefaultAsync();
 
                 if (designation != null)
                 {
-                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designation.DesignationId)
+                    resources = await _dbcontext.Resources.Where(a => a.DesignationId == designation.DesignationId)
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
@@ -62,7 +80,7 @@ namespace DF_EvolutionAPI.Services.Designations
                                     //ResourceProjectList = x.ResourceProjectList,
                                     EmailId = x.EmailId,
                                     DesignationId = x.DesignationId
-                                }).ToList();
+                                }).ToListAsync();
                 }
             }
             catch (Exception)
@@ -79,17 +97,17 @@ namespace DF_EvolutionAPI.Services.Designations
 
             try
             {
-                var designation = (
-                    from pr in _dbcontext.Designation.Where(x => x.DesignationName == designationName)
+                var designation = await (
+                    from pr in _dbcontext.Designations.Where(x => x.DesignationName == designationName)
                     select new Designation
                     {
                         DesignationId = pr.DesignationId,
                         DesignationName = pr.DesignationName
-                    }).FirstOrDefault();
+                    }).FirstOrDefaultAsync();
 
                 if (designation != null)
                 {
-                    resources = _dbcontext.Resources.Where(a => a.DesignationId == designation.DesignationId && a.ReportingTo == resourceId)
+                    resources = await _dbcontext.Resources.Where(a => a.DesignationId == designation.DesignationId && a.ReportingTo == resourceId)
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
@@ -97,7 +115,7 @@ namespace DF_EvolutionAPI.Services.Designations
                                     //ResourceProjectList = x.ResourceProjectList,
                                     EmailId = x.EmailId,
                                     DesignationId = x.DesignationId
-                                }).ToList();
+                                }).ToListAsync();
                 }
             }
             catch (Exception)
@@ -114,8 +132,8 @@ namespace DF_EvolutionAPI.Services.Designations
 
             try
             {
-                designations = (
-                    from designation in _dbcontext.Designation 
+                designations = await (
+                    from designation in _dbcontext.Designations 
                     join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
                     join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId 
                     where reportingto.EmailId.Equals(userName)
@@ -123,7 +141,7 @@ namespace DF_EvolutionAPI.Services.Designations
                     {
                         DesignationId = designation.DesignationId,
                         DesignationName = designation.DesignationName
-                    }).Distinct().ToList();
+                    }).Distinct().ToListAsync();
             }
             catch (Exception)
             {

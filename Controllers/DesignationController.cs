@@ -39,6 +39,28 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
+        /// get designation details
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]/{designationId}")]
+        public async Task<IActionResult> GetDesignationById(int designationId)
+        {
+            try
+            {
+                var designation = await _designationService.GetDesignationById(designationId);
+
+                if (designation == null) return NotFound();
+
+                return Ok(designation);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// get resources by designation Name
         /// </summary>
         /// <param name="designationName"></param>

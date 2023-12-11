@@ -22,8 +22,8 @@ namespace DF_EvolutionAPI
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Resource> Resources { get; set; }
         public virtual DbSet<KRALibrary> KRALibrary { get; set; }
-        public virtual DbSet<Designation> Designation { get; set; }
         public virtual DbSet<RoleMapping> RoleMapping { get; set; }
+        public virtual DbSet<Designation> Designations { get; set; }
         public virtual DbSet<UserApproval> UserApproval { get; set; }
         public virtual DbSet<BusinessUnit> BusinessUnits { get; set; }
         public virtual DbSet<KRAWeightage> KRAWeightages { get; set; }
