@@ -17,10 +17,11 @@ namespace DF_EvolutionAPI.Models.Response
         public string DesignationName { get; set; }
         
         public string Token { get; set; }
-        public IdentityRole Role { get; set; }
-        public IList<string> Roles { get; set; }
+       // public IdentityRole Role { get; set; }
+        public List<Role> Roles { get; set; }
         public DateTime Expiration { get; set; }
 
         public ResourceFunction ResourceFunction { get; set; }
+
     }
 }

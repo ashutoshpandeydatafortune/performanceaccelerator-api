@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -19,7 +20,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<Resource>> GetAllResources()
         {
-            return _dbcontext.Resources.Where(c => c.IsActive == 1).ToList();
+            return await _dbcontext.Resources.Where(c => c.IsActive == 1).ToListAsync();
         }
 
         public async Task<Resource> GetResourceByEmailId(string emailId)
@@ -28,7 +29,7 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                resource = (
+                resource = await (
                     from r in _dbcontext.Resources
                     join designation in _dbcontext.Designations on r.DesignationId equals designation.DesignationId
                     where r.EmailId == emailId 
@@ -41,9 +42,9 @@ namespace DF_EvolutionAPI.Services
                         DesignationId = designation.DesignationId,
                         DesignationName = designation.DesignationName,
                     }
-                ).FirstOrDefault();
+                ).FirstOrDefaultAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -57,7 +58,7 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                resources = (
+                resources = await(
                     from r in _dbcontext.Resources.Where(x => x.ResourceId == resourceId && x.IsActive == 1)
                     let projectResources = (_dbcontext.ProjectResources.Where(pr => (int?)pr.ResourceId == r.ResourceId && pr.IsActive == 1)).ToList()
                     select new Resource
@@ -92,7 +93,7 @@ namespace DF_EvolutionAPI.Services
                         CreateDate = r.CreateDate,
                         UpdateDate = r.UpdateDate,
                         ResourceProjectList = projectResources,
-                    }).ToList();
+                    }).ToListAsync();
 
                 foreach (var resource in resources)
                 {
@@ -115,9 +116,9 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var rp in resource.ResourceProjectList)
             {
-                var project = (from p in _dbcontext.Projects
+                var project = await(from p in _dbcontext.Projects
                                      where p.ProjectId == rp.ProjectId && p.IsActive == 1
-                                     select p).First();
+                                     select p).FirstAsync();
 
                 projectList.Add(project);
             }
@@ -131,9 +132,9 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var projectResource in resource.ProjectList)
             {
-                var client = (from c in _dbcontext.Clients
+                var client = await(from c in _dbcontext.Clients
                                     where c.ClientId == projectResource.ClientId && c.IsActive == 1
-                                    select c).First();
+                                    select c).FirstAsync();
 
                 clientList.Add(client);
             }
@@ -147,9 +148,9 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var c in resource.ClientList)
             {
-                var businessUnit = (from b in _dbcontext.BusinessUnits
+                var businessUnit = await(from b in _dbcontext.BusinessUnits
                                           where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == 1
-                                          select b).First();
+                                          select b).FirstAsync();
 
                 businessUnits.Add(businessUnit);
             }
@@ -159,7 +160,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<string> GetChildResources(string userName)
         {
-            var resources = (
+            var resources = await(
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                     select new Team
@@ -172,7 +173,7 @@ namespace DF_EvolutionAPI.Services
                         ResourceName = resource.ResourceName,
                         DesignationId = resource.DesignationId
                     }
-                ).ToList();
+                ).ToListAsync();
 
             var currentUser = resources.Where(r => r.EmailId == userName);
             var someUser = _dbcontext.Resources.Where(r => r.EmailId == userName).FirstOrDefault();
