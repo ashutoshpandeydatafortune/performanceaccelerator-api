@@ -1,8 +1,8 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +19,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<QuarterDetails>> GetAllQuarterList()
         {
-            return _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToList();
+            return await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).ToListAsync();
         }
 
         public async Task<QuarterDetails> GetQuarterDetailsById(int quarterId)

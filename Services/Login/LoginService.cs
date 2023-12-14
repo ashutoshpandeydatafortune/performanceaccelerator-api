@@ -114,16 +114,17 @@ namespace DF_EvolutionAPI.Services.Login
 
                 ResourceFunction resourceFunction = null;
 
-                if (resource.ResourceFunctionId != null && resource.ResourceFunctionId.HasValue)
+                if (resource.FunctionId != null && resource.FunctionId.HasValue)
                 {
-                    resourceFunction = GetResourceFunction(resource.ResourceFunctionId.Value);
+                    resourceFunction = GetResourceFunction(resource.FunctionId.Value);
                 }
 
                 return new LoginResponse()
                 {
                     Id = user.Id,
+                    Roles = roles,
                     ResourceId = resourceId,
-                    IsEmailConfirmed = true,                    
+                    IsEmailConfirmed = true,
                     UserName = user.UserName,
                     ReferenceId = referenceId,
                     ResourceName = resourceName,
@@ -140,6 +141,7 @@ namespace DF_EvolutionAPI.Services.Login
                 throw new Exception("Account type does not match");
             }
         }
+
         private List<RoleMapping> GetRoleMapping(IdentityRole role)
         {
             return (
@@ -148,6 +150,7 @@ namespace DF_EvolutionAPI.Services.Login
                     select rm
                    ).ToList();
         }
+        
         private ResourceFunction GetResourceFunction(int resouceFunctionId)
         {
             return (

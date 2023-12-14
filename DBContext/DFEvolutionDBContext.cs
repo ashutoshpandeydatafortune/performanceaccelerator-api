@@ -79,6 +79,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.Primaryskill).HasColumnName("PrimarySkill");
                 e.Property(e => e.Secondaryskill).HasColumnName("SecondarySkill");
                 e.Property(e => e.Zip).HasColumnName("Zip");
+                e.Property(e => e.FunctionId).HasColumnName("FunctionId");
                 e.Property(e => e.Strengths).HasColumnName("Strengths");
                 e.Property(e => e.TechCategoryId).HasColumnName("TechCategoryId");
                 e.Property(e => e.DesignationId).HasColumnName("DesignationId");
@@ -406,6 +407,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.IsActive).HasColumnName("CreateBy");
+                e.Property(e => e.IsActive).HasColumnName("UpdateBy");
             });
 
         }

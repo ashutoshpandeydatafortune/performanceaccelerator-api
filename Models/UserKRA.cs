@@ -18,8 +18,8 @@
         public string Reason { get; set; }
         public string Comment { get; set; }
         public int? AppraisalRange { get; set; }
-        public int IsActive { get; set; }
-        public int IsDeleted { get; set; }
+        public byte IsActive { get; set; }
+        public byte IsDeleted { get; set; }
     }
 
     public class UserKRADetails : BaseEntity

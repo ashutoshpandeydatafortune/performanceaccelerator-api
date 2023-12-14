@@ -8,17 +8,14 @@ namespace DF_EvolutionAPI.Models
         [Required]
         public int Id { get; set; }
 
-        [Required]
-        public int CreateBy { get; set; }
+        public int? CreateBy { get; set; }
 
-        [Required]
-        public int UpdateBy { get; set; }
+        public int? UpdateBy { get; set; }
 
         [Required]
         public DateTime CreateDate { get; set; }
 
-        [Required]
-        public DateTime UpdateDate { get; set; }
+        public DateTime? UpdateDate { get; set; }
 
     }
 }

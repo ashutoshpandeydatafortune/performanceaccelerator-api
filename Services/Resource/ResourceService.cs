@@ -35,10 +35,10 @@ namespace DF_EvolutionAPI.Services
                     where r.EmailId == emailId 
                     select new Resource
                     {
+                        FunctionId = r.FunctionId,
                         ResourceId = r.ResourceId,
                         ReportingTo = r.ReportingTo,
                         ResourceName = r.ResourceName,
-                        ResourceFunctionId = r.ResourceFunctionId,
                         DesignationId = designation.DesignationId,
                         DesignationName = designation.DesignationName,
                     }
@@ -161,7 +161,7 @@ namespace DF_EvolutionAPI.Services
         public async Task<string> GetChildResources(string userName)
         {
             var resources = await(
-                    from resource in _dbcontext.Resources
+                    from resource in _dbcontext.Resources 
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                     select new Team
                     {
@@ -171,7 +171,8 @@ namespace DF_EvolutionAPI.Services
                         ReportingTo = resource.ReportingTo,
                         PrimarySkill = resource.Primaryskill,
                         ResourceName = resource.ResourceName,
-                        DesignationId = resource.DesignationId
+                        DesignationId = resource.DesignationId,
+                        DesignationName = designation.DesignationName
                     }
                 ).ToListAsync();
 

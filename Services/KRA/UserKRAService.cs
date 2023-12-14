@@ -30,7 +30,7 @@ namespace DF_EvolutionAPI.Services
             UserKRA userKRA;
             try
             {
-               userKRA = await _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id==userKRAId).FirstOrDefaultAsync();
+                userKRA = await _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id == userKRAId).FirstOrDefaultAsync();
             }
             catch (Exception)
             {
@@ -53,7 +53,7 @@ namespace DF_EvolutionAPI.Services
                                 KRAName = kraLibrary.Name,
                                 UserId = resource.ResourceId,
                                 UserName = resource.ResourceName,
-                                IsSpecial = kraLibrary.IsSpecial,
+                                IsSpecial = kraLibrary.IsSpecial.Value,
                                 QuarterId = userKRA.QuarterId.HasValue ? userKRA.QuarterId.Value : 0
                             };
 
