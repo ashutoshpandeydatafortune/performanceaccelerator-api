@@ -242,33 +242,44 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 userKRADetails = (
-                    from a in _dbcontext.KRALibrary
-                    join c in _dbcontext.UserKRA on a.Id equals c.KRAId
-                    join q in _dbcontext.QuarterDetails on c.QuarterId equals q.Id
-                    //join S in _dbcontext.StatusLibrary on c.Status equals S.Id
-                    where c.UserId == UserId
+                    from kraLibrary in _dbcontext.KRALibrary
+                    join userKra in _dbcontext.UserKRA on kraLibrary.Id equals userKra.KRAId
+                    join quarter in _dbcontext.QuarterDetails on userKra.QuarterId equals quarter.Id
+                    join approver in _dbcontext.Resources on userKra.ApprovedBy equals approver.ResourceId into approverJoin
+                    from approver in approverJoin.DefaultIfEmpty()
+                    join rejector in _dbcontext.Resources on userKra.RejectedBy equals rejector.ResourceId into rejectorJoin
+                    from rejector in rejectorJoin.DefaultIfEmpty()
+                    where userKra.UserId == UserId
                     select new UserKRADetails
                     {
-                        Id = c.Id,
-                        KRAName = a.Name,
-                        KRADisplayName = a.DisplayName,
-                        UserId = c.UserId,
-                        KRAId = c.KRAId,
-                        QuarterId = (int)c.QuarterId,
-                        QuarterName = q.QuarterName,
-                        QuarterYear = q.QuarterYear,
-                        Weightage = a.Weightage,
-                        WeightageId = a.WeightageId,
-                        DeveloperComment = c.DeveloperComment,
-                        DeveloperRating = (int)c.DeveloperRating,
-                        ManagerComment = c.ManagerComment,
-                        ManagerRating = (int)c.ManagerRating,
-                        FinalRating = (int)c.FinalRating,
-                        FinalComment = c.FinalComment,
-                        Score = c.Score,
-                        Status = c.Status,
+                        Id = userKra.Id,
+                        KRAId = userKra.KRAId,
+                        Score = userKra.Score,
+                        UserId = userKra.UserId,
+                        Status = userKra.Status,
+                        ApprovedBy = userKra.ApprovedBy,
+                        RejectedBy = userKra.RejectedBy,
+                        QuarterId = (int)userKra.QuarterId,
+                        FinalComment = userKra.FinalComment,
+                        FinalRating = (int)userKra.FinalRating,
+                        ManagerComment = userKra.ManagerComment,
+                        ManagerRating = (int)userKra.ManagerRating,
+                        DeveloperComment = userKra.DeveloperComment,
+                        DeveloperRating = (int)userKra.DeveloperRating,
+
+                      //  ApprovedByName = approver.ResourceName,
+                        RejectedByName = rejector.ResourceName,
+
+                        KRAName = kraLibrary.Name,
+                        Weightage = kraLibrary.Weightage,
+                        WeightageId = kraLibrary.WeightageId,
+                        KRADisplayName = kraLibrary.DisplayName,
+
+                        QuarterName = quarter.QuarterName,
+                        QuarterYear = quarter.QuarterYear,
+
                         //StatusName = S.StatusName,
-                        Reason = c.Reason
+                        //Reason = c.Reason
                     }).ToList();
             }
             catch (Exception)
