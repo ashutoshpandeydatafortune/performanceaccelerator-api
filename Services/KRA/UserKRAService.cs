@@ -126,7 +126,8 @@ namespace DF_EvolutionAPI.Services
                     userKra.FinalComment = string.IsNullOrEmpty(userKRAModel.FinalComment) ? " " : userKRAModel.FinalComment;
                     userKra.ManagerComment = string.IsNullOrEmpty(userKRAModel.ManagerComment) ? userKra.ManagerComment : userKRAModel.ManagerComment;
                     userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? userKra.DeveloperComment : userKRAModel.DeveloperComment;
-
+                    userKra.ApprovedBy = userKRAModel.ApprovedBy == null ? userKra.ApprovedBy : userKRAModel.ApprovedBy;
+                    userKra.RejectedBy = userKRAModel.RejectedBy == null ? userKra.RejectedBy : userKRAModel.RejectedBy;
                     /*
                     userKra.KRAId = userKRAModel.KRAId;
                     userKra.Score = userKRAModel.Score;
@@ -135,9 +136,7 @@ namespace DF_EvolutionAPI.Services
                     userKra.QuarterId = userKRAModel.QuarterId;
                     */
 
-                    userKra.ApprovedBy = userKRAModel.ApprovedBy;
-                    userKra.RejectedBy = userKRAModel.RejectedBy;
-                    
+
                     userKra.IsActive = 1;
                     userKra.UpdateBy = 1;
                     userKra.UpdateDate = DateTime.Now;
