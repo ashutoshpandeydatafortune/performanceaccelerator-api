@@ -160,10 +160,14 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<string> GetChildResources(string userName)
         {
+            var Managerid = _dbcontext.Resources.Where(r => r.EmailId == userName).FirstOrDefault();
             var resources = await(
-                    from resource in _dbcontext.Resources 
+                     from projectResource in _dbcontext.ProjectResources
+                   join project in _dbcontext.Projects on projectResource.ProjectId equals project.ProjectId
+                    join resource in _dbcontext.Resources on projectResource.ResourceId equals resource.ResourceId
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                    select new Team
+                    //where project.ProjectManagerId == Managerid.ResourceId
+                     select new Team
                     {
                         EmailId = resource.EmailId,
                         EmployeeId = resource.EmployeeId,
@@ -172,7 +176,9 @@ namespace DF_EvolutionAPI.Services
                         PrimarySkill = resource.Primaryskill,
                         ResourceName = resource.ResourceName,
                         DesignationId = resource.DesignationId,
-                        DesignationName = designation.DesignationName
+                        ManagerId = project.ProjectManagerId,
+                        DesignationName = designation.DesignationName,
+                       
                     }
                 ).ToListAsync();
 
@@ -191,8 +197,11 @@ namespace DF_EvolutionAPI.Services
 
         private List<object> BuildTree(List<Team> resources, int parentId)
         {
+
+
             var children = resources
-                .Where(c => c.ReportingTo.HasValue && c.ReportingTo == parentId)
+                //.Where(c => c.ReportingTo.HasValue && c.ReportingTo == parentId)
+                .Where(c => c.ManagerId == parentId)
                 .Select(resource => new
                 {
                     Resource = resource,
@@ -202,5 +211,6 @@ namespace DF_EvolutionAPI.Services
 
             return children.Any() ? children.Cast<object>().ToList() : null;
         }
+
     }
 }

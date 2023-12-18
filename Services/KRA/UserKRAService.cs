@@ -5,7 +5,6 @@ using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -65,27 +64,33 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-        public async Task<ResponseModel> CreateUserKRA(UserKRA userKRAModel)
+        public async Task<ResponseModel> CreateUserKRA(List<UserKRA> userKRAModel)
         {
             ResponseModel model = new ResponseModel();
-
+           
             try
             {
-                userKRAModel.KRAId = userKRAModel.KRAId;
-                userKRAModel.UserId = userKRAModel.UserId;
-                userKRAModel.QuarterId = userKRAModel.QuarterId;
+                foreach (var item in userKRAModel)
+                {                   
+                    
+                    item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
+                    item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
+                    item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
+                    item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
+                   
+                    item.IsActive = 1;
+                    item.CreateBy = 1;
+                    item.UpdateBy = 1;
+                    item.CreateDate = DateTime.Now;
+                    item.UpdateDate = DateTime.Now;
 
-                userKRAModel.IsActive = 1;
-                userKRAModel.CreateBy = 1;
-                userKRAModel.UpdateBy = 1;
-                userKRAModel.CreateDate = DateTime.Now;
-                userKRAModel.UpdateDate = DateTime.Now;
+                    await _dbcontext.AddAsync(item);
+                }
+                   await _dbcontext.SaveChangesAsync();
+
+                    model.IsSuccess = true;
+                    model.Messsage = "User KRA Inserted Successfully";
                 
-                await _dbcontext.AddAsync(userKRAModel);
-                _dbcontext.SaveChanges();
-
-                model.IsSuccess = true;
-                model.Messsage = "User KRA Inserted Successfully";
             }
             catch (Exception ex)
             {
@@ -95,6 +100,67 @@ namespace DF_EvolutionAPI.Services
 
             return model;
         }
+
+        public async Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModels)
+        {
+            ResponseModel model = new ResponseModel();
+
+            try
+            {
+                foreach (var userKRAModel in userKRAModels)
+                {
+                    var userKra = await _dbcontext.UserKRA.FindAsync(userKRAModel.Id);
+
+                    if (userKra != null)
+                    {
+                        userKra.Reason = string.IsNullOrEmpty(userKRAModel.Reason) ? userKra.Reason : userKRAModel.Reason;
+                        userKra.Comment = string.IsNullOrEmpty(userKRAModel.Comment) ? userKra.Comment : userKRAModel.Comment;
+                        userKra.FinalComment = string.IsNullOrEmpty(userKRAModel.FinalComment) ? " " : userKRAModel.FinalComment;
+                        userKra.ManagerComment = string.IsNullOrEmpty(userKRAModel.ManagerComment) ? userKra.ManagerComment : userKRAModel.ManagerComment;
+                        userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? userKra.DeveloperComment : userKRAModel.DeveloperComment;
+                        userKra.ApprovedBy = userKRAModel.ApprovedBy == null ? userKra.ApprovedBy : userKRAModel.ApprovedBy;
+                        userKra.RejectedBy = userKRAModel.RejectedBy == null ? userKra.RejectedBy : userKRAModel.RejectedBy;
+
+                        userKra.IsActive = 1;
+                        userKra.UpdateBy = 1;
+                        userKra.UpdateDate = DateTime.Now;
+
+                        if (userKRAModel.DeveloperRating != null)
+                            userKra.DeveloperRating = userKRAModel.DeveloperRating.Value;
+
+                        if (userKRAModel.ManagerRating != null)
+                            userKra.ManagerRating = userKRAModel.ManagerRating.Value;
+
+                        if (userKRAModel.FinalRating != null)
+                            userKra.FinalRating = userKRAModel.FinalRating.Value;
+
+                        if (userKRAModel.AppraisalRange != null)
+                            userKra.AppraisalRange = userKRAModel.AppraisalRange.Value;
+                    }
+                    else
+                    {
+                        model.Messsage = "User KRA not found for update.";
+                        model.IsSuccess = false;
+                        return model; 
+                    }
+
+                   await _dbcontext.SaveChangesAsync();
+                }
+
+                model.Messsage = "User KRAs Updated Successfully";
+                model.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                model.IsSuccess = false;
+                model.Messsage = "Error: " + ex.Message;
+            }
+
+            return model;
+        }
+
+
+
 
         public ResponseModel CreateorUpdateUserKRA(UserKRA userKRAModel)
         {

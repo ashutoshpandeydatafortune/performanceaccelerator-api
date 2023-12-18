@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using DF_EvolutionAPI.Services.KRA;
@@ -105,9 +104,52 @@ namespace DF_EvolutionAPI.Controllers
             {
                 ResponseModel model = new ResponseModel();
                 foreach (var item in userKRAModel)
-                {                    
+                {
                     model = _userKRAService.CreateorUpdateUserKRA(item);
                 }
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// create or update user KRA
+        /// </summary>
+        /// <param name="userKRAModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> CreateUserKRA(List<UserKRA> userKRAModel)
+        {
+            try
+            {
+                ResponseModel model = await _userKRAService.CreateUserKRA(userKRAModel);
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// create or update user KRA
+        /// </summary>
+        /// <param name="userKRAModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdateUserKra(List<UserKRA> userKRAModels)
+        {
+            try
+            {
+                ResponseModel model = await _userKRAService.UpdateUserKra(userKRAModels);
 
                 return Ok(model);
             }
