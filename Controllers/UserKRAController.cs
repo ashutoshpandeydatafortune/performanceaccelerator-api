@@ -91,34 +91,8 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// create or update user KRA
-        /// </summary>
-        /// <param name="userKRAModel"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<IActionResult> CreateorUpdateUserKRA(List<UserKRA> userKRAModel)
-        {
-            try
-            {
-                ResponseModel model = new ResponseModel();
-                foreach (var item in userKRAModel)
-                {
-                    model = _userKRAService.CreateorUpdateUserKRA(item);
-                }
-
-                return Ok(model);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        /// <summary>
-        /// create or update user KRA
+         /// <summary>
+        /// create user KRA
         /// </summary>
         /// <param name="userKRAModel"></param>
         /// <returns></returns>
@@ -139,7 +113,7 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// create or update user KRA
+        /// update user KRA
         /// </summary>
         /// <param name="userKRAModel"></param>
         /// <returns></returns>
