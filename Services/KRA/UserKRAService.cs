@@ -255,6 +255,7 @@ namespace DF_EvolutionAPI.Services
                         Id = userKra.Id,
                         KRAId = userKra.KRAId,
                         Score = userKra.Score,
+                        Reason = userKra.Reason,
                         UserId = userKra.UserId,
                         Status = userKra.Status,
                         ApprovedBy = userKra.ApprovedBy,
