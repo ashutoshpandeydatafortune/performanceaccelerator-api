@@ -10,5 +10,6 @@
         public string PrimarySkill { get; set; }
         public string ResourceName { get; set; }
         public string DesignationName { get; set; }
+        public int? ManagerId { get; set; }
     }
 }
