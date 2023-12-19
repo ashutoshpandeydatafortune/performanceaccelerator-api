@@ -37,6 +37,10 @@
         public int UserId { get; set; }
         public int KRAId { get; set; }
         public int? QuarterId { get; set; }
+        public int? RejectedBy { get; set; }
+        public int? ApprovedBy { get; set; }
+        public string ApprovedByName { get; set; }
+        public string RejectedByName { get; set; }
         public string QuarterName { get; set; }
         public int? QuarterYear { get; set; }
 
