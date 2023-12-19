@@ -160,14 +160,10 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<string> GetChildResources(string userName)
         {
-            var Managerid = _dbcontext.Resources.Where(r => r.EmailId == userName).FirstOrDefault();
-            var resources = await(
-                     from projectResource in _dbcontext.ProjectResources
-                   join project in _dbcontext.Projects on projectResource.ProjectId equals project.ProjectId
-                    join resource in _dbcontext.Resources on projectResource.ResourceId equals resource.ResourceId
+            var resources = await (
+                    from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                    //where project.ProjectManagerId == Managerid.ResourceId
-                     select new Team
+                    select new Team
                     {
                         EmailId = resource.EmailId,
                         EmployeeId = resource.EmployeeId,
@@ -176,9 +172,7 @@ namespace DF_EvolutionAPI.Services
                         PrimarySkill = resource.Primaryskill,
                         ResourceName = resource.ResourceName,
                         DesignationId = resource.DesignationId,
-                        ManagerId = project.ProjectManagerId,
-                        DesignationName = designation.DesignationName,
-                       
+                        DesignationName = designation.DesignationName
                     }
                 ).ToListAsync();
 
@@ -197,11 +191,8 @@ namespace DF_EvolutionAPI.Services
 
         private List<object> BuildTree(List<Team> resources, int parentId)
         {
-
-
             var children = resources
-                //.Where(c => c.ReportingTo.HasValue && c.ReportingTo == parentId)
-                .Where(c => c.ManagerId == parentId)
+                .Where(c => c.ReportingTo.HasValue && c.ReportingTo == parentId)
                 .Select(resource => new
                 {
                     Resource = resource,
