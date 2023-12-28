@@ -3,10 +3,13 @@ using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRA;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -67,17 +70,17 @@ namespace DF_EvolutionAPI.Services
         public async Task<ResponseModel> CreateUserKRA(List<UserKRA> userKRAModel)
         {
             ResponseModel model = new ResponseModel();
-           
+
             try
             {
                 foreach (var item in userKRAModel)
-                {                   
-                    
+                {
+
                     item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                     item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                     item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
                     item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
-                   
+
                     item.IsActive = 1;
                     item.CreateBy = 1;
                     item.UpdateBy = 1;
@@ -86,11 +89,11 @@ namespace DF_EvolutionAPI.Services
 
                     await _dbcontext.AddAsync(item);
                 }
-                   await _dbcontext.SaveChangesAsync();
+                await _dbcontext.SaveChangesAsync();
 
-                    model.IsSuccess = true;
-                    model.Messsage = "User KRA Inserted Successfully";
-                
+                model.IsSuccess = true;
+                model.Messsage = "User KRA Inserted Successfully";
+
             }
             catch (Exception ex)
             {
@@ -161,8 +164,8 @@ namespace DF_EvolutionAPI.Services
 
                 if (userKRAModel.QuarterId != null)
                 {
-                    userKra = _dbcontext.UserKRA.Where(c => 
-                        c.UserId == userKRAModel.UserId && 
+                    userKra = _dbcontext.UserKRA.Where(c =>
+                        c.UserId == userKRAModel.UserId &&
                         c.KRAId == userKRAModel.KRAId &&
                         c.QuarterId == userKRAModel.QuarterId
                     ).FirstOrDefault();
@@ -322,7 +325,7 @@ namespace DF_EvolutionAPI.Services
                         DeveloperComment = userKra.DeveloperComment,
                         DeveloperRating = (int)userKra.DeveloperRating,
 
-                      //  ApprovedByName = approver.ResourceName,
+                        //  ApprovedByName = approver.ResourceName,
                         RejectedByName = rejector.ResourceName,
 
                         KRAName = kraLibrary.Name,
@@ -343,6 +346,48 @@ namespace DF_EvolutionAPI.Services
             }
 
             return userKRADetails;
+        }
+
+        public List<UserKRARatingList> GetUserKraGraph(int UserId)
+        {
+            try
+            {
+                var rating = (
+                    from project in _dbcontext.Projects
+                    join projectResource in _dbcontext.ProjectResources on project.ProjectId equals projectResource.ProjectId
+                    join resources in _dbcontext.Resources on projectResource.ResourceId equals resources.ResourceId
+                    join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
+                    join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
+                    join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
+                    join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
+                    where resources.ResourceId == UserId && quarterDetail.IsActive == 1
+                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear,quarterDetail.Id, quarterDetail.QuarterName,  } into grouped
+                    select new
+                    {
+                        Id = grouped.Key.Id,
+                        QuarterName = grouped.Key.QuarterName,
+                        QuarterYear = grouped.Key.QuarterYear,
+                        Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
+                        Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
+
+                    }
+                    ).ToList();
+
+                var result = rating.Select(r => new UserKRARatingList
+                {
+                    QuarterYear = r.QuarterYear,
+                    QuarterName = r.QuarterName,
+                    Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
+                })
+                    .OrderByDescending(x=>x.QuarterYear)
+                    .ToList();
+
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
