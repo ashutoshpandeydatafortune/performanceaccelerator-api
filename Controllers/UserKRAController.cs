@@ -156,15 +156,15 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// It displays the rating according to Quaters for particular user. This can be used in for displaying graph
         /// </summary>
-        /// <param name="UserId"></param>
+        /// <param name="UserId" and YearRange="QuarderYearRange"></param>
         /// <returns>Rating and QuateName</returns>
         [HttpGet]
         [Route("[action]")]
-        public IActionResult GetUserKraGraph(int UserId)
+        public IActionResult GetUserKraGraph(int UserId, string QuarderYearRange)
         {
             try
             {
-                var model = _userKRAService.GetUserKraGraph(UserId); 
+                var model = _userKRAService.GetUserKraGraph(UserId, QuarderYearRange); 
                 return Ok(model);
             }
             catch (Exception ex)

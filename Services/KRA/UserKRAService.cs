@@ -348,10 +348,11 @@ namespace DF_EvolutionAPI.Services
             return userKRADetails;
         }
 
-        public List<UserKRARatingList> GetUserKraGraph(int UserId)
+        public List<UserKRARatingList> GetUserKraGraph(int UserId, string QuarderYearRange)
         {
             try
             {
+                //var isActiveCondition = UserId == 0 ? 0 : 1;
                 var rating = (
                     from project in _dbcontext.Projects
                     join projectResource in _dbcontext.ProjectResources on project.ProjectId equals projectResource.ProjectId
@@ -360,13 +361,14 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where resources.ResourceId == UserId && quarterDetail.IsActive == 1
-                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear,quarterDetail.Id, quarterDetail.QuarterName,  } into grouped
+                    where resources.ResourceId == UserId && quarterDetail.QuarterYearRange == QuarderYearRange
+                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName,  } into grouped
                     select new
                     {
                         Id = grouped.Key.Id,
                         QuarterName = grouped.Key.QuarterName,
                         QuarterYear = grouped.Key.QuarterYear,
+                        QuaterYearRange = grouped.Key.QuarterYearRange,
                         Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
                         Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
 
@@ -375,14 +377,17 @@ namespace DF_EvolutionAPI.Services
 
                 var result = rating.Select(r => new UserKRARatingList
                 {
-                    QuarterYear = r.QuarterYear,
-                    QuarterName = r.QuarterName,
+                   // QuarterYear = r.QuarterYear,
+                    QuarterYearRange = r.QuaterYearRange,
+                    QuarterName = r.QuarterName,                    
                     Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
                 })
-                    .OrderByDescending(x=>x.QuarterYear)
+                    .OrderByDescending(x=>x.QuarterYearRange)
                     .ToList();
 
                 return result;
+
+
             }
             catch (Exception)
             {
