@@ -19,14 +19,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<QuarterDetails>> GetAllQuarterList(string type)
         {
-            if (type == null)
-            {
-                return await _dbcontext.QuarterDetails.OrderBy(x => x.QuarterYear).ToListAsync();
-            }
-            else
-            {
-                return await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).OrderBy(x => x.QuarterYear).ToListAsync();
-            }
+            return await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).OrderBy(x =>x.QuarterYear).ToListAsync();
         }
 
         public async Task<QuarterDetails> GetQuarterDetailsById(int quarterId)
