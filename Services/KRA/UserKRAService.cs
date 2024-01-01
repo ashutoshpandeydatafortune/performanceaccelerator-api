@@ -348,7 +348,7 @@ namespace DF_EvolutionAPI.Services
             return userKRADetails;
         }
 
-        public List<UserKRARatingList> GetUserKraGraph(int UserId, string QuarderYearRange)
+        public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange)
         {
             try
             {              
@@ -360,7 +360,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == UserId || quarterDetail.QuarterYearRange == QuarderYearRange) 
+                    where (resources.ResourceId == userId || quarterDetail.QuarterYearRange == quarterYearRange) && quarterDetail.IsActive == 1
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName,  } into grouped
                     select new
                     {
@@ -384,8 +384,6 @@ namespace DF_EvolutionAPI.Services
                     .ToList();
 
                 return result;
-
-
             }
             catch (Exception)
             {
