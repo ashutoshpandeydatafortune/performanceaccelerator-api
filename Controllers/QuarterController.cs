@@ -23,7 +23,7 @@ namespace DF_EvolutionAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("[action]/type")]
+        [Route("[action]/{type?}")]      // null or current
         public async Task<IActionResult> GetAllQuarterList(string type)
         {
             try
