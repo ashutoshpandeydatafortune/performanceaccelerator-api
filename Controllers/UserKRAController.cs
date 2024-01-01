@@ -159,7 +159,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="UserId" and YearRange="QuarterYearRange"></param>
         /// <returns>Rating and QuateName</returns>
         [HttpGet]
-        [Route("[action]/{userId?}/{quarterYearRange?}")]
+        [Route("[action]/{userId}/{quarterYearRange?}")]
         public IActionResult GetUserKraGraph(int userId, string quarterYearRange)
         {
             try

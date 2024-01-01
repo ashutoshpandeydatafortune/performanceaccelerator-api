@@ -364,19 +364,18 @@ namespace DF_EvolutionAPI.Services
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName,  } into grouped
                     select new
                     {
-                        Id = grouped.Key.Id,
-                        QuarterName = grouped.Key.QuarterName,
-                        QuarterYear = grouped.Key.QuarterYear,
-                        QuaterYearRange = grouped.Key.QuarterYearRange,
+                        grouped.Key.Id,
+                        grouped.Key.QuarterName,
+                        grouped.Key.QuarterYear,
+                        grouped.Key.QuarterYearRange,
                         Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
                         Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
-
                     }
                     ).ToList();
 
                 var result = rating.Select(r => new UserKRARatingList
                 {                   
-                    QuarterYearRange = r.QuaterYearRange,
+                    QuarterYearRange = r.QuarterYearRange,
                     QuarterName = r.QuarterName,                    
                     Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
                 })
