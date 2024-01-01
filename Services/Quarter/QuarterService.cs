@@ -57,6 +57,7 @@ namespace DF_EvolutionAPI.Services
                 {
                     quarterDetails.QuarterName = quarterModel.QuarterName;
                     quarterDetails.QuarterYear = quarterModel.QuarterYear;
+                    quarterDetails.QuarterYearRange = quarterModel.QuarterYearRange;
                     quarterDetails.StatusId = quarterModel.StatusId;
                     quarterDetails.Description = quarterModel.Description;
                     quarterDetails.IsActive = 1;
@@ -74,6 +75,8 @@ namespace DF_EvolutionAPI.Services
                     quarterModel.UpdateBy = 1;
                     quarterModel.CreateDate = DateTime.Now;
                     quarterModel.UpdateDate = DateTime.Now;
+                    
+                   
                     
                     _dbcontext.Add(quarterModel);
                     
@@ -147,7 +150,8 @@ namespace DF_EvolutionAPI.Services
                         CreateBy = qd.CreateBy,
                         UpdateBy = qd.UpdateBy,
                         CreateDate = qd.CreateDate,
-                        UpdateDate = qd.UpdateDate                                             
+                        UpdateDate = qd.UpdateDate,
+                        QuarterYearRange = qd.QuarterYearRange
                     }).ToListAsync();
             }
             catch (Exception ex)

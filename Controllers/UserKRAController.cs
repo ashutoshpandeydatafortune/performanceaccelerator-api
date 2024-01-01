@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using DF_EvolutionAPI.Services.KRA;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -68,7 +69,7 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var userKRADetails = _userKRAService.GetKRAsByUserId(UserId);
-                return Ok(userKRADetails);               
+                return Ok(userKRADetails);
             }
             catch (Exception ex)
             {
@@ -91,7 +92,7 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// create user KRA
         /// </summary>
         /// <param name="userKRAModel"></param>
@@ -152,5 +153,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// <summary>
+        /// It displays the rating according to Quaters for particular user. This can be used in for displaying graph
+        /// </summary>
+        /// <param name="UserId" and YearRange="QuarderYearRange"></param>
+        /// <returns>Rating and QuateName</returns>
+        [HttpGet]
+        [Route("[action]")]
+        public IActionResult GetUserKraGraph(int UserId, string QuarderYearRange)
+        {
+            try
+            {
+                var model = _userKRAService.GetUserKraGraph(UserId, QuarderYearRange); 
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
