@@ -156,7 +156,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// It displays the rating according to Quarters for particular user. This can be used in for displaying graph
         /// </summary>
-        /// <param name="UserId" and YearRange="QuarderYearRange"></param>
+        /// <param name="UserId" and YearRange="QuarterYearRange"></param>
         /// <returns>Rating and QuateName</returns>
         [HttpGet]
         [Route("[action]/{userId?}/{quarterYearRange?}")]
