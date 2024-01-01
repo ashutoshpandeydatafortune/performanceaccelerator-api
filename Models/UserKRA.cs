@@ -30,8 +30,8 @@
         public int? ManagerRating { get; set; }
         public int? FinalRating { get; set; }
         public string FinalComment { get; set; }
-        public double Score { get; set; }
-        public int Status { get; set; }
+        public double? Score { get; set; }
+        public int? Status { get; set; }
         public string StatusName { get; set; }
         public string Reason { get; set; }
         public int? UserId { get; set; }

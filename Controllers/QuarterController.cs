@@ -23,12 +23,12 @@ namespace DF_EvolutionAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> GetAllQuarterList()
+        [Route("[action]/{type?}")]      // null or current
+        public async Task<IActionResult> GetAllQuarterList(string type)
         {
             try
             {
-                var quarters = await _quarterService.GetAllQuarterList();
+                var quarters = await _quarterService.GetAllQuarterList(type);
                 return Ok(quarters);
             }
             catch (Exception ex)

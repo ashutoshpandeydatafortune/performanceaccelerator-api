@@ -5,6 +5,7 @@
         public int? QuarterYear { get; set; }
         public string QuarterName { get; set; }
         public string Description { get; set; }
+        public string QuarterYearRange { get; set; }
 
         public byte? IsActive { get; set; }
         public byte? IsDeleted { get; set; }
