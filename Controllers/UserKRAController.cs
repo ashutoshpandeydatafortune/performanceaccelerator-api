@@ -26,7 +26,8 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetAllUserKRAs()
+        //public async Task<IActionResult> GetAllUserKRAs()
+        public async Task<IActionResult> GetAllUserKRAList()
         {
             try
             {
