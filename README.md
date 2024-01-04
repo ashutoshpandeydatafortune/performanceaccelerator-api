@@ -47,6 +47,11 @@ Jwt__ExpiryInMinutes=525600
 Jwt__Site=http://www.security.org
 Jwt__SigningKey=?
 
+SMTP_HOST=smtp.office365.com
+SMTP_PORT=587
+SMTP_USERNAME=?
+SMTP_PASSWORD=?
+
 * Right click on project => Publish
   (For first time)
   New Profile => Azure => Azure App Services => Select your subscription => API Management

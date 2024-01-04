@@ -73,6 +73,7 @@ namespace DF_EvolutionAPI.Services
                         DateOfBirth = r.DateOfBirth,
                         DateOfJoin = r.DateOfJoin,
                         DesignationId = r.DesignationId,
+                        DesignationName = r.DesignationName,
                         EmailId = r.EmailId,
                         EmployeeId = r.EmployeeId,
                         IsActive = r.IsActive,
