@@ -70,6 +70,7 @@ namespace DF_EvolutionAPI
             services.AddScoped<IUserApprovalService, UserApprovalService>();
             services.AddScoped<ISubmissionStatusService, SubmissionStatusService>();
             services.AddScoped<IAppraisalHistoryService, AppraisalHistoryService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>

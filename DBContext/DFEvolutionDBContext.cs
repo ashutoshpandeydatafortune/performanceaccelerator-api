@@ -2,6 +2,7 @@ using DF_EvolutionAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace DF_EvolutionAPI
 {
@@ -34,6 +35,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<SubmissionStatus> SubmissionStatus { get; set; }
         public virtual DbSet<ResourceFunction> ResourceFunctions { get; set; }
         public virtual DbSet<RoleMapping> PA_RoleMappings { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -395,7 +397,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
-            ////RoleMapping 
+            
             modelBuilder.Entity<RoleMapping>(e =>
             {
                 e.ToTable("PA_RoleMappings", "dbo");
@@ -410,6 +412,19 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.IsActive).HasColumnName("CreateBy");
                 e.Property(e => e.IsActive).HasColumnName("UpdateBy");
+            });
+
+            modelBuilder.Entity<Notification>(e =>
+            {
+                e.ToTable("PA_Notifications", "dbo");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.ResourceId).HasColumnName("ResourceId");
+                e.Property(e => e.Title).HasColumnName("Title");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsRead).HasColumnName("IsRead");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateAt).HasColumnName("CreatedAt");
+                e.Property(e => e.UpdateAt).HasColumnName("UpdatedAt");
             });
 
         }
