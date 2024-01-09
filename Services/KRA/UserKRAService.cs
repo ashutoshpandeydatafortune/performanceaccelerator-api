@@ -2,12 +2,15 @@
 using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRA;
 using DF_EvolutionAPI.ViewModels;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -88,6 +91,7 @@ namespace DF_EvolutionAPI.Services
                     item.UpdateDate = DateTime.Now;
 
                     await _dbcontext.AddAsync(item);
+                    await InsertNotification(item);
                 }
                 await _dbcontext.SaveChangesAsync();
 
@@ -132,7 +136,9 @@ namespace DF_EvolutionAPI.Services
                         userKra.UpdateBy = 1;
                         userKra.UpdateDate = DateTime.Now;
 
+                        await UpdateNotification(userKRAModel);
                         await _dbcontext.SaveChangesAsync();
+
                     }
                     else
                     {
@@ -351,7 +357,7 @@ namespace DF_EvolutionAPI.Services
         public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange)
         {
             try
-            {              
+            {
                 var rating = (
                     from project in _dbcontext.Projects
                     join projectResource in _dbcontext.ProjectResources on project.ProjectId equals projectResource.ProjectId
@@ -361,7 +367,7 @@ namespace DF_EvolutionAPI.Services
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
                     where (resources.ResourceId == userId || quarterDetail.QuarterYearRange == quarterYearRange) && quarterDetail.IsActive == 1
-                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName,  } into grouped
+                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
                         grouped.Key.Id,
@@ -374,12 +380,12 @@ namespace DF_EvolutionAPI.Services
                     ).ToList();
 
                 var result = rating.Select(r => new UserKRARatingList
-                {                   
+                {
                     QuarterYearRange = r.QuarterYearRange,
-                    QuarterName = r.QuarterName,                    
+                    QuarterName = r.QuarterName,
                     Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
                 })
-                    .OrderBy(x=>x.QuarterYearRange)
+                    .OrderBy(x => x.QuarterYearRange)
                     .ToList();
 
                 return result;
@@ -388,6 +394,62 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
+        }
+
+        private async Task InsertNotification(UserKRA item)
+        {
+            var username = _dbcontext.Resources
+                                        .Where(resource => resource.ResourceId == item.UserId)
+                                        .Select(resourcename => resourcename.ResourceName)
+                                        .FirstOrDefault();
+
+
+            Notification notification = new Notification
+            {
+                ResourceId = item.UserId.Value,
+                Title = "New KRA Assigned.",
+                Description = $"Hi {username}, new KRAs assigned to you by your manager on {item.CreateDate}",
+                IsRead = 0,
+                IsActive = 1,
+                CreateAt = DateTime.Now
+            };
+            await _dbcontext.AddAsync(notification);
+        }
+
+        public async Task UpdateNotification(UserKRA userKRAModel)
+        {
+            var username = _dbcontext.Resources
+                                       .Where(resource => resource.ResourceId == userKRAModel.UserId)
+                                       .Select(resourcename => resourcename.ResourceName)
+                                       .FirstOrDefault();
+
+            Notification notification = new Notification();
+            if (userKRAModel.FinalRating != 0 )
+            {
+                notification.Title = "Kra Updated";
+                notification.Description = username + ", KRA has been updated.";
+            }
+           else if (userKRAModel.ManagerRating != 0 )
+            {
+                notification.Title = "Kra Updated";
+                notification.Description = username + ", KRA has been updated.";
+            }
+           else if (userKRAModel.DeveloperRating != 0)
+            {
+                notification.Title = "Kra Updated";
+                notification.Description = username + ", KRA has been updated.";
+            }
+
+            if (userKRAModel.RejectedBy != 0)
+            {
+                notification.Title = "Kra Rejected";
+                notification.Description = username + " KRA has been rejected.";
+            }
+            notification.ResourceId = userKRAModel.UserId.Value;
+            notification.IsRead = 0;
+            notification.IsActive = 1;
+            notification.CreateAt = DateTime.Now;
+            await _dbcontext.AddAsync(notification);
         }
     }
 }
