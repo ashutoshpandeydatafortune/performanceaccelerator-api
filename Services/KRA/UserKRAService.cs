@@ -138,7 +138,6 @@ namespace DF_EvolutionAPI.Services
 
                         await UpdateNotification(userKRAModel);
                         await _dbcontext.SaveChangesAsync();
-
                     }
                     else
                     {
@@ -395,14 +394,12 @@ namespace DF_EvolutionAPI.Services
                 throw;
             }
         }
-
         private async Task InsertNotification(UserKRA item)
         {
             var username = _dbcontext.Resources
                                         .Where(resource => resource.ResourceId == item.UserId)
                                         .Select(resourcename => resourcename.ResourceName)
                                         .FirstOrDefault();
-
 
             Notification notification = new Notification
             {
@@ -424,26 +421,18 @@ namespace DF_EvolutionAPI.Services
                                        .FirstOrDefault();
 
             Notification notification = new Notification();
-            if (userKRAModel.FinalRating != 0 )
+            if (userKRAModel.RejectedBy == 0)
             {
-                notification.Title = "Kra Updated";
-                notification.Description = username + ", KRA has been updated.";
+                if (userKRAModel.FinalRating != 0 || userKRAModel.ManagerRating != 0 || userKRAModel.DeveloperRating != 0)
+                {
+                    notification.Title = "Kra Updated";
+                    notification.Description = $"{username}, KRA has been updated.";
+                }
             }
-           else if (userKRAModel.ManagerRating != 0 )
-            {
-                notification.Title = "Kra Updated";
-                notification.Description = username + ", KRA has been updated.";
-            }
-           else if (userKRAModel.DeveloperRating != 0)
-            {
-                notification.Title = "Kra Updated";
-                notification.Description = username + ", KRA has been updated.";
-            }
-
-            if (userKRAModel.RejectedBy != 0)
+            else
             {
                 notification.Title = "Kra Rejected";
-                notification.Description = username + " KRA has been rejected.";
+                notification.Description = $"{username}, KRA has been rejected.";
             }
             notification.ResourceId = userKRAModel.UserId.Value;
             notification.IsRead = 0;
