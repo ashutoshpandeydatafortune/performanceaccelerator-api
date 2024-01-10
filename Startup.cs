@@ -2,6 +2,7 @@ using DF_EvolutionAPI.Services;
 using DF_EvolutionAPI.Services.Designations;
 using DF_EvolutionAPI.Services.History;
 using DF_EvolutionAPI.Services.KRA;
+using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Services.Login;
 using DF_EvolutionAPI.Services.Submission;
 using DF_EvolutionAPI.Utils;
@@ -43,6 +44,8 @@ namespace DF_EvolutionAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews();
+            services.Configure<EmailService>(Configuration.GetSection("Mail"));
             LoadConfiguration();
 
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -70,6 +73,8 @@ namespace DF_EvolutionAPI
             services.AddScoped<IUserApprovalService, UserApprovalService>();
             services.AddScoped<ISubmissionStatusService, SubmissionStatusService>();
             services.AddScoped<IAppraisalHistoryService, AppraisalHistoryService>();
+            
+            services.AddScoped<IEmailService, EmailService>();
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
