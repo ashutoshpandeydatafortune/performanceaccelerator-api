@@ -13,22 +13,33 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.Identity.Web;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Services.Email;
 
 namespace DF_EvolutionAPI.Services
 {
     public class UserKRAService : IUserKRAService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IEmailService _emailService;
 
-        public UserKRAService(DFEvolutionDBContext dbContext)
+        public UserKRAService(DFEvolutionDBContext dbContext, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
         {
             _dbcontext = dbContext;
+            _hostingEnvironment = hostingEnvironment;
+            _emailService = emailService;
         }
 
         public async Task<List<UserKRA>> GetAllUserKRAList()
         {
             return await _dbcontext.UserKRA.Where(c => c.IsActive == 1).ToListAsync();
         }
+
 
         public async Task<UserKRA> GetUserKRAById(int userKRAId)
         {
@@ -394,30 +405,47 @@ namespace DF_EvolutionAPI.Services
                 throw;
             }
         }
-        private async Task InsertNotification(UserKRA item)
+        public async Task InsertNotification(UserKRA item)
         {
             var username = _dbcontext.Resources
                                         .Where(resource => resource.ResourceId == item.UserId)
-                                        .Select(resourcename => resourcename.ResourceName)
+                                        .Select(resourcename => new
+                                        {
+                                            Resourcename = resourcename.ResourceName,
+                                            Email = resourcename.EmailId
+                                        }
+
+                                           )
                                         .FirstOrDefault();
+
+            var createdTemplateContent = GetKraCreatedTemplateContent();
 
             Notification notification = new Notification
             {
                 ResourceId = item.UserId.Value,
                 Title = "New KRA Assigned.",
-                Description = $"Hi {username}, new KRAs assigned to you by your manager on {item.CreateDate}",
+                Description = createdTemplateContent.Replace("{userName}", username.Resourcename).Replace("{createdDate}", item.CreateDate.ToString()),
                 IsRead = 0,
                 IsActive = 1,
                 CreateAt = DateTime.Now
             };
+
             await _dbcontext.AddAsync(notification);
+            Constant.EMAIL_TO = username.Email;
+            Constant.EMAIL_SUBJECT = notification.Title;
+            Constant.EMAIL_BODY = notification.Description;
+            await _emailService.SendEmail(Constant.EMAIL_TO, Constant.EMAIL_SUBJECT, Constant.EMAIL_BODY);
         }
 
         public async Task UpdateNotification(UserKRA userKRAModel)
         {
             var username = _dbcontext.Resources
                                        .Where(resource => resource.ResourceId == userKRAModel.UserId)
-                                       .Select(resourcename => resourcename.ResourceName)
+                                       .Select(resourcename => new
+                                       {
+                                           Resourcename = resourcename.ResourceName,
+                                           Email = resourcename.EmailId
+                                       })
                                        .FirstOrDefault();
 
             Notification notification = new Notification();
@@ -426,19 +454,56 @@ namespace DF_EvolutionAPI.Services
                 if (userKRAModel.FinalRating != 0 || userKRAModel.ManagerRating != 0 || userKRAModel.DeveloperRating != 0)
                 {
                     notification.Title = "Kra Updated";
-                    notification.Description = $"{username}, KRA has been updated.";
+                    notification.Description = GetKraUpdateTemplateContent().Replace("{username}", username.Resourcename);
                 }
             }
             else
             {
                 notification.Title = "Kra Rejected";
-                notification.Description = $"{username}, KRA has been rejected.";
+                notification.Description = GetKraRejectedTemplateContent().Replace("{username}", username.Resourcename);
+
             }
+
             notification.ResourceId = userKRAModel.UserId.Value;
             notification.IsRead = 0;
             notification.IsActive = 1;
             notification.CreateAt = DateTime.Now;
+
+            Constant.EMAIL_TO = username.Email;
+            Constant.EMAIL_SUBJECT = notification.Title;
+            Constant.EMAIL_BODY = notification.Description;
+            await _emailService.SendEmail(Constant.EMAIL_TO, Constant.EMAIL_SUBJECT, Constant.EMAIL_BODY);
             await _dbcontext.AddAsync(notification);
+        }
+
+        public string GetKraUpdateTemplateContent()
+        {
+            var templateFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Templates", "kra-updated.html");
+            if (File.Exists(templateFilePath))
+            {
+                return File.ReadAllText(templateFilePath);
+            }
+            throw new FileNotFoundException("kra-updated.html not found.");
+        }
+
+        public string GetKraRejectedTemplateContent()
+        {
+            var templateFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Templates", "kra-rejected.html");
+            if (File.Exists(templateFilePath))
+            {
+                return File.ReadAllText(templateFilePath);
+            }
+            throw new FileNotFoundException("kra-rejected.html not found.");
+        }
+
+        public string GetKraCreatedTemplateContent()
+        {
+            var templateFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Templates", "kra-created.html");
+            if (File.Exists(templateFilePath))
+            {
+                return File.ReadAllText(templateFilePath);
+            }
+            throw new FileNotFoundException("kra-created.html not found.");
         }
     }
 }

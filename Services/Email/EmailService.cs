@@ -37,19 +37,16 @@ namespace DF_EvolutionAPI.Services.Email
 
                 using var mail = new MailMessage
                 {
-                    From = new MailAddress(smtpUsername, "Performance  Accelerator"),
+                    From = new MailAddress(smtpUsername),
                     Subject = subject,
                     Body = htmlContent,
                     IsBodyHtml = true
                 };
 
-                mail.To.Add(new MailAddress(toEmail));
-                
+                mail.To.Add(new MailAddress(toEmail));              
 
                 await smtpClient.SendMailAsync(mail);
-                model.IsSuccess = true;
-                model.Messsage = "Mail send Successfully.";
-
+               
             }
             catch (Exception ex)
             {
