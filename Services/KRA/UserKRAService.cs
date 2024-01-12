@@ -2,44 +2,37 @@
 using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRA;
 using DF_EvolutionAPI.ViewModels;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.Identity.Web;
 using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Services.Email;
+using System.Text;
 
 namespace DF_EvolutionAPI.Services
 {
     public class UserKRAService : IUserKRAService
     {
+        private readonly IEmailService _emailService;
         private readonly DFEvolutionDBContext _dbcontext;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        private readonly IEmailService _emailService;
 
         public UserKRAService(DFEvolutionDBContext dbContext, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
         {
             _dbcontext = dbContext;
-            _hostingEnvironment = hostingEnvironment;
             _emailService = emailService;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<List<UserKRA>> GetAllUserKRAList()
         {
             return await _dbcontext.UserKRA.Where(c => c.IsActive == 1).ToListAsync();
         }
-
 
         public async Task<UserKRA> GetUserKRAById(int userKRAId)
         {
@@ -83,13 +76,21 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<ResponseModel> CreateUserKRA(List<UserKRA> userKRAModel)
         {
+            /**
+             * This method performs following actions:
+             * 1. Run loop on passed kras and store in database
+             * 2. Find the user from passed kras
+             * 3. Prepare and store created kras notifications in database
+             * 4. Compile kras content and send single email to user
+             */ 
+
             ResponseModel model = new ResponseModel();
 
             try
             {
+
                 foreach (var item in userKRAModel)
                 {
-
                     item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                     item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                     item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
@@ -102,13 +103,46 @@ namespace DF_EvolutionAPI.Services
                     item.UpdateDate = DateTime.Now;
 
                     await _dbcontext.AddAsync(item);
-                    await InsertNotification(item);
                 }
+
                 await _dbcontext.SaveChangesAsync();
 
-                model.IsSuccess = true;
-                model.Messsage = "User KRA Inserted Successfully";
+                // Find user details
+                var user = await _dbcontext.Resources
+                               .Where(resource => resource.ResourceId == userKRAModel[0].UserId)
+                               .Select(resourcename => new
+                               {
+                                   Resourcename = resourcename.ResourceName,
+                                   Email = resourcename.EmailId
+                               })
+                               .FirstOrDefaultAsync();
 
+                if (user != null)
+                {
+                    var template = GetKraCreatedTemplateContent();
+                    template.Replace("{userName}", user.Resourcename).Replace("{createdDate}", DateTime.Now.ToString());
+
+                    // Store notifications to database
+                    List<Notification> notifications = await InsertNotifications(userKRAModel, template);
+
+                    if (notifications != null && notifications.Count > 0)
+                    {
+                        // Compile kras and send email to user
+                        SendNotification(notifications, user.Email, Constant.SUBJECT_KRA_CREATED);
+
+                        model.IsSuccess = true;
+                        model.Messsage = "User KRA Inserted Successfully";
+                    }
+                    else
+                    {
+                        model.IsSuccess = false;
+                        model.Messsage = "No notifications created";
+                    }
+                }
+                else
+                {
+                    throw new Exception("Invalid user");
+                }
             }
             catch (Exception ex)
             {
@@ -405,38 +439,60 @@ namespace DF_EvolutionAPI.Services
                 throw;
             }
         }
-        public async Task InsertNotification(UserKRA item)
+
+        public async Task<List<Notification>> InsertNotifications(List<UserKRA> userKRAModel, string description)
         {
-            var username = _dbcontext.Resources
-                                        .Where(resource => resource.ResourceId == item.UserId)
-                                        .Select(resourcename => new
-                                        {
-                                            Resourcename = resourcename.ResourceName,
-                                            Email = resourcename.EmailId
-                                        }).FirstOrDefault();
+            List<Notification> notifications = new List<Notification>();
 
-            var createdTemplateContent = GetKraCreatedTemplateContent();
-
-            Notification notification = new Notification
+            foreach (var item in userKRAModel)
             {
-                ResourceId = item.UserId.Value,
-                Title = "New KRA Assigned.",
-                Description = createdTemplateContent.Replace("{userName}", username.Resourcename).Replace("{createdDate}", item.CreateDate.ToString()),
-                IsRead = 0,
-                IsActive = 1,
-                CreateAt = DateTime.Now
-            };
+                Notification notification = new Notification
+                {
+                    ResourceId = item.UserId.Value,
+                    Title = Constant.SUBJECT_KRA_CREATED,
+                    Description = description,
+                    IsRead = 0,
+                    IsActive = 1,
+                    CreateAt = DateTime.Now
+                };
 
-            await _dbcontext.AddAsync(notification);
-            Constant.EMAIL_TO = username.Email;
-            Constant.EMAIL_SUBJECT = notification.Title;
-            Constant.EMAIL_BODY = notification.Description;
-            await _emailService.SendEmail(Constant.EMAIL_TO, Constant.EMAIL_SUBJECT, Constant.EMAIL_BODY);
+                // Save notification in database
+                await _dbcontext.AddAsync(notification);
+
+                notifications.Add(notification);
+            }
+
+            return notifications;
+        }
+
+        private void SendNotification(List<Notification> notifications, string email, string subject)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            foreach(var notification in notifications)
+            {
+                builder.Append(notification.Description);
+                builder.Append("<br/>");
+            }
+
+            await _emailService.SendEmail(email, subject, builder.ToString());
         }
 
         public async Task UpdateNotification(UserKRA userKRAModel)
         {
-            var username = _dbcontext.Resources
+            /**
+             * KRA can be updated by following conditions:
+             * 1. Admin approved
+             * 2. Admin rejected
+             * 
+             * 3. Manager approved
+             * 4. Manager rejected
+             * 
+             * 5. Developer rated
+             */
+
+            // Find user by email id
+            var user = _dbcontext.Resources
                                        .Where(resource => resource.ResourceId == userKRAModel.UserId)
                                        .Select(resourcename => new
                                        {
@@ -444,20 +500,27 @@ namespace DF_EvolutionAPI.Services
                                            Email = resourcename.EmailId
                                        }).FirstOrDefault();
 
+
+            string emailContent = string.Empty;
             Notification notification = new Notification();
-            if (userKRAModel.RejectedBy == 0)
+
+            // If kra is rejected
+            if (userKRAModel.RejectedBy != null)
             {
-                if (userKRAModel.FinalRating != 0 || userKRAModel.ManagerRating != 0 || userKRAModel.DeveloperRating != 0)
-                {
-                    notification.Title = "Kra Updated";
-                    notification.Description = GetKraUpdateTemplateContent().Replace("{username}", username.Resourcename);
-                }
+                emailContent = GetKraRejectedTemplateContent().Replace("{username}", user.Resourcename);
+
+                notification.Description = emailContent;
+                notification.Title = Constant.KRA_UPDATE_MANAGER_REJECTED;
             }
             else
             {
-                notification.Title = "Kra Rejected";
-                notification.Description = GetKraRejectedTemplateContent().Replace("{username}", username.Resourcename);
+                if (userKRAModel.FinalRating != 0 || userKRAModel.ManagerRating != 0 || userKRAModel.DeveloperRating != 0)
+                {
+                    emailContent = GetKraUpdateTemplateContent().Replace("{username}", user.Resourcename);
 
+                    notification.Title = "Kra Updated";
+                    notification.Description = emailContent;
+                }
             }
 
             notification.ResourceId = userKRAModel.UserId.Value;
@@ -465,10 +528,7 @@ namespace DF_EvolutionAPI.Services
             notification.IsActive = 1;
             notification.CreateAt = DateTime.Now;
 
-            Constant.EMAIL_TO = username.Email;
-            Constant.EMAIL_SUBJECT = notification.Title;
-            Constant.EMAIL_BODY = notification.Description;
-            await _emailService.SendEmail(Constant.EMAIL_TO, Constant.EMAIL_SUBJECT, Constant.EMAIL_BODY);
+            await _emailService.SendEmail(user.Email, Constant.SUBJECT_KRA_UPDATED, emailContent);
             await _dbcontext.AddAsync(notification);
         }
 
@@ -485,20 +545,24 @@ namespace DF_EvolutionAPI.Services
         public string GetKraRejectedTemplateContent()
         {
             var templateFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Templates", "kra-rejected.html");
+            
             if (File.Exists(templateFilePath))
             {
                 return File.ReadAllText(templateFilePath);
             }
+
             throw new FileNotFoundException("kra-rejected.html not found.");
         }
 
         public string GetKraCreatedTemplateContent()
         {
             var templateFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Templates", "kra-created.html");
+
             if (File.Exists(templateFilePath))
             {
                 return File.ReadAllText(templateFilePath);
             }
+
             throw new FileNotFoundException("kra-created.html not found.");
         }
     }
