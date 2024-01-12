@@ -108,19 +108,19 @@ namespace DF_EvolutionAPI.Services
                 await _dbcontext.SaveChangesAsync();
 
                 // Find user details
-                var user = await _dbcontext.Resources
+                var user =  _dbcontext.Resources
                                .Where(resource => resource.ResourceId == userKRAModel[0].UserId)
                                .Select(resourcename => new
                                {
                                    Resourcename = resourcename.ResourceName,
                                    Email = resourcename.EmailId
                                })
-                               .FirstOrDefaultAsync();
-
+                               .FirstOrDefault();
+                
                 if (user != null)
                 {
                     var template = GetKraCreatedTemplateContent();
-                    template.Replace("{userName}", user.Resourcename).Replace("{createdDate}", DateTime.Now.ToString());
+                    template = template.Replace("{userName}", user.Resourcename).Replace("{createdDate}", DateTime.Now.ToString());
 
                     // Store notifications to database
                     List<Notification> notifications = await InsertNotifications(userKRAModel, template);
@@ -181,7 +181,7 @@ namespace DF_EvolutionAPI.Services
                         userKra.UpdateBy = 1;
                         userKra.UpdateDate = DateTime.Now;
 
-                        await UpdateNotification(userKRAModel);
+                       
                         await _dbcontext.SaveChangesAsync();
                     }
                     else
@@ -190,6 +190,7 @@ namespace DF_EvolutionAPI.Services
                         model.IsSuccess = false;
                         return model;
                     }
+                    await UpdateNotification(userKRAModel);
                 }
 
                 model.Messsage = "User KRAs Updated Successfully";
@@ -458,14 +459,16 @@ namespace DF_EvolutionAPI.Services
 
                 // Save notification in database
                 await _dbcontext.AddAsync(notification);
-
+                
                 notifications.Add(notification);
+                await _dbcontext.SaveChangesAsync();
+
             }
 
             return notifications;
         }
 
-        private void SendNotification(List<Notification> notifications, string email, string subject)
+        private async void SendNotification(List<Notification> notifications, string email, string subject)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -530,6 +533,7 @@ namespace DF_EvolutionAPI.Services
 
             await _emailService.SendEmail(user.Email, Constant.SUBJECT_KRA_UPDATED, emailContent);
             await _dbcontext.AddAsync(notification);
+            await _dbcontext.SaveChangesAsync();
         }
 
         public string GetKraUpdateTemplateContent()

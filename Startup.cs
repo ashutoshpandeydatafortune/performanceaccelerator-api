@@ -34,7 +34,7 @@ namespace DF_EvolutionAPI
             Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"];
 
             Constant.SMTP_HOST = Configuration["SMTP:HOST"];
-            Constant.SMTP_PORT = Configuration["SMTP:PORT"];
+            Constant.SMTP_PORT = int.Parse(Configuration["SMTP:PORT"]);
             Constant.SMTP_PASSWORD = Configuration["SMTP:PASSWORD"];
             Constant.SMTP_USERNAME = Configuration["SMTP:USERNAME"];
 
