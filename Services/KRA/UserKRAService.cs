@@ -465,7 +465,7 @@ namespace DF_EvolutionAPI.Services
             return notifications;
         }
 
-        private void SendNotification(List<Notification> notifications, string email, string subject)
+        private async void SendNotification(List<Notification> notifications, string email, string subject)
         {
             StringBuilder builder = new StringBuilder();
 
