@@ -413,10 +413,7 @@ namespace DF_EvolutionAPI.Services
                                         {
                                             Resourcename = resourcename.ResourceName,
                                             Email = resourcename.EmailId
-                                        }
-
-                                           )
-                                        .FirstOrDefault();
+                                        }).FirstOrDefault();
 
             var createdTemplateContent = GetKraCreatedTemplateContent();
 
@@ -445,8 +442,7 @@ namespace DF_EvolutionAPI.Services
                                        {
                                            Resourcename = resourcename.ResourceName,
                                            Email = resourcename.EmailId
-                                       })
-                                       .FirstOrDefault();
+                                       }).FirstOrDefault();
 
             Notification notification = new Notification();
             if (userKRAModel.RejectedBy == 0)

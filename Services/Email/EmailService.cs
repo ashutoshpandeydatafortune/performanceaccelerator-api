@@ -30,7 +30,6 @@ namespace DF_EvolutionAPI.Services.Email
             {
                 using var smtpClient = new SmtpClient(smtpHost, smtpPort)
                 {
-
                     Credentials = new NetworkCredential(smtpUsername, smtpPassword),
                     EnableSsl = true
                 };
@@ -43,8 +42,7 @@ namespace DF_EvolutionAPI.Services.Email
                     IsBodyHtml = true
                 };
 
-                mail.To.Add(new MailAddress(toEmail));              
-
+                mail.To.Add(new MailAddress(toEmail));      
                 await smtpClient.SendMailAsync(mail);
                
             }
