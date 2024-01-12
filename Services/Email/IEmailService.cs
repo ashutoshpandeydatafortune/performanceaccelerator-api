@@ -5,6 +5,6 @@ namespace DF_EvolutionAPI.Services.Email
 {
     public interface IEmailService
     {
-       public Task<ResponseModel> SendEmail(string toEmail, string subject, string htmlContent);
+        public Task<bool> SendEmail(string toEmail, string subject, string htmlContent);
     }
 }

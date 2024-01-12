@@ -33,6 +33,11 @@ namespace DF_EvolutionAPI
         {
             Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"];
 
+            Constant.SMTP_HOST = Configuration["SMTP:HOST"];
+            Constant.SMTP_PORT = Configuration["SMTP:PORT"];
+            Constant.SMTP_PASSWORD = Configuration["SMTP:PASSWORD"];
+            Constant.SMTP_USERNAME = Configuration["SMTP:USERNAME"];
+
             Constant.AZURE_DOMAIN = Configuration["Azure:Domain"];
             Constant.AZURE_INSTANCE = Configuration["Azure:Instance"];
             Constant.AZURE_CLIENT_ID = Configuration["Azure:ClientId"];
