@@ -35,11 +35,10 @@ namespace DF_EvolutionAPI.Services.Email
                     Body = htmlContent,
                     IsBodyHtml = true
                 };
-
-                //mail.To.Add(new MailAddress(toEmail));              
+             
                 mail.To.Add(toEmail);              
 
-                await smtpClient.SendMailAsync(mail);               
+               // await smtpClient.SendMailAsync(mail);               
             }
             catch (Exception ex)
             {

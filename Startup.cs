@@ -58,6 +58,8 @@ namespace DF_EvolutionAPI
 
             services.AddDbContext<DFEvolutionDBContext>(x => x.UseSqlServer(Constant.CONNECTION_STRING));
 
+            services.AddSingleton<FileUtil>();
+
             //PRMS Master Tables Services
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IClientService, ClientService>();
