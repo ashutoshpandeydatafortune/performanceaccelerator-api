@@ -2,8 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
-
-using System.Reflection.Metadata;
+using DF_EvolutionAPI.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 
@@ -20,25 +19,26 @@ namespace DF_EvolutionAPI.Services.Email
 
         public async Task<bool> SendEmail(string toEmail, string subject, string htmlContent)
         {
+            
             try
             {
-                using var smtpClient = new SmtpClient(Utils.Constant.SMTP_HOST, Utils.Constant.SMTP_PORT)
+                using var smtpClient = new SmtpClient(Constant.SMTP_HOST, Constant.SMTP_PORT)
                 {
                     EnableSsl = true,
-                    Credentials = new NetworkCredential(Utils.Constant.SMTP_USERNAME, Utils.Constant.SMTP_PASSWORD)
+                    Credentials = new NetworkCredential(Constant.SMTP_USERNAME, Constant.SMTP_PASSWORD)
                 };
 
                 using var mail = new MailMessage
                 {
-                    From = new MailAddress(Utils.Constant.EMAIL_FROM),
+                    From = new MailAddress(Constant.SMTP_USERNAME),
                     Subject = subject,
                     Body = htmlContent,
                     IsBodyHtml = true
                 };
+             
+                mail.To.Add(toEmail);              
 
-                mail.To.Add(new MailAddress(toEmail));              
-
-                await smtpClient.SendMailAsync(mail);               
+               // await smtpClient.SendMailAsync(mail);               
             }
             catch (Exception ex)
             {

@@ -24,5 +24,8 @@
         public static string SMTP_HOST = "";
         public static string SMTP_USERNAME = "";
         public static string SMTP_PASSWORD = "";
+
+        public static string KRA_FOOTER_TEMPLATE_NAME = "kra-footer.html";
+        public static string KRA_HEADER_TEMPLATE_NAME = "kra-header.html";
     }
 }

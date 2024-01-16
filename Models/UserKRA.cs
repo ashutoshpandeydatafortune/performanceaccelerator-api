@@ -1,4 +1,6 @@
-﻿namespace DF_EvolutionAPI.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DF_EvolutionAPI.Models
 {
     public class UserKRA : BaseEntity
     {
@@ -17,6 +19,8 @@
         public int? RejectedBy { get; set; }
         public string Reason { get; set; }
         public string Comment { get; set; }
+        [NotMapped]
+        public string KRAName { get; set; }
         public int? AppraisalRange { get; set; }
         public byte? IsActive { get; set; }
         public byte? IsDeleted { get; set; }
