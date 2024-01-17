@@ -93,7 +93,7 @@ namespace DF_EvolutionAPI.Services
                 Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
                 foreach (var entry in notificationMap)
                 {
-                    await SendNotification(entry.Value, "kra-created.html");
+                    await SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME);
                 }
 
                 model.IsSuccess = true;
