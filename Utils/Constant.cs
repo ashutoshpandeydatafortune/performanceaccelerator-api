@@ -27,6 +27,6 @@
 
         public static string KRA_FOOTER_TEMPLATE_NAME = "kra-footer.html";
         public static string KRA_HEADER_TEMPLATE_NAME = "kra-header.html";
-        public static string KRA_HEADER_REJECT_TEMPLATE_NAME = "kra-header-reject.html";
+        public static string KRA_CREATED_TEMPLATE_NAME = "kra-created.html";
     }
 }

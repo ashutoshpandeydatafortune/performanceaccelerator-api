@@ -81,9 +81,8 @@ namespace DF_EvolutionAPI.Services
             /**
              * This method performs following actions:
              * 1. Run loop on passed kras and store in database
-             * 2. Find the user from passed kras
-             * 3. Prepare and store created kras notifications in database
-             * 4. Compile kras content and send single email to user
+             * 2. Create/store notifications while finding user and reading template
+             * 3. For each user => notifications map, send one single email pser user
              */
 
             ResponseModel model = new ResponseModel();
@@ -94,7 +93,7 @@ namespace DF_EvolutionAPI.Services
                 Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
                 foreach (var entry in notificationMap)
                 {
-                   // await SendNotification(entry.Value, "kra-created.html");
+                    await SendNotification(entry.Value, "kra-created.html");
                 }
 
                 model.IsSuccess = true;
@@ -571,51 +570,8 @@ namespace DF_EvolutionAPI.Services
             return true;
         }
 
-        /*
-        public async Task<Dictionary<int, Notification>> InsertNotifications(List<UserKRA> userKRAModel, string description)
+        private async Task<bool> SendNotification(UserNotificationData userNotificationData, string templateName)
         {
-            Dictionary<int, Notification> notifications = new Dictionary<int, Notification>();
-
-            foreach (var item in userKRAModel)
-            {
-                Notification notification = new Notification
-                {
-                    ResourceId = item.UserId.Value,
-                    Title = Constant.SUBJECT_KRA_CREATED,
-                    Description = description,
-                    IsRead = 0,
-                    IsActive = 1,
-                    CreateAt = DateTime.Now
-                };
-
-                // Save notification in database
-                await _dbcontext.AddAsync(notification);
-
-                notifications.Add(item.UserId.Value, notification);
-
-                await _dbcontext.SaveChangesAsync();
-            }
-
-            return notifications;
-        }
-        */
-
-        private async Task<bool> SendNotification(UserKRA userKRA, UserNotificationData userNotificationData, string templateName)
-        {
-            string subjectRejectedKra = "";
-            var headerRejectContent = "";
-            if (userKRA.RejectedBy != null)
-            {
-                 subjectRejectedKra = Constant.SUBJECT_KRA_CREATED;
-                 headerRejectContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
-            }
-            else { }
-            if (userKRA.FinalRating != 0 || userKRA.ManagerRating != 0 || userKRA.DeveloperRating != 0)
-            {
-               // var subjectRejectedKra = Constant.SUBJECT_KRA_CREATED;
-
-            }
-
             string emailContent = string.Empty;
             
             
@@ -649,29 +605,6 @@ namespace DF_EvolutionAPI.Services
 
             return true;
         }
-
-        /*
-        private async Task<bool> SendNotification(List<Notification> notifications, string email, string subject, string header)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(header);
-            builder.Append("<br/>");
-
-            foreach (var notification in notifications)
-            {
-                builder.Append(notification.Description);
-                //builder.Append("<br/>");
-            }
-
-            builder.Append("Thanks & Regards,");
-            builder.Append("<br>");
-            builder.Append("Datafortune Software Solutions Pvt. Ltd.");
-
-            await _emailService.SendEmail(email, subject, builder.ToString());
-
-            return true;
-        }
-        */
 
         public async Task<List<Notification>> UpdateNotification(List<UserKRA> userKRAModel, string description)
         {
