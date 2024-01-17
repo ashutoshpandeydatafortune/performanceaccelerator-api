@@ -93,7 +93,7 @@ namespace DF_EvolutionAPI.Services
                 Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
                 foreach (var entry in notificationMap)
                 {
-                    await SendNotification(entry.Value, "kra-created.html");
+                    await SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME);
                 }
 
                 model.IsSuccess = true;
@@ -201,26 +201,23 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModel)
         {
+            /**
+             * This method performs following actions:
+             * 1. Run loop on passed kras and store in database
+             * 2. Update/store notifications while finding user and reading template
+             * 3. For each user => notifications map, send one single email pser user
+             */
             ResponseModel model = new ResponseModel();
 
             bool created = await UpdateKraEntries(userKRAModel);
             if (created)
             {
-                Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
+                Dictionary<int, UserNotificationData> notificationMap = await CreateUpdateNotifications(userKRAModel);
                 foreach (var entry in notificationMap)
                 {
-
-                    foreach (var userKRA in userKRAModel)
-                    {
-                        if (userKRA.RejectedBy != null)
-                        {
-                            await SendNotification(userKRA, entry.Value, "kra-rejected.html");
-                        }
-                    }
-                   
-
+                    await SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME);
                 }
-
+               
                 model.IsSuccess = true;
             }
             else
@@ -321,6 +318,61 @@ namespace DF_EvolutionAPI.Services
             return true;
         }
 
+        private async Task<Dictionary<int, UserNotificationData>> PrepareUpdateNotifications(List<UserKRA> userKRAModel)
+        {
+            Dictionary<int, UserNotificationData> notificationMap = new Dictionary<int, UserNotificationData>();
+
+            foreach (UserKRA userKRA in userKRAModel)
+            {
+                if (!notificationMap.ContainsKey(userKRA.UserId.Value))
+                {
+                    UserNotificationData userNotificationData = new UserNotificationData();
+                    userNotificationData.Notifications = new List<Notification>();
+
+                    notificationMap[userKRA.UserId.Value] = userNotificationData;
+                }
+
+                // Find user details
+                var user = _dbcontext.Resources
+                               .Where(resource => resource.ResourceId == userKRA.UserId.Value)
+                               .FirstOrDefault();
+
+                Notification notification = new Notification
+                {
+                    ResourceId = userKRA.UserId.Value,
+                    Title = Constant.SUBJECT_KRA_UPDATED,
+                    Description = userKRA.KRAName,     // store kra name
+                    IsRead = 0,
+                    IsActive = 1,
+                    CreateAt = DateTime.Now
+                };
+
+                notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
+            }
+
+            return notificationMap;
+        }
+
+        public async Task<Dictionary<int, UserNotificationData>> CreateUpdateNotifications(List<UserKRA> userKRAModel)
+        {
+            try
+            {
+                Dictionary<int, UserNotificationData> notificationMap = await PrepareUpdateNotifications(userKRAModel);
+
+                foreach (var entry in notificationMap)
+                {
+                    await InsertNotifications(entry.Value.Notifications);
+                }
+
+                return notificationMap;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         public ResponseModel CreateorUpdateUserKRA(UserKRA userKRAModel)
         {
@@ -363,7 +415,7 @@ namespace DF_EvolutionAPI.Services
                     */
 
 
-                    userKra.IsActive = 1;
+            userKra.IsActive = 1;
                     userKra.UpdateBy = 1;
                     userKra.UpdateDate = DateTime.Now;
 
@@ -572,12 +624,26 @@ namespace DF_EvolutionAPI.Services
 
         private async Task<bool> SendNotification(UserNotificationData userNotificationData, string templateName)
         {
+            var subject = "";
+            var headerContent = "";
             string emailContent = string.Empty;
-            
+            foreach (Notification notification in userNotificationData.Notifications)
+            {
+                if(notification.Title == Constant.SUBJECT_KRA_UPDATED)
+                {
+                    subject = Constant.SUBJECT_KRA_UPDATED;
+                    headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
+                }
+                else
+                {
+                    subject = Constant.SUBJECT_KRA_CREATED;
+                    headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
+                }
+            }
             
 
-            //var headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
-            var headerContent = headerRejectContent;
+           // var headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
+            
             headerContent = headerContent.Replace("{NAME}", userNotificationData.Name);
 
             emailContent += headerContent;
