@@ -38,7 +38,7 @@ namespace DF_EvolutionAPI.Services.Email
              
                 mail.To.Add(toEmail);              
 
-               // await smtpClient.SendMailAsync(mail);               
+                await smtpClient.SendMailAsync(mail);               
             }
             catch (Exception ex)
             {

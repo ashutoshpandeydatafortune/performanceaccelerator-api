@@ -94,7 +94,7 @@ namespace DF_EvolutionAPI.Services
                 Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
                 foreach (var entry in notificationMap)
                 {
-                    await SendNotification(entry.Value, "kra-created.html");
+                   // await SendNotification(entry.Value, "kra-created.html");
                 }
 
                 model.IsSuccess = true;
@@ -185,7 +185,7 @@ namespace DF_EvolutionAPI.Services
                     IsActive = 1,
                     CreateAt = DateTime.Now
                 };
-
+               
                 notificationMap[userKRA.UserId.Value].Email = user.EmailId;
                 notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
                 notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
@@ -199,29 +199,111 @@ namespace DF_EvolutionAPI.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModels)
+
+        public async Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModel)
         {
             ResponseModel model = new ResponseModel();
 
+            bool created = await UpdateKraEntries(userKRAModel);
+            if (created)
+            {
+                Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
+                foreach (var entry in notificationMap)
+                {
+
+                    foreach (var userKRA in userKRAModel)
+                    {
+                        if (userKRA.RejectedBy != null)
+                        {
+                            await SendNotification(userKRA, entry.Value, "kra-rejected.html");
+                        }
+                    }
+                   
+
+                }
+
+                model.IsSuccess = true;
+            }
+            else
+            {
+                model.IsSuccess = false;
+            }
+            return model;
+        }
+
+        //    // Find user details
+        //    var user = _dbcontext.Resources
+        //                       .Where(resource => resource.ResourceId == userKRAModels[0].UserId)
+        //                       .Select(resourcename => new
+        //                       {
+        //                           Resourcename = resourcename.ResourceName,
+        //                           Email = resourcename.EmailId
+
+        //                       })
+        //                       .FirstOrDefault();
+
+        //        if (user != null)
+        //        {
+        //            var updateTemplate = GetKraUpdateTemplateContent();
+        //            updateTemplate = updateTemplate.Replace("{userName}", user.Resourcename);
+
+        //            // Store notifications to database
+        //            List<Notification> notifications = await UpdateNotification(userKRAModels, updateTemplate);
+
+        //            var header = "Hi  " + user.Resourcename + ",";
+        //            // if (userKRA.RejectedBy != null)
+        //            if (notifications != null && notifications.Count > 0)
+        //            {
+        //                // Compile kras and send email to user
+        //                //await SendNotification(notifications, user.Email, Constant.SUBJECT_KRA_CREATED, header);
+
+        //                model.IsSuccess = true;
+        //                model.Messsage = "User KRA Inserted Successfully";
+        //            }
+        //            else
+        //            {
+        //                model.IsSuccess = false;
+        //                model.Messsage = "No notifications created";
+        //            }
+        //        }
+        //        else
+        //        {
+        //            throw new Exception("Invalid user");
+        //        }
+
+        //        model.Messsage = "User KRAs Updated Successfully";
+        //        model.IsSuccess = true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        model.IsSuccess = false;
+        //        model.Messsage = "Error: " + ex.Message;
+        //    }
+
+        //    return model;
+        //}
+
+        public async Task<bool> UpdateKraEntries(List<UserKRA> userKRAModel)
+        {
             try
             {
-                foreach (var userKRAModel in userKRAModels)
+                foreach (var userKRAModels in userKRAModel)
                 {
-                    var userKra = await _dbcontext.UserKRA.FindAsync(userKRAModel.Id);
+                    var userKra = await _dbcontext.UserKRA.FindAsync(userKRAModels.Id);
 
                     if (userKra != null)
                     {
-                        userKra.Reason = userKRAModel.Reason;
-                        userKra.Comment = userKRAModel.Comment;
-                        userKra.ApprovedBy = userKRAModel.ApprovedBy;
-                        userKra.RejectedBy = userKRAModel.RejectedBy;
-                        userKra.FinalComment = userKRAModel.FinalComment;
-                        userKra.ManagerComment = userKRAModel.ManagerComment;
-                        userKra.FinalRating = userKRAModel.FinalRating ?? null;
-                        userKra.DeveloperComment = userKRAModel.DeveloperComment;
-                        userKra.ManagerRating = userKRAModel.ManagerRating ?? null;
-                        userKra.AppraisalRange = userKRAModel.AppraisalRange ?? null;
-                        userKra.DeveloperRating = userKRAModel.DeveloperRating ?? null;
+                        userKra.Reason = userKRAModels.Reason;
+                        userKra.Comment = userKRAModels.Comment;
+                        userKra.ApprovedBy = userKRAModels.ApprovedBy;
+                        userKra.RejectedBy = userKRAModels.RejectedBy;
+                        userKra.FinalComment = userKRAModels.FinalComment;
+                        userKra.ManagerComment = userKRAModels.ManagerComment;
+                        userKra.FinalRating = userKRAModels.FinalRating ?? null;
+                        userKra.DeveloperComment = userKRAModels.DeveloperComment;
+                        userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
+                        userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
+                        userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
 
                         userKra.IsActive = 1;
                         userKra.UpdateBy = 1;
@@ -229,68 +311,17 @@ namespace DF_EvolutionAPI.Services
 
 
                         await _dbcontext.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        model.Messsage = "User KRA not found for update.";
-                        model.IsSuccess = false;
-                        return model;
-                    }
-
-                    //  wait UpdateNotification(userKRAModel);
+                    }                   
                 }
-
-                // Find user details
-                var user = _dbcontext.Resources
-                               .Where(resource => resource.ResourceId == userKRAModels[0].UserId)
-                               .Select(resourcename => new
-                               {
-                                   Resourcename = resourcename.ResourceName,
-                                   Email = resourcename.EmailId
-
-                               })
-                               .FirstOrDefault();
-
-                if (user != null)
-                {
-                    var updateTemplate = GetKraUpdateTemplateContent();
-                    updateTemplate = updateTemplate.Replace("{userName}", user.Resourcename);
-
-                    // Store notifications to database
-                    List<Notification> notifications = await UpdateNotification(userKRAModels, updateTemplate);
-
-                    var header = "Hi  " + user.Resourcename + ",";
-                    // if (userKRA.RejectedBy != null)
-                    if (notifications != null && notifications.Count > 0)
-                    {
-                        // Compile kras and send email to user
-                        //await SendNotification(notifications, user.Email, Constant.SUBJECT_KRA_CREATED, header);
-
-                        model.IsSuccess = true;
-                        model.Messsage = "User KRA Inserted Successfully";
-                    }
-                    else
-                    {
-                        model.IsSuccess = false;
-                        model.Messsage = "No notifications created";
-                    }
-                }
-                else
-                {
-                    throw new Exception("Invalid user");
-                }
-
-                model.Messsage = "User KRAs Updated Successfully";
-                model.IsSuccess = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
-            }
 
-            return model;
+                throw;
+            }
+            return true;
         }
+
 
         public ResponseModel CreateorUpdateUserKRA(UserKRA userKRAModel)
         {
@@ -569,12 +600,28 @@ namespace DF_EvolutionAPI.Services
         }
         */
 
-        private async Task<bool> SendNotification(UserNotificationData userNotificationData, string templateName)
+        private async Task<bool> SendNotification(UserKRA userKRA, UserNotificationData userNotificationData, string templateName)
         {
-            string emailContent = string.Empty;
-            var subject = Constant.SUBJECT_KRA_CREATED;
+            string subjectRejectedKra = "";
+            var headerRejectContent = "";
+            if (userKRA.RejectedBy != null)
+            {
+                 subjectRejectedKra = Constant.SUBJECT_KRA_CREATED;
+                 headerRejectContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
+            }
+            else { }
+            if (userKRA.FinalRating != 0 || userKRA.ManagerRating != 0 || userKRA.DeveloperRating != 0)
+            {
+               // var subjectRejectedKra = Constant.SUBJECT_KRA_CREATED;
 
-            var headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
+            }
+
+            string emailContent = string.Empty;
+            
+            
+
+            //var headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
+            var headerContent = headerRejectContent;
             headerContent = headerContent.Replace("{NAME}", userNotificationData.Name);
 
             emailContent += headerContent;
