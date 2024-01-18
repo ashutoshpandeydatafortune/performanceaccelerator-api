@@ -192,6 +192,17 @@ namespace DF_EvolutionAPI.Services
             return notificationMap;
         }
 
+        public async Task<bool> InsertNotifications(List<Notification> notifications)
+        {
+            foreach (Notification notification in notifications)
+            {
+                await _dbcontext.AddAsync(notification);
+            }
+
+            await _dbcontext.SaveChangesAsync();
+
+            return true;
+        }
         private async Task<bool> SendNotification(UserNotificationData userNotificationData, string templateName)
         {
             var subject = "";
