@@ -233,7 +233,7 @@ namespace DF_EvolutionAPI.Services
 
             foreach (var notification in userNotificationData.Notifications)
             {
-                builder.Append("<li>" + "KRA Name" + "</li>");
+                builder.Append("<li>" + notification.Description + "</li>");
             }
 
             var KRAName = bodyContent.Replace("{KRA_NAMES}", builder.ToString());
