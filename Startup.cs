@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-//using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace DF_EvolutionAPI
@@ -33,10 +33,10 @@ namespace DF_EvolutionAPI
         {
             Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"];
 
-            Constant.SMTP_HOST = Configuration["SMTP:HOST"];
-            Constant.SMTP_PASSWORD = Configuration["SMTP:PASSWORD"];
-            Constant.SMTP_USERNAME = Configuration["SMTP:USERNAME"];
-            Constant.SMTP_PORT = int.Parse(Configuration["SMTP:PORT"]);
+            Constant.SMTP_HOST = Configuration["MAIL:SMTP_HOST"];
+            Constant.SMTP_PASSWORD = Configuration["MAIL:SMTP_PASSWORD"];
+            Constant.SMTP_USERNAME = Configuration["MAIL:SMTP_USERNAME"];
+            Constant.SMTP_PORT = int.Parse(Configuration["MAIL:SMTP_PORT"]);
 
             Constant.AZURE_DOMAIN = Configuration["Azure:Domain"];
             Constant.AZURE_INSTANCE = Configuration["Azure:Instance"];
@@ -44,6 +44,11 @@ namespace DF_EvolutionAPI
             Constant.AZURE_TENANT_ID = Configuration["Azure:TenantId"];
             Constant.AZURE_CALLBACK_PATH = Configuration["Azure:CallbackPath"];
             Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"];
+
+            System.Console.WriteLine("1. " + Constant.SMTP_HOST);
+            System.Console.WriteLine("2. " + Constant.CONNECTION_STRING);
+            System.Console.WriteLine("3. " + Constant.AZURE_DOMAIN);
+            System.Console.WriteLine("4. " + Constant.AZURE_STORAGE_CONNECTION_STRING);
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -134,37 +139,32 @@ namespace DF_EvolutionAPI
                 });
             });
 
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DF_EvolutionAPI", Version = "v1" });
-            //    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            //    {
-            //        In = ParameterLocation.Header,
-            //        Description = "Please insert JWT with Bearer into field",
-            //        Name = "Authorization",
-            //        Type = SecuritySchemeType.ApiKey
-            //    });
-            //    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-            //       {
-            //         new OpenApiSecurityScheme
-            //         {
-            //           Reference = new OpenApiReference
-            //           {
-            //             Type = ReferenceType.SecurityScheme,
-            //             Id = "Bearer"
-            //           }
-            //          },
-            //          new string[] { }
-            //        }
-            //      });
-            //});
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "DF_EvolutionAPI", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                   {
+                     new OpenApiSecurityScheme
+                     {
+                       Reference = new OpenApiReference
+                       {
+                         Type = ReferenceType.SecurityScheme,
+                         Id = "Bearer"
+                       }
+                      },
+                      new string[] { }
+                    }
+                  });
+            });
 
             services.AddControllers();
-
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DF_EvolutionAPI", Version = "v1" });
-            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -175,6 +175,12 @@ namespace DF_EvolutionAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                    
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DF Performation Accelerator API");
+                });
             }
 
             app.UseHttpsRedirection();
