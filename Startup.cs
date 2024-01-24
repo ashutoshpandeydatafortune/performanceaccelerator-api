@@ -44,11 +44,6 @@ namespace DF_EvolutionAPI
             Constant.AZURE_TENANT_ID = Configuration["Azure:TenantId"];
             Constant.AZURE_CALLBACK_PATH = Configuration["Azure:CallbackPath"];
             Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"];
-
-            System.Console.WriteLine("1. " + Constant.SMTP_HOST);
-            System.Console.WriteLine("2. " + Constant.CONNECTION_STRING);
-            System.Console.WriteLine("3. " + Constant.AZURE_DOMAIN);
-            System.Console.WriteLine("4. " + Constant.AZURE_STORAGE_CONNECTION_STRING);
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
