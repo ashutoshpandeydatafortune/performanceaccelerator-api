@@ -538,6 +538,7 @@ namespace DF_EvolutionAPI.Services
                         Reason = userKra.Reason,
                         UserId = userKra.UserId,
                         Status = userKra.Status.Value,
+                        IsSpecial = kraLibrary.IsSpecial,
                         ApprovedBy = userKra.ApprovedBy,
                         RejectedBy = userKra.RejectedBy,
                         QuarterId = (int)userKra.QuarterId,
@@ -547,8 +548,6 @@ namespace DF_EvolutionAPI.Services
                         ManagerRating = (int)userKra.ManagerRating,
                         DeveloperComment = userKra.DeveloperComment,
                         DeveloperRating = (int)userKra.DeveloperRating,
-
-                        //  ApprovedByName = approver.ResourceName,
                         RejectedByName = rejector.ResourceName,
 
                         KRAName = kraLibrary.Name,

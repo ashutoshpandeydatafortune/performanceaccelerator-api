@@ -56,5 +56,6 @@ namespace DF_EvolutionAPI.Models
         public string Description { get; set; }
         public int? WeightageId { get; set; }
         public int? Weightage { get; set; }
+        public int? IsSpecial { get; set; }
     }
 }
