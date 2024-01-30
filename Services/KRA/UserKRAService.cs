@@ -333,6 +333,7 @@ namespace DF_EvolutionAPI.Services
                     userNotificationData.Notifications = new List<Notification>();
 
                     notificationMap[userKRA.UserId.Value] = userNotificationData;
+                                       
                 }
 
                 // Find user details
@@ -350,8 +351,33 @@ namespace DF_EvolutionAPI.Services
                     CreateAt = DateTime.Now
                 };
 
-                notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                //Fetched the manager details
+                
+                var reportingTos = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
+                var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == reportingTos.ReportingTo.Value).FirstOrDefault();
+
+                if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0) && userKRA.isUpdated == true)
+                {
+                    notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
+                    notificationMap[userKRA.UserId.Value].Name = managerDetails.ResourceName;
+                }
+
+                if ((userKRA.ManagerRating != null && userKRA.ManagerRating != 0) &&
+                    (userKRA.DeveloperRating != null && userKRA.DeveloperRating != 0) &&
+                    userKRA.isUpdated == true)
+                {
+                    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                    notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                }
+
+                if ((userKRA.RejectedBy != null && userKRA.RejectedBy != 0) && userKRA.isUpdated == true)
+                {
+                    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                    notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                }
+
+
+
                 notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
             }
 

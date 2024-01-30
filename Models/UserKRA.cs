@@ -24,6 +24,8 @@ namespace DF_EvolutionAPI.Models
         public int? AppraisalRange { get; set; }
         public byte? IsActive { get; set; }
         public byte? IsDeleted { get; set; }
+        [NotMapped]
+        public bool? isUpdated { get; set; }
     }
 
     public class UserKRADetails : BaseEntity
