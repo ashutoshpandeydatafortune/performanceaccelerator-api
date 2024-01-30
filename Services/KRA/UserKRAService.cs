@@ -582,7 +582,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId || quarterDetail.QuarterYearRange == quarterYearRange) && quarterDetail.IsActive == 1
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterYearRange && quarterDetail.IsActive == 1)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
