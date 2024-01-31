@@ -351,40 +351,36 @@ namespace DF_EvolutionAPI.Services
                     CreateAt = DateTime.Now
                 };
 
-                //Fetched the manager details
-                
+                //Fetched the manager details.                
                 var reportingTos = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
                 var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == reportingTos.ReportingTo.Value).FirstOrDefault();
-                
-                //Sending mail according to developer and manager action
-                if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0) 
-                    && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0) && userKRA.isUpdated == true)
+               
+                //Sending mail according to developer and manager action.
+                if (userKRA.isUpdated == true)
                 {
-                    notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
-                    notificationMap[userKRA.UserId.Value].Name = managerDetails.ResourceName;
-                } 
-                else if ((userKRA.ManagerRating != null && userKRA.ManagerRating != 0) &&
-                    (userKRA.DeveloperRating != null && userKRA.DeveloperRating != 0) &&
-                    (userKRA.RejectedBy != null && userKRA.RejectedBy != 0) &&
-                    userKRA.isUpdated == true)
-                {
-                    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                    notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                    if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
+                        && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0))
+                    {
+                        notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
+                        notificationMap[userKRA.UserId.Value].Name = managerDetails.ResourceName;
+                    }
+
+                    else if (((userKRA.ManagerRating != null && userKRA.ManagerRating != 0) || (userKRA.FinalRating != 0) )
+                             && userKRA.DeveloperRating != null && userKRA.DeveloperRating != 0
+                             && (userKRA.RejectedBy != 0) || userKRA.RejectedBy == 0)
+                    {
+                        notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                        notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                    }
+                   
+                    else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
+                             && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
+                    {
+                        notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                        notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                    }
                 }
-                else if ((userKRA.ManagerRating != null && userKRA.ManagerRating != 0) &&
-                   (userKRA.DeveloperRating != null && userKRA.DeveloperRating != 0) &&
-                   userKRA.RejectedBy == 0 && userKRA.isUpdated == true)
-                {
-                    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                    notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
-                }
-                else if ((userKRA.RejectedBy != null && userKRA.RejectedBy != 0) &&
-                    (userKRA.ManagerRating == null || userKRA.ManagerRating == 0) 
-                    && userKRA.isUpdated == true)
-                {
-                    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                    notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
-                }
+
 
                 notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
             }
