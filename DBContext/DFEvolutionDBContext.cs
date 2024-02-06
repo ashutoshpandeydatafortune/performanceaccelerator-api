@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection.Emit;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI
 {
@@ -36,6 +37,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<ResourceFunction> ResourceFunctions { get; set; }
         public virtual DbSet<RoleMapping> PA_RoleMappings { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<PATemplates> PATemplates { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -426,6 +428,21 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateAt).HasColumnName("CreatedAt");
                 e.Property(e => e.UpdateAt).HasColumnName("UpdatedAt");
             });
+
+            modelBuilder.Entity<PATemplates>(e =>
+            {
+                e.ToTable("PA_Templates", "dbo");
+                e.Property(e => e.TemplateId).HasColumnName("TemplateId");
+                e.Property(e => e.Name).HasColumnName("Name");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+               
+            });
+
 
         }
     }

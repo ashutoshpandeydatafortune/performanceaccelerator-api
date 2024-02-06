@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using DF_EvolutionAPI.Services.KRATemplate;
 
 namespace DF_EvolutionAPI
 {
@@ -82,8 +83,8 @@ namespace DF_EvolutionAPI
             services.AddScoped<IAppraisalHistoryService, AppraisalHistoryService>();
             
             services.AddScoped<IEmailService, EmailService>();
-
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IKRATemplateService, KRATemplateService>();
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
