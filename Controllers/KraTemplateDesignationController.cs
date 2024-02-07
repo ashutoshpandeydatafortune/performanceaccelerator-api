@@ -1,6 +1,7 @@
 ﻿using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRATemplateDesignation;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -17,7 +18,7 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// Insert the template in the table PA_TemplateDesignation.
+        /// Assign the template to designation in the table PA_TemplateDesignation.
         /// </summary>
         /// <param name="PATemplateDesignation"></param>
         /// <returns></returns>
@@ -25,7 +26,21 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> CreateTemplateDesingation(PATemplateDesignation paTemplateDesignation)
         {
-            var response = await _kraTemplateDesignation.CreateTemplateDesingation(paTemplateDesignation);
+            var response = await _kraTemplateDesignation.AssignTemplateDesingation(paTemplateDesignation);
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Unassign the template to designation by inactive the entry.
+        /// </summary>
+        /// <param name="PATemplateDesignation"></param>
+        /// <returns></returns>
+
+        [HttpDelete]
+        [Route("UnassignTemplateDesignation/{templateDesignationId}")]
+        public async Task<IActionResult> UnassignTemplateDesignation(int templateDesignationId)
+        {
+            var response = await _kraTemplateDesignation.UnassignTemplateDesignation(templateDesignationId);
             return Ok(response);
         }
     }

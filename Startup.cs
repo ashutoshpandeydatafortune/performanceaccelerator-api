@@ -85,7 +85,7 @@ namespace DF_EvolutionAPI
             
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<IKraTemplate, KRATemplateService>();
+            services.AddScoped<IKRATemplateService, KRATemplateService>();
             services.AddScoped<IKraTemplateDesignation, KraTemplateDesignationService>();
 
             services.AddIdentity<IdentityUser, IdentityRole>(
