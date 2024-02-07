@@ -1,10 +1,7 @@
-﻿
-
-using DF_EvolutionAPI.Models.Response;
-using DF_EvolutionAPI.ViewModels;
-using System;
-using System.Linq.Expressions;
+﻿using System;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.ViewModels;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.KRATemplateDesignation
 {
@@ -16,20 +13,18 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
         {
             _dbContext = dbContext;
         }
-       
 
+        //Assing the template to the designation by inserting record in PA_TemplateDesignation table.
         public async Task<ResponseModel> AssignTemplateDesingation(PATemplateDesignation paTemplateDesignation)
         {
             ResponseModel model = new ResponseModel();
 
             try
             {
-                paTemplateDesignation.IsActive = true;
                 paTemplateDesignation.CreateBy = 1;
-                paTemplateDesignation.UpdateBy = 1;
+                paTemplateDesignation.IsActive = true;
                 paTemplateDesignation.CreateDate = DateTime.Now;
-                paTemplateDesignation.UpdateDate = DateTime.Now;
-
+              
                 _dbContext.Add(paTemplateDesignation);
                 model.Messsage = "Template designation saved successfully.";
 
@@ -37,6 +32,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
                 model.IsSuccess = true;
                
             }
+
             catch(Exception ex)
             {
                 model.IsSuccess = false;
@@ -45,6 +41,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
             return model;   
         }
 
+        //Unassign the template to designation in PA_TemplateDesignation by making inactive record.
         public async Task<ResponseModel> UnassignTemplateDesignation(int templateDesignationId)
         {
             ResponseModel model = new ResponseModel();
@@ -53,16 +50,13 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
                 var deleteTemplateDesignation = _dbContext.PA_TemplateDesignations.Find(templateDesignationId);
                 if(deleteTemplateDesignation != null)
                 {
-                    deleteTemplateDesignation.IsActive = false;
-                    deleteTemplateDesignation.CreateBy = 1;
                     deleteTemplateDesignation.UpdateBy = 1;
-                    deleteTemplateDesignation.CreateDate = DateTime.Now;
+                    deleteTemplateDesignation.IsActive = false;
                     deleteTemplateDesignation.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();
                     model.IsSuccess = true;
                     model.Messsage = "Unsignned the template designation successfully.";
-
                 }
                 else
                 {
@@ -75,10 +69,8 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
             {
                 model.IsSuccess = false;
                 model.Messsage = "Error" + ex.Message;
-
             }
             return model;
         }
-
     }
 }

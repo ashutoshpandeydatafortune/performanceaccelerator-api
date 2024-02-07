@@ -39,6 +39,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<PATemplates> PATemplates { get; set; }
         public virtual DbSet<PATemplateDesignation> PA_TemplateDesignations { get; set; }
+        public virtual DbSet<PATemplateKras> PA_TemplateKras { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -450,6 +451,20 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.TemplateDesignationId).HasColumnName("TemplateDesignationId");
                 e.Property(e => e.TemplateId).HasColumnName("TemplateId");
                 e.Property(e => e.DesignationId).HasColumnName("DesignationId");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+
+            });
+
+            modelBuilder.Entity<PATemplateKras>(e =>
+            {
+                e.ToTable("PA_TemplateKras", "dbo");
+                e.Property(e => e.TemplateKrasId).HasColumnName("TemplateKrasId");
+                e.Property(e => e.TemplateId).HasColumnName("TemplateId");
+                e.Property(e => e.KraId).HasColumnName("KraId");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");

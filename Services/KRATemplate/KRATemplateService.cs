@@ -23,10 +23,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             {
                 paTemplates.IsActive = true;
                 paTemplates.CreateBy = 1;
-                paTemplates.UpdateBy = 1;
                 paTemplates.CreateDate = DateTime.Now;
-                paTemplates.UpdateDate = DateTime.Now;
-
+                
                 _dbContext.Add(paTemplates);
                 model.Messsage = "Template Saved Successfully.";
 
@@ -54,9 +52,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     updatetemplate.Name = paTemplates.Name;
                     updatetemplate.Description = paTemplates.Description;
                     updatetemplate.IsActive = true;
-                    paTemplates.CreateBy = 1;
                     paTemplates.UpdateBy = 1;
-                    paTemplates.CreateDate = DateTime.Now;
                     paTemplates.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();
@@ -97,10 +93,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 if (deleteTemplate != null)
                 {
 
-                    deleteTemplate.CreateBy = 1;
                     deleteTemplate.UpdateBy = 1;
                     deleteTemplate.IsActive = false;
-                    deleteTemplate.CreateDate = DateTime.Now;
                     deleteTemplate.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();

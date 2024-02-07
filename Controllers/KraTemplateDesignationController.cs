@@ -33,7 +33,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// Unassign the template to designation by inactive the entry.
         /// </summary>
-        /// <param name="PATemplateDesignation"></param>
+        /// <param name="templateDesignationId"></param>
         /// <returns></returns>
 
         [HttpDelete]
