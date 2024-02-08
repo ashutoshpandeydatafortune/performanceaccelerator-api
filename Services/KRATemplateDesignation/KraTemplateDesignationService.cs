@@ -22,7 +22,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
             try
             {
                 paTemplateDesignation.CreateBy = 1;
-                paTemplateDesignation.IsActive = true;
+                paTemplateDesignation.IsActive = 1;
                 paTemplateDesignation.CreateDate = DateTime.Now;
               
                 _dbContext.Add(paTemplateDesignation);
@@ -51,7 +51,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
                 if(deleteTemplateDesignation != null)
                 {
                     deleteTemplateDesignation.UpdateBy = 1;
-                    deleteTemplateDesignation.IsActive = false;
+                    deleteTemplateDesignation.IsActive = 0;
                     deleteTemplateDesignation.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();

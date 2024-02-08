@@ -3,6 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
 using DF_EvolutionAPI.Models.Response;
+using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -21,7 +24,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             try
             {
-                paTemplates.IsActive = true;
+                paTemplates.IsActive = 1;
                 paTemplates.CreateBy = 1;
                 paTemplates.CreateDate = DateTime.Now;
                 
@@ -51,7 +54,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 {
                     updatetemplate.Name = paTemplates.Name;
                     updatetemplate.Description = paTemplates.Description;
-                    updatetemplate.IsActive = true;
+                    updatetemplate.IsActive = 1;
                     paTemplates.UpdateBy = 1;
                     paTemplates.UpdateDate = DateTime.Now;
 
@@ -78,8 +81,15 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         // For Displaying the template through Id.
         public async Task<PATemplates> GetKraTemplatesById(int Id)
         {
-            return _dbContext.PATemplates.Where(templates => templates.TemplateId == Id && templates.IsActive == true)
+            return _dbContext.PATemplates.Where(templates => templates.TemplateId == Id && templates.IsActive == 1)
                     .FirstOrDefault();
+
+        }
+
+        //For displaying all templates
+        public async Task<List<PATemplates>> GetAllTemplates()
+        {
+            return _dbContext.PATemplates.Where(c => c.IsActive == 1).ToList();
 
         }
 
@@ -94,7 +104,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 {
 
                     deleteTemplate.UpdateBy = 1;
-                    deleteTemplate.IsActive = false;
+                    deleteTemplate.IsActive = 0;
                     deleteTemplate.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();

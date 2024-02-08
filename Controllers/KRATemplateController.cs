@@ -57,6 +57,20 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
+        /// Getting all the templates.
+        /// </summary>
+        /// <param name="PATemplates"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[Action]")]
+        public async Task<IActionResult> GetAllTemplates()
+        {
+            var result = await _kraTemplateService.GetAllTemplates();
+            return Ok(result);
+        }
+
+
+        /// <summary>
         /// Delete template through Id.
         /// </summary>
         /// <param name="PATemplates"></param>

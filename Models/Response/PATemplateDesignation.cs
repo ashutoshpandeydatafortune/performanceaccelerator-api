@@ -9,7 +9,7 @@ namespace DF_EvolutionAPI.Models.Response
         public int TemplateDesignationId { get; set; }
         public int TemplateId { get; set; }
         public int DesignationId { get; set; }
-        public bool IsActive { get; set; }
+        public byte? IsActive { get; set; }
         public int CreateBy { get; set; }
         public int UpdateBy { get; set; }
         public DateTime CreateDate { get; set; }

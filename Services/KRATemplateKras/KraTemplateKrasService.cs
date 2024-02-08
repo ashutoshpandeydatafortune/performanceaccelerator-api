@@ -22,7 +22,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
             try
             {
                 paTemplateKras.CreateBy = 1;
-                paTemplateKras.IsActive = true;
+                paTemplateKras.IsActive = 1;
                 paTemplateKras.CreateDate = DateTime.Now;
                 
                 _dbContext.Add(paTemplateKras);
@@ -51,7 +51,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
                 if (deleteTemplateKras != null)
                 {
                     deleteTemplateKras.UpdateBy = 1;
-                    deleteTemplateKras.IsActive = false;
+                    deleteTemplateKras.IsActive = 0;
                     deleteTemplateKras.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();
