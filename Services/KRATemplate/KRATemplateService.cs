@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
-using DF_EvolutionAPI.Models.Response;
-using System.Data.Entity;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -34,7 +32,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
             }
-
             catch (Exception ex)
             {
                 model.IsSuccess = false;
@@ -68,7 +65,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     model.Messsage = "Template does not exist.";
                 }
             }
-
             catch (Exception ex)
             {
                 model.IsSuccess = false;
@@ -117,7 +113,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     model.Messsage = "Template not found.";
                 }
             }
-
             catch (Exception ex)
             {
                 model.IsSuccess = false;

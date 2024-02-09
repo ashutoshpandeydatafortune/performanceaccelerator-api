@@ -1,7 +1,8 @@
-﻿using DF_EvolutionAPI.Models.Response;
-using DF_EvolutionAPI.Services.KRATemplate;
-using Microsoft.AspNetCore.Mvc;
+﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using DF_EvolutionAPI.Models.Response;
+using DF_EvolutionAPI.Services.KRATemplate;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -21,13 +22,19 @@ namespace DF_EvolutionAPI.Controllers
         /// </summary>
         /// <param name="PATemplates"></param>
         /// <returns></returns>
-
         [HttpPost]
         [Route("[Action]")]
         public async Task<IActionResult>CreateKraTemplate(PATemplates paTemplates)
         {
-            var response = await _kraTemplateService.CreateKraTemplate(paTemplates);
-            return Ok(response);
+            try
+            {
+                var response = await _kraTemplateService.CreateKraTemplate(paTemplates);
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }      
 
         /// <summary>
@@ -39,8 +46,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> UpdateKraTemplate(PATemplates paTemplates)
         {
-            var response = await _kraTemplateService.UpdateKraTemplate(paTemplates);
-            return Ok(response);
+            try
+            {
+                var response = await _kraTemplateService.UpdateKraTemplate(paTemplates);
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
 
         /// <summary>
@@ -52,8 +66,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("GetKraTemplateById/{Id}")]
         public async Task<IActionResult> GetKraTemplateById(int Id)
         {
-            var result = await _kraTemplateService.GetKraTemplatesById(Id);
-            return Ok(result);
+            try
+            {
+                var result = await _kraTemplateService.GetKraTemplatesById(Id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }           
         }
 
         /// <summary>
@@ -65,10 +86,16 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> GetAllTemplates()
         {
-            var result = await _kraTemplateService.GetAllTemplates();
-            return Ok(result);
+            try
+            {
+                var result = await _kraTemplateService.GetAllTemplates();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
-
 
         /// <summary>
         /// Delete template through Id.
@@ -79,9 +106,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("DeleteKraTemplateById/{Id}")]
         public async Task<IActionResult> DeleteKraTemplateById(int Id)
         {
-            var result = await _kraTemplateService.DeleteKraTemplateById(Id);
+            try
+            {
+                var result = await _kraTemplateService.DeleteKraTemplateById(Id);
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
-
     }
 }

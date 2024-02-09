@@ -30,7 +30,6 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
 
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
-
             }
 
             catch (Exception ex)

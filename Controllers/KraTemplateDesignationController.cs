@@ -1,6 +1,7 @@
 ﻿using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRATemplateDesignation;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -26,8 +27,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> CreateTemplateDesingation(PATemplateDesignation paTemplateDesignation)
         {
-            var response = await _kraTemplateDesignation.AssignTemplateDesingation(paTemplateDesignation);
-            return Ok(response);
+            try
+            {
+                var response = await _kraTemplateDesignation.AssignTemplateDesingation(paTemplateDesignation);
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
 
         /// <summary>
@@ -40,8 +48,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("UnassignTemplateDesignation/{templateDesignationId}")]
         public async Task<IActionResult> UnassignTemplateDesignation(int templateDesignationId)
         {
-            var response = await _kraTemplateDesignation.UnassignTemplateDesignation(templateDesignationId);
-            return Ok(response);
+            try
+            {
+                var response = await _kraTemplateDesignation.UnassignTemplateDesignation(templateDesignationId);
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
     }
 }

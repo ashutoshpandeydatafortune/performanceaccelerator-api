@@ -10,8 +10,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public Task<ResponseModel> CreateKraTemplate(PATemplates templateModel);
         public Task<ResponseModel> UpdateKraTemplate(PATemplates templateModel);
         public Task<PATemplates> GetKraTemplatesById(int Id);
-        public Task<ResponseModel> DeleteKraTemplateById(int Id);
         public Task<List<PATemplates>> GetAllTemplates();
+        public Task<ResponseModel> DeleteKraTemplateById(int Id);
 
     }
 }

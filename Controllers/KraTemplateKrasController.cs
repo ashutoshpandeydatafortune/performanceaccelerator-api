@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.Services.KRATemplateDesignation;
 using DF_EvolutionAPI.Services.KRATemplateKras;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -26,8 +27,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> AssignTemplateKras(PATemplateKras paTemplateKras)
         {
-            var response = await _kraTemplateKras.AssignTemplateKras(paTemplateKras);
-            return Ok(response);
+            try
+            {
+                var response = await _kraTemplateKras.AssignTemplateKras(paTemplateKras);
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
 
         /// <summary>
@@ -40,10 +48,15 @@ namespace DF_EvolutionAPI.Controllers
         [Route("UnassignTemplateKras/{templateKrasId}")]
         public async Task<IActionResult> UnassignTemplateKras(int templateKrasId)
         {
-            var response = await _kraTemplateKras.UnassignTemplateKras(templateKrasId);
-            return Ok(response);
+            try
+            {
+                var response = await _kraTemplateKras.UnassignTemplateKras(templateKrasId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
-
-
     }
 }

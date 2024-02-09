@@ -32,7 +32,6 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
                 model.IsSuccess = true;
                
             }
-
             catch(Exception ex)
             {
                 model.IsSuccess = false;
@@ -63,7 +62,6 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
                     model.IsSuccess = false;
                     model.Messsage = "Assigned template does not found.";
                 }
-
             }
             catch (Exception ex)
             {
