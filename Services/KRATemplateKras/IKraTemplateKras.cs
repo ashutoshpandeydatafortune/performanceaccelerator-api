@@ -6,7 +6,6 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
 {
     public interface IKraTemplateKras
     {
-        public Task<ResponseModel> AssignTemplateKras(PATemplateKras paTemplateKras);
-        public Task<ResponseModel> UnassignTemplateKras(int templateKrasId);
+        public Task<ResponseModel> AssignTemplateKras(PATtemplateKrasList paTemplateKras);      
     }
 }

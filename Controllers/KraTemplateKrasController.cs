@@ -19,13 +19,13 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// Assign the template to Kras in the table PA_TemplateKras.
+        /// Assign the template to Kras in the table PA_TemplateKras and inactive all the rest kras of particular template.
         /// </summary>
         /// <param name="PATemplateKras"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult> AssignTemplateKras(PATemplateKras paTemplateKras)
+        public async Task<IActionResult> AssignTemplateKras(PATtemplateKrasList paTemplateKras)
         {
             try
             {
@@ -38,25 +38,5 @@ namespace DF_EvolutionAPI.Controllers
             }            
         }
 
-        /// <summary>
-        /// Unassign the template to Kras by inactive the entry.
-        /// </summary>
-        /// <param name="templateKrasId"></param>
-        /// <returns></returns>
-
-        [HttpDelete]
-        [Route("UnassignTemplateKras/{templateKrasId}")]
-        public async Task<IActionResult> UnassignTemplateKras(int templateKrasId)
-        {
-            try
-            {
-                var response = await _kraTemplateKras.UnassignTemplateKras(templateKrasId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }            
-        }
     }
 }

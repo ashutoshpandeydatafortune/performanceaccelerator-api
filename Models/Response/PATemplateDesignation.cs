@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DF_EvolutionAPI.Models.Response
@@ -14,5 +15,14 @@ namespace DF_EvolutionAPI.Models.Response
         public int UpdateBy { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; } // Nullable DateTime for UpdateDate
+    }
+
+    public class PATtemplateDesignationList
+    {
+        public int TemplateId { get; set; }
+        public List<int> DesignationIds { get; set; }
+       
+
+
     }
 }

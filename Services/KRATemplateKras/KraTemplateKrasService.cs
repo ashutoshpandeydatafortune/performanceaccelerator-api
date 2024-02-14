@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.ViewModels;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 namespace DF_EvolutionAPI.Services.KRATemplateKras
 {
@@ -15,21 +16,40 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
         }
 
         //Assing the template to the designation by inserting record in PA_TemplateDesignation table.
-        public async Task<ResponseModel> AssignTemplateKras(PATemplateKras paTemplateKras )
+        public async Task<ResponseModel> AssignTemplateKras(PATtemplateKrasList paTemplateKras )
         {
             ResponseModel model = new ResponseModel();
-
             try
             {
-                paTemplateKras.CreateBy = 1;
-                paTemplateKras.IsActive = 1;
-                paTemplateKras.CreateDate = DateTime.Now;
-                
-                _dbContext.Add(paTemplateKras);
-                model.Messsage = "Template Kras saved successfully.";
+               // var existingRecords = _dbContext.PA_TemplateKras.ToList();
+                var existingRecords = _dbContext.PA_TemplateKras.Where(template => template.TemplateId == paTemplateKras.TemplateId).ToList();
 
+                // Set IsActive to 0 for each existing record to mark them as inactive
+                foreach (var existingRecord in existingRecords)
+                {
+                    existingRecord.IsActive = 0;
+                    existingRecord.UpdateBy = 1;
+                    existingRecord.UpdateDate = DateTime.Now;
+                    _dbContext.PA_TemplateKras.Update(existingRecord);
+                }
+                // Assuming paTemplateKras.KraId is a collection of Kra IDs
+                foreach (var kraid in paTemplateKras.KraIds)
+                {
+                    var newTemplateKras = new PATemplateKras
+                    {
+                        TemplateId = paTemplateKras.TemplateId,
+                        KraId = kraid,
+                        CreateBy = 1,
+                        IsActive = 1,
+                        CreateDate = DateTime.Now
+                    };
+                    _dbContext.PA_TemplateKras.Add(newTemplateKras);
+                }
+
+                // Save changes to the database
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
+                model.Messsage = "Template Kras saved successfully.";
             }
 
             catch (Exception ex)
@@ -38,38 +58,6 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
                 model.Messsage = ex.Message;
             }
             return model;
-        }
-
-        //Unassign the template to designation in PA_TemplateDesignation by making inactive record.
-        public async Task<ResponseModel> UnassignTemplateKras(int templateKrasId)
-        {
-            ResponseModel model = new ResponseModel();
-            try
-            {
-                var deleteTemplateKras = _dbContext.PA_TemplateKras.Find(templateKrasId);
-                if (deleteTemplateKras != null)
-                {
-                    deleteTemplateKras.UpdateBy = 1;
-                    deleteTemplateKras.IsActive = 0;
-                    deleteTemplateKras.UpdateDate = DateTime.Now;
-
-                    await _dbContext.SaveChangesAsync();
-                    model.IsSuccess = true;
-                    model.Messsage = "Unsignned the template kras successfully.";
-                }
-                else
-                {
-                    model.IsSuccess = false;
-                    model.Messsage = "Assigned template does not found.";
-                }
-
-            }
-            catch (Exception ex)
-            {
-                model.IsSuccess = false;
-                model.Messsage = "Error" + ex.Message;
-            }
-            return model;
-        }
+        }    
     }
 }

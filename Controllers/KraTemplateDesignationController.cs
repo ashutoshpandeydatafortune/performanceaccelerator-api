@@ -19,38 +19,17 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// Assign the template to designation in the table PA_TemplateDesignation.
+        /// Assign the template to designation in the table PA_TemplateDesignation and inactive re designation for particular template.
         /// </summary>
         /// <param name="PATemplateDesignation"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult> CreateTemplateDesingation(PATemplateDesignation paTemplateDesignation)
+        public async Task<IActionResult> AssignTemplateDesingation(PATtemplateDesignationList paTemplateDesignation)
         {
             try
             {
                 var response = await _kraTemplateDesignation.AssignTemplateDesingation(paTemplateDesignation);
-                return Ok(response);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }            
-        }
-
-        /// <summary>
-        /// Unassign the template to designation by inactive the entry.
-        /// </summary>
-        /// <param name="templateDesignationId"></param>
-        /// <returns></returns>
-
-        [HttpDelete]
-        [Route("UnassignTemplateDesignation/{templateDesignationId}")]
-        public async Task<IActionResult> UnassignTemplateDesignation(int templateDesignationId)
-        {
-            try
-            {
-                var response = await _kraTemplateDesignation.UnassignTemplateDesignation(templateDesignationId);
                 return Ok(response);
             }
             catch(Exception ex)

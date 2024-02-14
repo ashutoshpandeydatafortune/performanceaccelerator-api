@@ -6,7 +6,6 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
 {
     public interface IKraTemplateDesignation
     {
-        public Task<ResponseModel> AssignTemplateDesingation(PATemplateDesignation paTemplateDesignation);
-        public Task<ResponseModel> UnassignTemplateDesignation(int templateDesignationId);
+        public Task<ResponseModel> AssignTemplateDesingation(PATtemplateDesignationList paTemplateDesignation);       
     }
 }
