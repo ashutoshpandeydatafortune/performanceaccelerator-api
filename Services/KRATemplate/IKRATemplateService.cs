@@ -7,10 +7,11 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 {
     public interface IKRATemplateService
     {
-        public Task<ResponseModel> CreateKraTemplate(PATemplates templateModel);
-        public Task<ResponseModel> UpdateKraTemplate(PATemplates templateModel);
-        public Task<PATemplates> GetKraTemplatesById(int Id);
-        public Task<List<PATemplates>> GetAllTemplates();
+        public Task<ResponseModel> CreateKraTemplate(PATemplate templateModel);
+        public Task<ResponseModel> UpdateKraTemplate(PATemplate templateModel);
+        public Task<PATemplate> GetKraTemplateByIdDetails(int templateId);
+       public Task<PATemplate> GetKraTemplateById(int templateId);
+        public Task<List<PATemplate>> GetAllTemplates();
         public Task<ResponseModel> DeleteKraTemplateById(int Id);
 
     }

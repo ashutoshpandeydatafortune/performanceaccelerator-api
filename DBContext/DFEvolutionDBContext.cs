@@ -37,9 +37,9 @@ namespace DF_EvolutionAPI
         public virtual DbSet<ResourceFunction> ResourceFunctions { get; set; }
         public virtual DbSet<RoleMapping> PA_RoleMappings { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
-        public virtual DbSet<PATemplates> PATemplates { get; set; }
+        public virtual DbSet<PATemplate> PATemplates { get; set; }
         public virtual DbSet<PATemplateDesignation> PA_TemplateDesignations { get; set; }
-        public virtual DbSet<PATemplateKras> PA_TemplateKras { get; set; }
+        public virtual DbSet<PATemplateKra> PA_TemplateKras { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -431,7 +431,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateAt).HasColumnName("UpdatedAt");
             });
 
-            modelBuilder.Entity<PATemplates>(e =>
+            modelBuilder.Entity<PATemplate>(e =>
             {
                 e.ToTable("PA_Templates", "dbo");
                 e.Property(e => e.TemplateId).HasColumnName("TemplateId");
@@ -441,8 +441,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
-               
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");                
+
             });
 
             modelBuilder.Entity<PATemplateDesignation>(e =>
@@ -459,7 +459,7 @@ namespace DF_EvolutionAPI
 
             });
 
-            modelBuilder.Entity<PATemplateKras>(e =>
+            modelBuilder.Entity<PATemplateKra>(e =>
             {
                 e.ToTable("PA_TemplateKras", "dbo");
                 e.Property(e => e.TemplateKrasId).HasColumnName("TemplateKrasId");

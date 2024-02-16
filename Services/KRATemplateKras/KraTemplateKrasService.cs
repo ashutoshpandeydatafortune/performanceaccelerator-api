@@ -35,7 +35,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
                 // Assuming paTemplateKras.KraId is a collection of Kra IDs
                 foreach (var kraid in paTemplateKras.KraIds)
                 {
-                    var newTemplateKras = new PATemplateKras
+                    var newTemplateKras = new PATemplateKra
                     {
                         TemplateId = paTemplateKras.TemplateId,
                         KraId = kraid,

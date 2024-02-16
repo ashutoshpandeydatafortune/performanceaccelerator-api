@@ -4,6 +4,11 @@ using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
+//using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Models;
+using System.Net;
+//using System.Data.Entity;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -16,7 +21,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         }
 
         //For inserting the templates of KRA's
-        public async Task<ResponseModel> CreateKraTemplate(PATemplates paTemplates)
+        public async Task<ResponseModel> CreateKraTemplate(PATemplate paTemplates)
         {
             ResponseModel model = new ResponseModel();
 
@@ -25,7 +30,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 paTemplates.IsActive = 1;
                 paTemplates.CreateBy = 1;
                 paTemplates.CreateDate = DateTime.Now;
-                
+
                 _dbContext.Add(paTemplates);
                 model.Messsage = "Template Saved Successfully.";
 
@@ -41,12 +46,12 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         }
 
         //For Updating the template for kra's
-        public async Task<ResponseModel> UpdateKraTemplate(PATemplates paTemplates)
+        public async Task<ResponseModel> UpdateKraTemplate(PATemplate paTemplates)
         {
             ResponseModel model = new ResponseModel();
             try
             {
-                PATemplates updatetemplate = _dbContext.PATemplates.Find(paTemplates.TemplateId);
+                PATemplate updatetemplate = _dbContext.PATemplates.Find(paTemplates.TemplateId);
                 if (updatetemplate != null)
                 {
                     updatetemplate.Name = paTemplates.Name;
@@ -75,17 +80,54 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         }
 
         // For Displaying the template through Id.
-        public async Task<PATemplates> GetKraTemplatesById(int Id)
+        public async Task<PATemplate> GetKraTemplateByIdDetails(int templateId)
         {
-            return _dbContext.PATemplates.Where(templates => templates.TemplateId == Id && templates.IsActive == 1)
-                    .FirstOrDefault();
+            var template = await _dbContext.PATemplates
+                    .Include(template => template.AssignedKras.Where(kra => kra.IsActive == 1))
+                    //.Include(template => template.AssignedDesignations.Where(assigndesignation => assigndesignation.IsActive == 1))
+                    .FirstOrDefaultAsync(t => t.TemplateId == templateId);
 
+            if (template == null)
+            {
+                return null;
+            }
+
+            if (template.AssignedKras != null && template.AssignedKras.Count > 0) 
+            {
+                foreach (var assignedKra in template.AssignedKras)
+                {
+                    assignedKra.KraLibrary = await GetKraLibrary(assignedKra.KraId);
+                }
+
+                //foreach (var assignedDesignation in template.AssignedDesignations)
+                //{
+                //    assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
+                //}
+            }
+
+            return template;
+        }
+
+        private async Task<KRALibrary> GetKraLibrary(int kraId)
+        {
+            return await _dbContext.KRALibrary.FindAsync(kraId);
+        }
+
+        private async Task<Designation> GetDesignation(int designationId)
+        {
+            return await _dbContext.Designations.FindAsync(designationId);
+        }
+
+        public async Task<PATemplate> GetKraTemplateById(int templateId)
+        {
+            return await _dbContext.PATemplates.Where(template => template.TemplateId == templateId)
+                 .FirstOrDefaultAsync();
         }
 
         //For displaying all templates
-        public async Task<List<PATemplates>> GetAllTemplates()
+        public async Task<List<PATemplate>> GetAllTemplates()
         {
-            return _dbContext.PATemplates.Where(c => c.IsActive == 1).ToList();
+            return await _dbContext.PATemplates.Where(c => c.IsActive == 1).ToListAsync();
 
         }
 

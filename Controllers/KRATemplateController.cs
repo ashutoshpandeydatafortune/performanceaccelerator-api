@@ -24,7 +24,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult>CreateKraTemplate(PATemplates paTemplates)
+        public async Task<IActionResult>CreateKraTemplate(PATemplate paTemplates)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult> UpdateKraTemplate(PATemplates paTemplates)
+        public async Task<IActionResult> UpdateKraTemplate(PATemplate paTemplates)
         {
             try
             {
@@ -63,18 +63,38 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="PATemplates"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetKraTemplateById/{Id}")]
-        public async Task<IActionResult> GetKraTemplateById(int Id)
+        [Route("GetKraTemplateByIdDetails/{templateId}")]
+        public async Task<IActionResult> GetKraTemplateByIdDetails(int templateId)
         {
             try
             {
-                var result = await _kraTemplateService.GetKraTemplatesById(Id);
+                var result = await _kraTemplateService.GetKraTemplateByIdDetails(templateId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }           
+        }
+
+        /// <summary>
+        /// Get templates through Id.
+        /// </summary>
+        /// <param name="PATemplates"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetKraTemplateById/{templateId}")]
+        public async Task<IActionResult> GetKraTemplateById(int templateId)
+        {
+            try
+            {
+                var result = await _kraTemplateService.GetKraTemplateById(templateId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>

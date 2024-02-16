@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models.Response
 {
-    public class PATemplates
+    [Table("PA_Templates")]
+    public class PATemplate
     {
         [Key]
         public int TemplateId { get; set; }
@@ -14,5 +18,8 @@ namespace DF_EvolutionAPI.Models.Response
         public int UpdateBy { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; } // Nullable DateTime for UpdateDate
+
+        public  List<PATemplateKra> AssignedKras { get; set; }
+        public List<PATemplateDesignation> AssignedDesignations { get; set; }    
     }
 }
