@@ -4,11 +4,9 @@ using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
-//using System.Data.Entity;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models;
 using System.Net;
-//using System.Data.Entity;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -84,7 +82,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         {
             var template = await _dbContext.PATemplates
                     .Include(template => template.AssignedKras.Where(kra => kra.IsActive == 1))
-                    //.Include(template => template.AssignedDesignations.Where(assigndesignation => assigndesignation.IsActive == 1))
+                    .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == 1))
                     .FirstOrDefaultAsync(t => t.TemplateId == templateId);
 
             if (template == null)
@@ -92,30 +90,47 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 return null;
             }
 
-            if (template.AssignedKras != null && template.AssignedKras.Count > 0) 
+            if (template.AssignedKras != null && template.AssignedKras.Count > 0)
             {
                 foreach (var assignedKra in template.AssignedKras)
                 {
                     assignedKra.KraLibrary = await GetKraLibrary(assignedKra.KraId);
                 }
+            }
 
-                //foreach (var assignedDesignation in template.AssignedDesignations)
-                //{
-                //    assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
-                //}
+            if (template.AssignedDesignations != null && template.AssignedDesignations.Count > 0)
+            {
+                foreach (var assignedDesignation in template.AssignedDesignations)
+                {
+                    assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
+
+                }
             }
 
             return template;
         }
 
-        private async Task<KRALibrary> GetKraLibrary(int kraId)
+        private async Task<KRALibrary> GetKraLibrary(int id)
         {
-            return await _dbContext.KRALibrary.FindAsync(kraId);
+            return await _dbContext.KRALibrary.Where(kra => kra.Id == id).FirstOrDefaultAsync();
         }
 
         private async Task<Designation> GetDesignation(int designationId)
         {
-            return await _dbContext.Designations.FindAsync(designationId);
+            try
+            {
+                return await (
+                    from pr in _dbContext.Designations.Where(x => x.DesignationId == designationId)
+                    select new Designation
+                    {
+                        DesignationId = pr.DesignationId,
+                        DesignationName = pr.DesignationName
+                    }).FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<PATemplate> GetKraTemplateById(int templateId)

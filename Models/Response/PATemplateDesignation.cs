@@ -9,11 +9,11 @@ namespace DF_EvolutionAPI.Models.Response
     public class PATemplateDesignation
     {
         [Key]
+        [Column("TemplateDesignationId")]
         public int TemplateDesignationId { get; set; }
 
         [ForeignKey("PATemplate")]
-        public int TemplateId { get; set; }
-        
+        public int TemplateId { get; set; }        
         public byte? IsActive { get; set; }
         public int CreateBy { get; set; }
         public int UpdateBy { get; set; }
