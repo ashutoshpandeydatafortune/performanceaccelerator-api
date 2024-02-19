@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRATemplate;
 
+
 namespace DF_EvolutionAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -135,6 +136,46 @@ namespace DF_EvolutionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }            
+        }
+
+        /// <summary>
+        /// Assign the template to designation in the table PA_TemplateDesignation and inactive re designation for particular template.
+        /// </summary>
+        /// <param name="PATemplateDesignation"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> AssignDesingations(PATtemplateDesignationList paTemplateDesignation)
+        {
+            try
+            {
+                var response = await _kraTemplateService.AssignDesingations(paTemplateDesignation);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Assign the template to Kras in the table PA_TemplateKras and inactive all the rest kras of particular template.
+        /// </summary>
+        /// <param name="PATemplateKras"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> AssignKRAs(PATtemplateKrasList paTemplateKras)
+        {
+            try
+            {
+                var response = await _kraTemplateService.AssignKRAs(paTemplateKras);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

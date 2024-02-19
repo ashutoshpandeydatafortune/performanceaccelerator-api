@@ -184,5 +184,93 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             }
             return model;
         }
+
+        public async Task<ResponseModel> AssignDesingations(PATtemplateDesignationList paTemplateDesignation)
+        {
+            ResponseModel model = new ResponseModel();
+
+            try
+            {
+                var existingRecords = _dbContext.PA_TemplateDesignations.Where(template => template.TemplateId == paTemplateDesignation.TemplateId).ToList();
+
+                // Set IsActive to 0 for all existing record to mark them as inactive
+                foreach (var existingRecord in existingRecords)
+                {
+                    existingRecord.IsActive = 0;
+                    existingRecord.UpdateBy = 1;
+                    existingRecord.UpdateDate = DateTime.Now;
+                    _dbContext.PA_TemplateDesignations.Update(existingRecord);
+                }
+                //Inserting the new reccord.
+                foreach (var designationId in paTemplateDesignation.DesignationIds)
+                {
+                    var newDesignation = new PATemplateDesignation
+                    {
+                        TemplateId = paTemplateDesignation.TemplateId,
+                        DesignationId = designationId,
+                        IsActive = 1,
+                        CreateBy = 1,
+                        CreateDate = DateTime.Now
+                    };
+
+                    _dbContext.PA_TemplateDesignations.Add(newDesignation);
+                }
+
+                await _dbContext.SaveChangesAsync();
+                model.IsSuccess = true;
+                model.Messsage = "Template designation assigned successfully.";
+
+            }
+            catch (Exception ex)
+            {
+                model.IsSuccess = false;
+                model.Messsage = ex.Message;
+            }
+            return model;
+        }
+
+        public async Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras)
+        {
+            ResponseModel model = new ResponseModel();
+            try
+            {
+                var existingRecords = _dbContext.PA_TemplateKras.Where(template => template.TemplateId == paTemplateKras.TemplateId).ToList();
+
+                // Set IsActive to 0 for each existing record to mark them as inactive
+                foreach (var existingRecord in existingRecords)
+                {
+                    existingRecord.IsActive = 0;
+                    existingRecord.UpdateBy = 1;
+                    existingRecord.UpdateDate = DateTime.Now;
+                    _dbContext.PA_TemplateKras.Update(existingRecord);
+                }
+                // Assuming paTemplateKras.KraId is a collection of Kra IDs
+                foreach (var kraid in paTemplateKras.KraIds)
+                {
+                    var newTemplateKras = new PATemplateKra
+                    {
+                        TemplateId = paTemplateKras.TemplateId,
+                        KraId = kraid,
+                        CreateBy = 1,
+                        IsActive = 1,
+                        CreateDate = DateTime.Now
+                    };
+                    _dbContext.PA_TemplateKras.Add(newTemplateKras);
+                }
+
+                // Save changes to the database
+                await _dbContext.SaveChangesAsync();
+                model.IsSuccess = true;
+                model.Messsage = "Template Kras saved successfully.";
+            }
+
+            catch (Exception ex)
+            {
+                model.IsSuccess = false;
+                model.Messsage = ex.Message;
+            }
+            return model;
+        }
+
     }
 }

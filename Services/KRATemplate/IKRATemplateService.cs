@@ -13,6 +13,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
        public Task<PATemplate> GetKraTemplateById(int templateId);
         public Task<List<PATemplate>> GetAllTemplates();
         public Task<ResponseModel> DeleteKraTemplateById(int Id);
+        public Task<ResponseModel> AssignDesingations(PATtemplateDesignationList paTemplateDesignation);
+        public Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras);
 
     }
 }

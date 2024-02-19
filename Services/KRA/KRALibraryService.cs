@@ -115,6 +115,7 @@ namespace DF_EvolutionAPI.Services.KRA
                 if (kraLibrary != null)
                 {
                     kraLibrary.IsDeleted = 1;
+                    kraLibrary.IsActive = 0;
 
                     _dbcontext.Update(kraLibrary);
                     _dbcontext.SaveChanges();

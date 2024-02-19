@@ -18,8 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
-using DF_EvolutionAPI.Services.KRATemplateDesignation;
-using DF_EvolutionAPI.Services.KRATemplateKras;
+
 
 namespace DF_EvolutionAPI
 {
@@ -87,9 +86,7 @@ namespace DF_EvolutionAPI
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IKRATemplateService, KRATemplateService>();
-            services.AddScoped<IKraTemplateDesignation, KraTemplateDesignationService>();
-            services.AddScoped<IKraTemplateKras, KraTemplateKrasService>();
-
+          
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
