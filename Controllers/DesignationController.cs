@@ -1,6 +1,7 @@
 ﻿using DF_EvolutionAPI.Services.Designations;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -119,5 +120,27 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Get all the active desinations. 
+        /// </summary>
+        /// <param name="designationName"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllDesignations")]
+        public async Task<IActionResult> GetAllDesignations()
+        {
+            try
+            {
+                var resources = await _designationService.GetAllDesignations();
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+        
     }
 }

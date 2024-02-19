@@ -17,7 +17,7 @@ namespace DF_EvolutionAPI.Services.KRATemplateDesignation
             _dbContext = dbContext;
         }
 
-        public async Task<ResponseModel> AssignTemplateDesingation(PATtemplateDesignationList paTemplateDesignation)
+        public async Task<ResponseModel> AssignDesingations(PATtemplateDesignationList paTemplateDesignation)
         {
             ResponseModel model = new ResponseModel();
 

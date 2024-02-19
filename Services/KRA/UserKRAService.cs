@@ -56,8 +56,35 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var query = from resource in _dbcontext.Resources
+                            join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId  
+                            join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
+                            select new UserAssignedKRA()
+                            {
+                                KRAName = kraLibrary.Name,
+                                KRAId = userKRA.KRAId.Value,
+                                UserId = resource.ResourceId,
+                                UserName = resource.ResourceName,
+                                IsSpecial = kraLibrary.IsSpecial.Value,
+                                QuarterId = userKRA.QuarterId.HasValue ? userKRA.QuarterId.Value : 0
+                            };
+
+                return query.ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Displaying all kra's according to designation Id.
+        public List<UserAssignedKRA> GetAssignedKRAsByDesignationId(int designationId)
+        {
+            try
+            {
+                var query = from resource in _dbcontext.Resources
                             join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId
                             join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
+                            where resource.DesignationId == designationId && userKRA.IsActive == 1
                             select new UserAssignedKRA()
                             {
                                 KRAName = kraLibrary.Name,

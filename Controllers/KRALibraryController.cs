@@ -85,7 +85,7 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("[action]")]
+        [Route("DeleteKRALibrary/{kraLibraryid}")]
         public async Task<IActionResult> DeleteKRALibrary(int kraLibraryid)
         {
             try

@@ -25,11 +25,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult> AssignTemplateDesingation(PATtemplateDesignationList paTemplateDesignation)
+        public async Task<IActionResult> AssignDesingations(PATtemplateDesignationList paTemplateDesignation)
         {
             try
             {
-                var response = await _kraTemplateDesignation.AssignTemplateDesingation(paTemplateDesignation);
+                var response = await _kraTemplateDesignation.AssignDesingations(paTemplateDesignation);
                 return Ok(response);
             }
             catch(Exception ex)

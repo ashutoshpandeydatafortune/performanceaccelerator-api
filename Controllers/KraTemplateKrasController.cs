@@ -25,11 +25,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult> AssignTemplateKras(PATtemplateKrasList paTemplateKras)
+        public async Task<IActionResult> AssignKRAs(PATtemplateKrasList paTemplateKras)
         {
             try
             {
-                var response = await _kraTemplateKras.AssignTemplateKras(paTemplateKras);
+                var response = await _kraTemplateKras.AssignKRAs(paTemplateKras);
                 return Ok(response);
             }
             catch(Exception ex)

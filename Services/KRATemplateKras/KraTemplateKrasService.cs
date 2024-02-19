@@ -16,13 +16,12 @@ namespace DF_EvolutionAPI.Services.KRATemplateKras
         }
 
         //Assing the template to the designation by inserting record in PA_TemplateDesignation table.
-        public async Task<ResponseModel> AssignTemplateKras(PATtemplateKrasList paTemplateKras )
+        public async Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras )
         {
             ResponseModel model = new ResponseModel();
             try
             {
-               // var existingRecords = _dbContext.PA_TemplateKras.ToList();
-                var existingRecords = _dbContext.PA_TemplateKras.Where(template => template.TemplateId == paTemplateKras.TemplateId).ToList();
+               var existingRecords = _dbContext.PA_TemplateKras.Where(template => template.TemplateId == paTemplateKras.TemplateId).ToList();
 
                 // Set IsActive to 0 for each existing record to mark them as inactive
                 foreach (var existingRecord in existingRecords)

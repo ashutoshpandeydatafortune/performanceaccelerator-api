@@ -124,7 +124,13 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     select new Designation
                     {
                         DesignationId = pr.DesignationId,
-                        DesignationName = pr.DesignationName
+                        DesignationName = pr.DesignationName,
+                        ReferenceId = pr.ReferenceId,
+                        IsActive = pr.IsActive,
+                        CreateBy = pr.CreateBy,
+                        UpdateBy = pr.UpdateBy,
+                        CreateDate = pr.CreateDate,
+                        UpdateDate = pr.UpdateDate,
                     }).FirstOrDefaultAsync();
             }
             catch (Exception)

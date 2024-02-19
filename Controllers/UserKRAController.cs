@@ -93,6 +93,27 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
+        /// displayed all the kras according to designation Id.
+        /// </summary>
+        /// <param name="UserAssignedKRA"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAssignedKRAsByDesignationId/{designationId}")]
+        public IActionResult GetAssignedKRAsByDesignationId(int designationId)
+        {
+            try
+            {
+                var assignedKRAs = _userKRAService.GetAssignedKRAsByDesignationId(designationId);
+                return Ok(assignedKRAs);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// <summary>
         /// create user KRA
         /// </summary>
         /// <param name="userKRAModel"></param>
