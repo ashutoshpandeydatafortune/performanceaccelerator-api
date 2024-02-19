@@ -124,12 +124,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="PATemplates"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("DeleteKraTemplateById/{Id}")]
-        public async Task<IActionResult> DeleteKraTemplateById(int Id)
+        [Route("DeleteKraTemplateById/{id}")]
+        public async Task<IActionResult> DeleteKraTemplateById(int id)
         {
             try
             {
-                var result = await _kraTemplateService.DeleteKraTemplateById(Id);
+                var result = await _kraTemplateService.DeleteKraTemplateById(id);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DF_EvolutionAPI.ViewModels;
-using System.Collections.Generic;
-using DF_EvolutionAPI.Models.Response;
-using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models;
-using System.Net;
+using System.Collections.Generic;
+using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -153,12 +152,12 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         }
 
         //For deleting the template.
-        public async Task<ResponseModel> DeleteKraTemplateById(int Id)
+        public async Task<ResponseModel> DeleteKraTemplateById(int id)
         {
             ResponseModel model = new ResponseModel();
             try
             {
-                var deleteTemplate = _dbContext.PATemplates.Find(Id);
+                var deleteTemplate = _dbContext.PATemplates.Find(id);
                 if (deleteTemplate != null)
                 {
 
@@ -201,19 +200,23 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     existingRecord.UpdateDate = DateTime.Now;
                     _dbContext.PA_TemplateDesignations.Update(existingRecord);
                 }
+                
                 //Inserting the new reccord.
                 foreach (var designationId in paTemplateDesignation.DesignationIds)
                 {
-                    var newDesignation = new PATemplateDesignation
+                    if (designationId != 0)
                     {
-                        TemplateId = paTemplateDesignation.TemplateId,
-                        DesignationId = designationId,
-                        IsActive = 1,
-                        CreateBy = 1,
-                        CreateDate = DateTime.Now
-                    };
+                        var newDesignation = new PATemplateDesignation
+                        {
+                            TemplateId = paTemplateDesignation.TemplateId,
+                            DesignationId = designationId,
+                            IsActive = 1,
+                            CreateBy = 1,
+                            CreateDate = DateTime.Now
+                        };
 
-                    _dbContext.PA_TemplateDesignations.Add(newDesignation);
+                        _dbContext.PA_TemplateDesignations.Add(newDesignation);
+                    }
                 }
 
                 await _dbContext.SaveChangesAsync();
@@ -247,15 +250,18 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 // Assuming paTemplateKras.KraId is a collection of Kra IDs
                 foreach (var kraid in paTemplateKras.KraIds)
                 {
-                    var newTemplateKras = new PATemplateKra
+                    if (kraid != 0)
                     {
-                        TemplateId = paTemplateKras.TemplateId,
-                        KraId = kraid,
-                        CreateBy = 1,
-                        IsActive = 1,
-                        CreateDate = DateTime.Now
-                    };
-                    _dbContext.PA_TemplateKras.Add(newTemplateKras);
+                        var newTemplateKras = new PATemplateKra
+                        {
+                            TemplateId = paTemplateKras.TemplateId,
+                            KraId = kraid,
+                            CreateBy = 1,
+                            IsActive = 1,
+                            CreateDate = DateTime.Now
+                        };
+                        _dbContext.PA_TemplateKras.Add(newTemplateKras);
+                    }
                 }
 
                 // Save changes to the database

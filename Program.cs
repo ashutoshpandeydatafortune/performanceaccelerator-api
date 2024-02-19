@@ -1,17 +1,12 @@
 using System;
 using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using DF_EvolutionAPI.Utils;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using DF_EvolutionAPI.Models.Response;
-using DF_EvolutionAPI.Services.Email;
-using DF_EvolutionAPI.Services.History;
-using DF_EvolutionAPI.Services.Submission;
-using DF_EvolutionAPI.Services;
-using System.Configuration;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DF_EvolutionAPI
 {
