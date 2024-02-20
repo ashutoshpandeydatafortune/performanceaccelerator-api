@@ -203,25 +203,25 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
                 //Inserting the new reccord.
                 if (paTemplateDesignation.DesignationIds != null && paTemplateDesignation.DesignationIds.Any())
-                
-                    {
-                        foreach (var designationId in paTemplateDesignation.DesignationIds)
-                        {
-                            if (designationId != 0)
-                            {
-                                var newDesignation = new PATemplateDesignation
-                                {
-                                    TemplateId = paTemplateDesignation.TemplateId,
-                                    DesignationId = designationId,
-                                    IsActive = 1,
-                                    CreateBy = 1,
-                                    CreateDate = DateTime.Now
-                                };
 
-                                _dbContext.PA_TemplateDesignations.Add(newDesignation);
-                            }
+                {
+                    foreach (var designationId in paTemplateDesignation.DesignationIds)
+                    {
+                        if (designationId != 0)
+                        {
+                            var newDesignation = new PATemplateDesignation
+                            {
+                                TemplateId = paTemplateDesignation.TemplateId,
+                                DesignationId = designationId,
+                                IsActive = 1,
+                                CreateBy = 1,
+                                CreateDate = DateTime.Now
+                            };
+
+                            _dbContext.PA_TemplateDesignations.Add(newDesignation);
                         }
                     }
+                }
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
                 model.Messsage = "Template designation assigned successfully.";
@@ -283,5 +283,27 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             return model;
         }
 
+        public async Task<List<object>> GetAssignedKRAsByDesignationId(int designationId)
+        {
+            var assignedKRAs = await _dbContext.PA_TemplateDesignations
+                .Include(d => d.Designation)
+                .Where(d => d.DesignationId == designationId && d.IsActive == 1)
+                .SelectMany(d => _dbContext.PA_TemplateKras
+                    .Include(k => k.KraLibrary)
+                    .Where(k => k.TemplateId == d.TemplateId && k.IsActive == 1)
+                    .Select(k => new
+                    {
+                        kraId = k.KraLibrary.Id,
+                        kraName = k.KraLibrary.Name
+                    }))
+                .ToListAsync();
+
+            if (assignedKRAs == null || assignedKRAs.Count == 0)
+            {
+               return new List<object>();
+            }
+            return assignedKRAs.Cast<object>().ToList();
+
+        }
     }
 }

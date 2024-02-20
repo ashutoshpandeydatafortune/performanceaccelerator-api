@@ -177,5 +177,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Displaying Kras list of for particular designation..
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAssignedKRAsByDesignationId/{designationId}")]
+        public async Task<IActionResult> GetAssignedKRAsByDesignationId(int designationId)
+        {
+            try
+            {
+                var result = await _kraTemplateService.GetAssignedKRAsByDesignationId(designationId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

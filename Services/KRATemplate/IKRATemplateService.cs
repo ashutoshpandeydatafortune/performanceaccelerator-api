@@ -1,7 +1,7 @@
-﻿using DF_EvolutionAPI.Models.Response;
+﻿using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -15,6 +15,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public Task<ResponseModel> DeleteKraTemplateById(int id);
         public Task<ResponseModel> AssignDesingations(PATtemplateDesignationList paTemplateDesignation);
         public Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras);
+        public Task<List<object>> GetAssignedKRAsByDesignationId(int designationId);
 
     }
 }
