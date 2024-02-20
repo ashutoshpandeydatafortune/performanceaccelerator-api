@@ -200,25 +200,28 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     existingRecord.UpdateDate = DateTime.Now;
                     _dbContext.PA_TemplateDesignations.Update(existingRecord);
                 }
-                
+
                 //Inserting the new reccord.
-                foreach (var designationId in paTemplateDesignation.DesignationIds)
-                {
-                    if (designationId != 0)
+                if (paTemplateDesignation.DesignationIds != null && paTemplateDesignation.DesignationIds.Any())
+                
                     {
-                        var newDesignation = new PATemplateDesignation
+                        foreach (var designationId in paTemplateDesignation.DesignationIds)
                         {
-                            TemplateId = paTemplateDesignation.TemplateId,
-                            DesignationId = designationId,
-                            IsActive = 1,
-                            CreateBy = 1,
-                            CreateDate = DateTime.Now
-                        };
+                            if (designationId != 0)
+                            {
+                                var newDesignation = new PATemplateDesignation
+                                {
+                                    TemplateId = paTemplateDesignation.TemplateId,
+                                    DesignationId = designationId,
+                                    IsActive = 1,
+                                    CreateBy = 1,
+                                    CreateDate = DateTime.Now
+                                };
 
-                        _dbContext.PA_TemplateDesignations.Add(newDesignation);
+                                _dbContext.PA_TemplateDesignations.Add(newDesignation);
+                            }
+                        }
                     }
-                }
-
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
                 model.Messsage = "Template designation assigned successfully.";
@@ -248,22 +251,24 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     _dbContext.PA_TemplateKras.Update(existingRecord);
                 }
                 // Assuming paTemplateKras.KraId is a collection of Kra IDs
-                foreach (var kraid in paTemplateKras.KraIds)
+                if (paTemplateKras.KraIds != null && paTemplateKras.KraIds.Any())
                 {
-                    if (kraid != 0)
+                    foreach (var kraid in paTemplateKras.KraIds)
                     {
-                        var newTemplateKras = new PATemplateKra
+                        if (kraid != 0)
                         {
-                            TemplateId = paTemplateKras.TemplateId,
-                            KraId = kraid,
-                            CreateBy = 1,
-                            IsActive = 1,
-                            CreateDate = DateTime.Now
-                        };
-                        _dbContext.PA_TemplateKras.Add(newTemplateKras);
+                            var newTemplateKras = new PATemplateKra
+                            {
+                                TemplateId = paTemplateKras.TemplateId,
+                                KraId = kraid,
+                                CreateBy = 1,
+                                IsActive = 1,
+                                CreateDate = DateTime.Now
+                            };
+                            _dbContext.PA_TemplateKras.Add(newTemplateKras);
+                        }
                     }
                 }
-
                 // Save changes to the database
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
