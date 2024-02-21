@@ -137,20 +137,29 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
+               
                 foreach (var item in userKRAModel)
                 {
-                    item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
-                    item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
-                    item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
-                    item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
+                    //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
+                    var kralist = _dbcontext.UserKRA.Where(kra => kra.IsActive == 1 
+                    && kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
+                    
+                    if (kralist.Count == 0)
+                    {
+                        item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
+                        item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
+                        item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
+                        item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
 
-                    item.IsActive = 1;
-                    item.CreateBy = 1;
-                    item.UpdateBy = 1;
-                    item.CreateDate = DateTime.Now;
-                    item.UpdateDate = DateTime.Now;
+                        item.IsActive = 1;
+                        item.CreateBy = 1;
+                        item.UpdateBy = 1;
+                        item.CreateDate = DateTime.Now;
+                        item.UpdateDate = DateTime.Now;
 
-                    await _dbcontext.AddAsync(item);
+                        await _dbcontext.AddAsync(item);
+                    }
+                   
                 }
 
                 await _dbcontext.SaveChangesAsync();

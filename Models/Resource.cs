@@ -70,5 +70,14 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public string DesignationName { get; set; }
+
+        [NotMapped]
+        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
+    }
+
+    public class AssignedSpecialKRA
+    { 
+        public int KRAId { get; set; }
+        public string KraName { get; set; }
     }
 }

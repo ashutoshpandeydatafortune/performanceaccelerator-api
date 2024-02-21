@@ -93,6 +93,7 @@ namespace DF_EvolutionAPI.Services.Designations
 
         public async Task<List<Resource>> GetResourcesByDesignationReporter(string designationName, int resourceId)
         {
+            // We need to return all employees with passed designation who are reporting to resourceId
             List<Resource> resources = new List<Resource>();
 
             try
@@ -112,10 +113,17 @@ namespace DF_EvolutionAPI.Services.Designations
                                 {
                                     ResourceId = x.ResourceId,
                                     ResourceName = x.ResourceName,
-                                    //ResourceProjectList = x.ResourceProjectList,
                                     EmailId = x.EmailId,
                                     DesignationId = x.DesignationId
                                 }).ToListAsync();
+
+                    if(resources.Count > 0)
+                    {
+                        foreach(var resource in resources)
+                        {
+                            resource.SpecialKRAs = GetAssignedSpecialKRAs(resource.ResourceId);
+                        }
+                    }
                 }
             }
             catch (Exception)
@@ -124,6 +132,21 @@ namespace DF_EvolutionAPI.Services.Designations
             }
 
             return resources;
+        }
+
+        // GetAssignedSpecialKRAs is made for displaying the special kra for particular resource.
+        private List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
+        {
+            var specialKra = (from userKras in _dbcontext.UserKRA
+                              join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                              where kraLibrary.IsSpecial == 1 && userKras.UserId == resourceId
+                              select new AssignedSpecialKRA
+                              {
+                                  KRAId = kraLibrary.Id,
+                                  KraName = kraLibrary.Name,
+                              });
+
+            return specialKra.ToList();
         }
 
         public async Task<List<Designation>> GetReportingDesignations(string userName)
