@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Resources;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -61,6 +63,7 @@ namespace DF_EvolutionAPI.Services
                 resources = await(
                     from r in _dbcontext.Resources.Where(x => x.ResourceId == resourceId && x.IsActive == 1)
                     let projectResources = (_dbcontext.ProjectResources.Where(pr => (int?)pr.ResourceId == r.ResourceId && pr.IsActive == 1)).ToList()
+                    let reportingToResource = _dbcontext.Resources.FirstOrDefault(rt => rt.ResourceId == r.ReportingTo)
                     select new Resource
                     {
                         ResourceId = r.ResourceId,
@@ -93,7 +96,9 @@ namespace DF_EvolutionAPI.Services
                         UpdateBy = r.UpdateBy,
                         CreateDate = r.CreateDate,
                         UpdateDate = r.UpdateDate,
+                        FunctionId = r.FunctionId, // Added Function id on 22-02-24
                         ResourceProjectList = projectResources,
+                        ReporterName = reportingToResource.ResourceName,
                     }).ToListAsync();
 
                 foreach (var resource in resources)
@@ -102,6 +107,9 @@ namespace DF_EvolutionAPI.Services
                     resource.ClientList = await GetClients(resource);
                     resource.BusinessUnits = await GetBusinessUnits(resource);
                 }
+                //Added Reporting to name
+               // var Reportingto = from resources in _dbcontext.Resources
+
             }
             catch (Exception)
             {
@@ -204,5 +212,46 @@ namespace DF_EvolutionAPI.Services
             return children.Any() ? children.Cast<object>().ToList() : null;
         }
 
+        // For displaying the profile details
+        public async Task<List<Resource>> GetProfileDetails(int? resourceId)
+        {
+            var resources = new List<Resource>();
+            try
+            {
+                 resources = await (
+                    from resource in _dbcontext.Resources 
+                   join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
+                   join resourcefunction in _dbcontext.ResourceFunctions on resource.ResourcefunctionId equals resourcefunction.ResourceFunctionId
+                   join reportingName in _dbcontext.Resources on resource.ResourceId equals reportingName.ReportingTo
+                   where resource.ResourceId == resourceId && resource.IsActive == 1
+                   let projectResources = (_dbcontext.ProjectResources.Where(pr => (int?)pr.ResourceId == resource.ResourceId && pr.IsActive == 1)).ToList()
+                    select new Resource
+                   {
+                        ResourceId = resource.ResourceId,
+                        ResourceName = resource.ResourceName,
+                        EmailId = resource.EmailId,
+                        EmployeeId = resource.EmployeeId,
+                       ReportingToName = reportingName.ResourceName,
+                       Function = resourcefunction.ResourceFunctionName,
+                       Designation = designation.DesignationName,
+                       TotalYears = resource.TotalYears,
+                       ResourceProjectList = projectResources,
+
+                   }).ToListAsync();
+                foreach (var resource in resources)
+                {
+                   // resource.ProjectList = await GetProjects(resource);
+                  
+                }
+                return resources;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+      
     }
 }

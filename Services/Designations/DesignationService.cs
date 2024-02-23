@@ -117,9 +117,9 @@ namespace DF_EvolutionAPI.Services.Designations
                                     DesignationId = x.DesignationId
                                 }).ToListAsync();
 
-                    if(resources.Count > 0)
+                    if (resources.Count > 0)
                     {
-                        foreach(var resource in resources)
+                        foreach (var resource in resources)
                         {
                             resource.SpecialKRAs = GetAssignedSpecialKRAs(resource.ResourceId);
                         }
@@ -177,8 +177,6 @@ namespace DF_EvolutionAPI.Services.Designations
         public async Task<List<Designation>> GetAllDesignations()
         {
             {
-                //  return await _dbcontext.Designations.Where(designation => designation.IsActive == 1).ToListAsync();
-
                 try
                 {
                     return await (
@@ -201,6 +199,34 @@ namespace DF_EvolutionAPI.Services.Designations
                     throw;
                 }
 
+            }
+        }
+        //Displayed all designation by function id.
+        public async Task<List<Designation>> GetDesignationByFunctionId(int resourceFunctionId)
+        {
+            {
+                try
+                {
+                    return await (
+                        from designation in _dbcontext.Designations
+                        join ressource in _dbcontext.Resources on designation.DesignationId equals ressource.DesignationId
+                        where ressource.ResourcefunctionId == resourceFunctionId && ressource.IsActive == 1
+                        select new Designation
+                        {
+                            DesignationId = designation.DesignationId,
+                            ReferenceId = designation.ReferenceId,
+                            DesignationName = designation.DesignationName,
+                            IsActive = designation.IsActive,
+                            CreateBy = designation.CreateBy,
+                            UpdateBy = designation.UpdateBy,
+                            CreateDate = designation.CreateDate,
+                            UpdateDate = designation.UpdateDate,
+                        }).ToListAsync();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
         }
     }

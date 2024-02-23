@@ -10,5 +10,8 @@ namespace DF_EvolutionAPI.Services
         Task<string> GetChildResources(string userName);
         Task<Resource> GetResourceByEmailId(string EmailId);
         Task<List<Resource>> GetAllResourceDetailsByResourceId(int? resourceId);
+        Task<List<Resource>> GetProfileDetails(int? resourceId);
+
+
     }
 }

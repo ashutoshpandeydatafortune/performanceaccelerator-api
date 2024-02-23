@@ -12,7 +12,7 @@ namespace DF_EvolutionAPI.Services.KRA
         public Task<List<UserKRA>> GetAllUserKRAList();
         public Task<UserKRA> GetUserKRAById(int userKRAId);
         public Task<ResponseModel> DeleteUserKRA(int userKRAId);
-        public List<UserKRADetails> GetKRAsByUserId(int? UserId);
+        public List<UserKRADetails.UserKRADetailsWithScore> GetKRAsByUserId(int? UserId);
         Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModels);
         public Task<ResponseModel> CreateUserKRA(List<UserKRA> userKRAModel);
         public List<UserAssignedKRA> GetAssignedKRAsByDesignation(string designation);

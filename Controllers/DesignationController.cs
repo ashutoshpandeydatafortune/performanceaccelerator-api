@@ -141,6 +141,27 @@ namespace DF_EvolutionAPI.Controllers
             }
 
         }
-        
+
+        /// <summary>
+        /// Get all the active desinations by function id. 
+        /// </summary>
+        /// <param name="functionId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetDesignationByFunctionId/{resourceFunctionId}")]
+        public async Task<IActionResult> GetDesignationByFunctionId(int resourceFunctionId)
+        {
+            try
+            {
+                var resources = await _designationService.GetDesignationByFunctionId(resourceFunctionId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
     }
 }

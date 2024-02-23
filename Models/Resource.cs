@@ -7,6 +7,7 @@ namespace DF_EvolutionAPI.Models
 {
     public class Resource : BaseEntity_PRMS
     {
+
         public int ResourceId { get; set; }
         public int? FunctionId { get; set; }
         public string EmployeeId { get; set; }
@@ -15,6 +16,8 @@ namespace DF_EvolutionAPI.Models
         public DateTime? DateOfJoin { get; set; }
         [Required]
         public string EmailId { get; set; }
+
+        public int ResourcefunctionId { get; set; } 
 
         #region Address
         public string Address { get; set; }
@@ -49,6 +52,12 @@ namespace DF_EvolutionAPI.Models
         #endregion
 
         public byte IsActive { get; set; }
+        [NotMapped]
+        public string ReportingToName { get; set; }
+        [NotMapped]
+        public string Function { get; set; }
+        [NotMapped]
+        public string Designation { get; set; }
 
         [NotMapped]
         public List<ProjectResource> ResourceProjectList { get; set; }
@@ -71,13 +80,34 @@ namespace DF_EvolutionAPI.Models
         [NotMapped]
         public string DesignationName { get; set; }
 
+
         [NotMapped]
         public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
+
+        [NotMapped]
+        public List<ProfileDetails> ProfileDetails { get; set; }
     }
 
     public class AssignedSpecialKRA
     { 
         public int KRAId { get; set; }
         public string KraName { get; set; }
+    }
+    public class ProfileDetails
+    {
+        public string ResourceName { get; set; }
+        public string EmailId { get; set; }
+        public string EmployeeId { get; set; }
+        public string ReportingTo { get; set; }
+        public string Function { get; set; }
+        public string Designation { get; set; }
+        public double? TotalYears { get; set; }
+        public List<Project> ProjectList { get; set; }
+    }
+    public class ReportingToDetails
+    {
+        public string ReportingToName { get; set; }
+        public string ProjectManager { get; set; }
+        public string ProjectName { get; set; }
     }
 }

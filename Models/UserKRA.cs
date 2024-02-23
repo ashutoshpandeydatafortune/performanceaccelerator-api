@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 {
@@ -59,5 +60,16 @@ namespace DF_EvolutionAPI.Models
         public int? WeightageId { get; set; }
         public int? Weightage { get; set; }
         public int? IsSpecial { get; set; }
+     //   public int? TotalWeightage { get; set; } 
+        public double TotalScore { get; set; }
+
+        public class UserKRADetailsWithScore
+        {
+            public List<UserKRADetails> UserKRADetails { get; set; }
+            public double TotalScore { get; set; }
+            public double TotalWeightage { get; set; }
+        }
+
+
     }
 }

@@ -74,5 +74,24 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// get all projects of resource
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetProfileDetails/{resourceId}")]
+        public async Task<IActionResult> GetProfileDetails(int resourceId)
+        {
+            try
+            {
+                var resources = await _resourceService.GetProfileDetails(resourceId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

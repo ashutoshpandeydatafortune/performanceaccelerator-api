@@ -12,5 +12,6 @@ namespace DF_EvolutionAPI.Services.Designations
         public Task<Designation> GetDesignationDetailsByDesignationName(string designation);
         public Task<List<Resource>> GetResourcesByDesignationReporter(string designation, int resourceId);
         public Task<List<Designation>> GetAllDesignations();
+        public Task<List<Designation>> GetDesignationByFunctionId(int resourceFunctionId);
     }
 }

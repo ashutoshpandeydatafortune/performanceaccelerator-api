@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Services.Email;
 using System.Text;
+using static DF_EvolutionAPI.Models.UserKRADetails;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -584,13 +585,13 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public List<UserKRADetails> GetKRAsByUserId(int? UserId)
+        public List<UserKRADetailsWithScore> GetKRAsByUserId(int? UserId)
         {
-            var userKRADetails = new List<UserKRADetails>();
+            var userKRADetailsWithScore = new List<UserKRADetailsWithScore>();
 
             try
-            {
-                userKRADetails = (
+            {                
+                var userKRADetails = (
                     from kraLibrary in _dbcontext.KRALibrary
                     join userKra in _dbcontext.UserKRA on kraLibrary.Id equals userKra.KRAId
                     join quarter in _dbcontext.QuarterDetails on userKra.QuarterId equals quarter.Id
@@ -603,7 +604,7 @@ namespace DF_EvolutionAPI.Services
                     {
                         Id = userKra.Id,
                         KRAId = userKra.KRAId,
-                        Score = userKra.Score,
+                        Score = kraLibrary.Weightage * (int)userKra.FinalRating,
                         Reason = userKra.Reason,
                         UserId = userKra.UserId,
                         Status = userKra.Status.Value,
@@ -623,20 +624,22 @@ namespace DF_EvolutionAPI.Services
                         Weightage = kraLibrary.Weightage,
                         WeightageId = kraLibrary.WeightageId,
                         KRADisplayName = kraLibrary.DisplayName,
-
                         QuarterName = quarter.QuarterName,
                         QuarterYear = quarter.QuarterYear,
 
-                        //StatusName = S.StatusName,
-                        //Reason = c.Reason
                     }).ToList();
+                var totalScoreSum = userKRADetails.Sum(k => k.Score);
+                var userKRADetailsWithScores = new UserKRADetailsWithScore();
+                userKRADetailsWithScores.UserKRADetails = userKRADetails;
+                userKRADetailsWithScores.TotalScore = 3.5; // Set the demo record value here
+                userKRADetailsWithScores.TotalWeightage = (double)totalScoreSum;
+                userKRADetailsWithScore.Add(userKRADetailsWithScores);
+                return userKRADetailsWithScore;
             }
-            catch (Exception)
+            catch(Exception ex)
             {
                 throw;
-            }
-
-            return userKRADetails;
+            }            
         }
 
         public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange)
