@@ -240,7 +240,7 @@ namespace DF_EvolutionAPI.Services
                    }).ToListAsync();
                 foreach (var resource in resources)
                 {
-                   // resource.ProjectList = await GetProjects(resource);
+                    resource.ProjectList = await GetProjects(resource);
                   
                 }
                 return resources;
@@ -252,6 +252,8 @@ namespace DF_EvolutionAPI.Services
 
         }
 
-      
+       
+
+
     }
 }
