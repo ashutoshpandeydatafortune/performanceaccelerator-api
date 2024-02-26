@@ -282,7 +282,7 @@ namespace DF_EvolutionAPI.Services
 
             emailContent += footerContent;
 
-            await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
+           // await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
 
             return true;
         }

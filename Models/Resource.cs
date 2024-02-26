@@ -102,7 +102,7 @@ namespace DF_EvolutionAPI.Models
         public string Function { get; set; }
         public string Designation { get; set; }
         public double? TotalYears { get; set; }
-        public List<Project> ProjectList { get; set; }
+       
     }
     public class ReportingToDetails
     {

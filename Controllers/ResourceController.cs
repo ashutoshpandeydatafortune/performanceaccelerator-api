@@ -93,5 +93,24 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// get all the team members of a memeber.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetMyTeamDetails/{userId}")]
+        public async Task<IActionResult> GetMyTeamDetails(int userId)
+        {
+            try
+            {
+                string data = await _resourceService.GetMyTeamDetails(userId);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
