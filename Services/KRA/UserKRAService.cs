@@ -343,7 +343,14 @@ namespace DF_EvolutionAPI.Services
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                        userKra.Score = (double)userKRAModels.FinalRating * weightage;
+                        if (userKRAModels.FinalRating != null)
+                        {
+                            userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
+                        }
+                        else
+                        {
+                            userKra.Score = 0;
+                        }
 
                         userKra.IsActive = 1;
                         userKra.UpdateBy = 1;
