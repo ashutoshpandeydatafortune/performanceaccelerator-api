@@ -292,19 +292,30 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             var assignedKRAs = await _dbContext.PA_TemplateDesignations
                 .Include(d => d.Designation)
                 .Where(d => d.DesignationId == designationId && d.IsActive == 1)
-                .SelectMany(d => _dbContext.PA_TemplateKras
-                    .Include(k => k.KraLibrary)
-                    .Where(k => k.TemplateId == d.TemplateId && k.IsActive == 1)
-                    .Select(k => new
-                    {
-                        kraId = k.KraLibrary.Id,
-                        kraName = k.KraLibrary.Name
-                    }))
-                .ToListAsync();
+                .Join(_dbContext.PATemplates,
+                d => d.TemplateId,
+                t => t.TemplateId,
+                (d, t) => new { Designation = d, Template = t })
+                .SelectMany(dt => _dbContext.PA_TemplateKras
+                .Include(k => k.KraLibrary)
+                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.IsActive == 1 && dt.Template.IsActive == 1)
+                .Select(k => new
+                {
+                    kraIds = k.KraLibrary.Id,
+                    kraNames = k.KraLibrary.Name
+                }))
+                .GroupBy(k => new { k.kraIds, k.kraNames })
+                .Select(group => new
+                {
+                    kraId = group.Key.kraIds,
+                    kraName = group.Key.kraNames
+                })
+            .ToListAsync();
+
 
             if (assignedKRAs == null || assignedKRAs.Count == 0)
             {
-               return new List<object>();
+                return new List<object>();
             }
             return assignedKRAs.Cast<object>().ToList();
 
