@@ -327,7 +327,9 @@ namespace DF_EvolutionAPI.Services
                 foreach (var userKRAModels in userKRAModel)
                 {
                     var userKra = await _dbcontext.UserKRA.FindAsync(userKRAModels.Id);
-
+                    var weightage =  (from kraLibrary in _dbcontext.KRALibrary
+                                           where kraLibrary.Id == userKra.KRAId
+                                           select kraLibrary.Weightage).FirstOrDefault();
                     if (userKra != null)
                     {
                         userKra.Reason = userKRAModels.Reason;
@@ -341,6 +343,7 @@ namespace DF_EvolutionAPI.Services
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
+                        userKra.Score = (double)userKRAModels.FinalRating * weightage;
 
                         userKra.IsActive = 1;
                         userKra.UpdateBy = 1;
