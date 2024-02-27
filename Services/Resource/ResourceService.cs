@@ -247,8 +247,7 @@ namespace DF_EvolutionAPI.Services
 
         }
 
-        //For displaying the team members details
-
+        //Displaying the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
             var resources = await (
@@ -288,6 +287,7 @@ namespace DF_EvolutionAPI.Services
             return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
+        //Getting count fo not approved kras.
         public int GetNotApprovedKras(int userId, int quarterId)
         {
             var count = (
@@ -302,6 +302,7 @@ namespace DF_EvolutionAPI.Services
 
             return count;
         }
+        //Displaying yearly rating
         public async Task<List<UserKRARatingLists>> GetUserKraScoreYear(int userId)
         {
             try
@@ -340,6 +341,7 @@ namespace DF_EvolutionAPI.Services
                 throw;
             }
         }
+        //Displaying rating od current for quarter 'Jan-Mar'.
         public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter)
         {
             try
