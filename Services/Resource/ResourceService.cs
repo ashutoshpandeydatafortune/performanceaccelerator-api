@@ -221,9 +221,9 @@ namespace DF_EvolutionAPI.Services
             {
                 resources = await (
                    from resource in _dbcontext.Resources
+                   join reportingName in _dbcontext.Resources on resource.ReportingTo equals reportingName.ResourceId
                    join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                    join resourcefunction in _dbcontext.ResourceFunctions on resource.ResourcefunctionId equals resourcefunction.ResourceFunctionId
-                   join reportingName in _dbcontext.Resources on resource.ResourceId equals reportingName.ReportingTo
                    where resource.ResourceId == resourceId && resource.IsActive == 1
                    select new Resource
                    {
@@ -231,11 +231,11 @@ namespace DF_EvolutionAPI.Services
                        ResourceName = resource.ResourceName,
                        EmailId = resource.EmailId,
                        EmployeeId = resource.EmployeeId,
-                       ReportingToName = reportingName.ResourceName,
+                       ReporterName = reportingName.ResourceName,
                        Function = resourcefunction.ResourceFunctionName,
                        Designation = designation.DesignationName,
                        TotalYears = resource.TotalYears,
-
+                      
                    }).FirstOrDefaultAsync();
 
                 return resources;

@@ -52,8 +52,7 @@ namespace DF_EvolutionAPI.Models
         #endregion
 
         public byte IsActive { get; set; }
-        [NotMapped]
-        public string ReportingToName { get; set; }
+       
         [NotMapped]
         public string Function { get; set; }
         [NotMapped]
@@ -70,10 +69,7 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public List<BusinessUnit> BusinessUnits { get; set; }
-
-        //[NotMapped]
-        //public List<Designation> Designations { get; set; }
-
+                
         [NotMapped]
         public string ReporterName { get; set; }
 
@@ -82,10 +78,7 @@ namespace DF_EvolutionAPI.Models
 
 
         [NotMapped]
-        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
-
-        [NotMapped]
-        public List<ProfileDetails> ProfileDetails { get; set; }
+        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }       
     }
 
     public class AssignedSpecialKRA
@@ -93,21 +86,5 @@ namespace DF_EvolutionAPI.Models
         public int KRAId { get; set; }
         public string KraName { get; set; }
     }
-    public class ProfileDetails
-    {
-        public string ResourceName { get; set; }
-        public string EmailId { get; set; }
-        public string EmployeeId { get; set; }
-        public string ReportingTo { get; set; }
-        public string Function { get; set; }
-        public string Designation { get; set; }
-        public double? TotalYears { get; set; }
-       
-    }
-    public class ReportingToDetails
-    {
-        public string ReportingToName { get; set; }
-        public string ProjectManager { get; set; }
-        public string ProjectName { get; set; }
-    }
+   
 }
