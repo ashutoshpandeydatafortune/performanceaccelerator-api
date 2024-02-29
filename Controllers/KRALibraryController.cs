@@ -23,11 +23,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetAllKRALibraryList()
+        public async Task<IActionResult> GetAllKRALibraryList(int? isSpecial)
         {
             try
             {
-                var libraries = await _kraLibraryService.GetAllKRALibraryList();                
+                var libraries = await _kraLibraryService.GetAllKRALibraryList(isSpecial);                
                 return Ok(libraries);
             }
             catch (Exception ex)

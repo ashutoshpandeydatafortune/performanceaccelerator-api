@@ -7,7 +7,7 @@ namespace DF_EvolutionAPI.Services.KRA
 {
     public interface IKRALibraryService
     {
-        public Task<List<KRALibrary>> GetAllKRALibraryList();
+        public Task<List<KRALibrary>> GetAllKRALibraryList(int? isSpecial);
         public Task<KRALibrary> GetKRALibraryById(int kraLibraryId);
         public Task<ResponseModel> DeleteKRALibrary(int kraLibraryId);
         public Task<List<KRALibrary>> GetKRADetailsByWeightageId(int weightageId);
