@@ -17,10 +17,10 @@ namespace DF_EvolutionAPI.Services.KRA
             _dbcontext = dbContext;
         }
 
-        public async Task<List<KRALibrary>> GetAllKRALibraryList(int? isSpecial)
+        public async Task<List<KRALibrary>> GetAllKRALibraryList(int? isNotSpecial)
         {
             //Checked isSpecial condition for displaying kras list.
-            if (isSpecial == null || isSpecial == 0)
+            if (isNotSpecial == null || isNotSpecial == 0)
             {
                 return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
             }
