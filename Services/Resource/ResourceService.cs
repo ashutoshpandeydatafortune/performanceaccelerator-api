@@ -334,8 +334,8 @@ namespace DF_EvolutionAPI.Services
                 })
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
-
-                 var averageRating = Math.Round((double)results.Average(x => x.Rating), 2);//round off after 2 digit of decimal.
+                var averageRating = results?.Any() == true ? Math.Round((double)results.Average(x => x.Rating), 2) : 0.0;
+               // var averageRating = Math.Round((double)results.Average(x => x.Rating), 2);//round off after 2 digit of decimal.
                  //var averageRating = (double)results.Average(x => x.Rating);
                 var resultList = new List<UserKRARatingLists>
         {
@@ -382,8 +382,8 @@ namespace DF_EvolutionAPI.Services
                 })
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
-
-                var averageRating = Math.Round((double)results.Average(x => x.Rating),2);
+                var averageRating = results?.Any() == true ? Math.Round((double)results.Average(x => x.Rating), 2) : 0.0;
+               // var averageRating = Math.Round((double)results.Average(x => x.Rating),2);
 
                 var resultList = new List<UserKRARatingLists>
         {
