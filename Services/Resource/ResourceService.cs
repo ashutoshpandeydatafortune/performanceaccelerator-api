@@ -271,9 +271,9 @@ namespace DF_EvolutionAPI.Services
             var currentQuarter = await _dbcontext.QuarterDetails.FirstOrDefaultAsync(quarter => quarter.Id == 1);
             foreach (var resource in currentUser)
             {
-                var userKraScoreYear = await GetUserKraScoreYear(resource.ResourceId);
+                var userKraScoreYear = await GetUserKraScoreYear(resource.ResourceId,currentQuarter.QuarterYearRange);
                 resource.AverageScoreYear = userKraScoreYear.Select(r => r.Rating).FirstOrDefault();
-                var userKraScoreCurrent = GetUserKraScoreCurrent(resource.ResourceId, currentQuarter.Id);
+                var userKraScoreCurrent = GetUserKraScoreCurrent(resource.ResourceId, currentQuarter.Id, currentQuarter.QuarterYearRange);
                 resource.AverageScoreCurrent = userKraScoreCurrent.Select(r => r.Rating).FirstOrDefault();
                 resource.PendingEvaluation = GetNotApprovedKras((int)resource.ResourceId, currentQuarter.Id);
             }
@@ -303,17 +303,17 @@ namespace DF_EvolutionAPI.Services
             return count;
         }
         //Displaying yearly rating
-        public async Task<List<UserKRARatingLists>> GetUserKraScoreYear(int userId)
+        public async Task<List<UserKRARatingLists>> GetUserKraScoreYear(int userId, string quarterRange)
         {
             try
             {
-                var rating = (
+                var rating = await(
                     from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == "2023-24" && quarterDetail.IsActive == 1)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == 1)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
@@ -324,7 +324,7 @@ namespace DF_EvolutionAPI.Services
                         Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
                         Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
                     }
-                    ).ToList();
+                    ).ToListAsync();
 
                 var results = rating.Select(r => new UserKRARatingList
                 {
@@ -332,11 +332,9 @@ namespace DF_EvolutionAPI.Services
                     QuarterName = r.QuarterName,
                     Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
                 })
-                    .OrderBy(x => x.QuarterYearRange)
+                    .OrderBy(quarter => quarter.QuarterYearRange)
                     .ToList();
-                var averageRating = results?.Any() == true ? Math.Round((double)results.Average(x => x.Rating), 2) : 0.0;
-               // var averageRating = Math.Round((double)results.Average(x => x.Rating), 2);//round off after 2 digit of decimal.
-                 //var averageRating = (double)results.Average(x => x.Rating);
+                var averageRating = results?.Any() == true ? Math.Round((double)results.Average(average => average.Rating), 2) : 0.0;
                 var resultList = new List<UserKRARatingLists>
         {
             new UserKRARatingLists { Rating = (double)averageRating }
@@ -351,7 +349,7 @@ namespace DF_EvolutionAPI.Services
         }
 
         //Displaying rating od current for quarter 'Jan-Mar'.
-        public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter)
+        public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter, string quarterRange)
         {
             try
             {
@@ -361,7 +359,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == "2023-24" && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
