@@ -308,72 +308,89 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var rating = (
-                    from p in _dbcontext.Projects
-                    join pro in _dbcontext.ProjectResources on p.ProjectId equals pro.ProjectId
-                    join resources in _dbcontext.Resources on pro.ResourceId equals resources.ResourceId
+                    from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
-                    join d in _dbcontext.Designations on resources.DesignationId equals d.DesignationId
-                    where resources.ResourceId == userId && quarterDetail.IsActive == 1
+                    join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == "2023-24" && quarterDetail.IsActive == 1)
+                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
-                        kraLibrary.Weightage,
-                        Score = userKRA.FinalRating * kraLibrary.Weightage,
-                        quarterDetail.QuarterYearRange
+                        grouped.Key.Id,
+                        grouped.Key.QuarterName,
+                        grouped.Key.QuarterYear,
+                        grouped.Key.QuarterYearRange,
+                        Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
+                        Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
                     }
-                ).ToList();
+                    ).ToList();
 
-                var result = rating.GroupBy(r => r.QuarterYearRange)
-                    .Select(group => new UserKRARatingLists
-                    {
-                        QuarterYearRange = group.Key,
-                        Score = (double)group.Sum(r => r.Score),
-                        Rating = (double)Math.Round((decimal)(group.Sum(r => r.Score) / group.Sum(r => r.Weightage)), 2)
-                    })
-                    .OrderByDescending(r => r.QuarterYearRange)
+                var results = rating.Select(r => new UserKRARatingList
+                {
+                    QuarterYearRange = r.QuarterYearRange,
+                    QuarterName = r.QuarterName,
+                    Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
+                })
+                    .OrderBy(x => x.QuarterYearRange)
                     .ToList();
 
-                return result;
+                 var averageRating = Math.Round((double)results.Average(x => x.Rating), 2);//round off after 2 digit of decimal.
+                 //var averageRating = (double)results.Average(x => x.Rating);
+                var resultList = new List<UserKRARatingLists>
+        {
+            new UserKRARatingLists { Rating = (double)averageRating }
+        };
+
+                return resultList;
             }
             catch (Exception)
             {
                 throw;
             }
         }
+
         //Displaying rating od current for quarter 'Jan-Mar'.
         public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter)
         {
             try
             {
                 var rating = (
-                    from p in _dbcontext.Projects
-                    join pro in _dbcontext.ProjectResources on p.ProjectId equals pro.ProjectId
-                    join resources in _dbcontext.Resources on pro.ResourceId equals resources.ResourceId
+                    from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
-                    join d in _dbcontext.Designations on resources.DesignationId equals d.DesignationId
-                    where resources.ResourceId == userId && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1
+                    join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == "2023-24" && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1)
+                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
-                        kraLibrary.Weightage,
-                        Score = userKRA.FinalRating * kraLibrary.Weightage,
-                        quarterDetail.QuarterYearRange
+                        grouped.Key.Id,
+                        grouped.Key.QuarterName,
+                        grouped.Key.QuarterYear,
+                        grouped.Key.QuarterYearRange,
+                        Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
+                        Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
                     }
                     ).ToList();
 
-                var result = rating.GroupBy(r => r.QuarterYearRange)
-                          .Select(group => new UserKRARatingLists
-                          {
-                              QuarterYearRange = group.Key,
-                              Score = (double)group.Sum(r => r.Score),
-                              Rating = (double)Math.Round((decimal)(group.Sum(r => r.Score) / group.Sum(r => r.Weightage)), 2)
-                          })
-                          .OrderByDescending(r => r.QuarterYearRange)
-                          .ToList();
+                var results = rating.Select(r => new UserKRARatingList
+                {
+                    QuarterYearRange = r.QuarterYearRange,
+                    QuarterName = r.QuarterName,
+                    Rating = Math.Round((double)r.Score / (double)r.Weightage, 2)
+                })
+                    .OrderBy(x => x.QuarterYearRange)
+                    .ToList();
 
-                return result;
+                var averageRating = Math.Round((double)results.Average(x => x.Rating),2);
+
+                var resultList = new List<UserKRARatingLists>
+        {
+            new UserKRARatingLists { Rating = (double)averageRating }
+        };
+
+                return resultList;
             }
             catch (Exception)
             {

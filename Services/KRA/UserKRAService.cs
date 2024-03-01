@@ -655,9 +655,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var rating = (
-                    from project in _dbcontext.Projects
-                    join projectResource in _dbcontext.ProjectResources on project.ProjectId equals projectResource.ProjectId
-                    join resources in _dbcontext.Resources on projectResource.ResourceId equals resources.ResourceId
+                    from resources in _dbcontext.Resources 
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
@@ -683,6 +681,7 @@ namespace DF_EvolutionAPI.Services
                 })
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
+                
 
                 return result;
             }
