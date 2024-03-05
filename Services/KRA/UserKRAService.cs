@@ -344,7 +344,7 @@ namespace DF_EvolutionAPI.Services
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                        if (userKRAModels.FinalRating != null)
+                        if (userKRAModels.FinalComment != null)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
                         }
