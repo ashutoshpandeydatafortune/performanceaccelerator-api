@@ -171,7 +171,7 @@ namespace DF_EvolutionAPI
             modelBuilder.HasDefaultSchema("dbo").Entity<ResourceFunction>(e =>
             {
                 e.ToTable("ResourceFunctions");
-                e.HasKey(x => x.ResourceFunctionId);
+                //e.HasKey(x => x.ResourceFunctionId);
                 e.Property(e => e.ResourceFunctionName).HasColumnName("ResourceFunctionName");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
             });

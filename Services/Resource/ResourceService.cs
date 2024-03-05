@@ -223,7 +223,7 @@ namespace DF_EvolutionAPI.Services
                    from resource in _dbcontext.Resources
                    join reportingName in _dbcontext.Resources on resource.ReportingTo equals reportingName.ResourceId
                    join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                   join resourcefunction in _dbcontext.ResourceFunctions on resource.ResourcefunctionId equals resourcefunction.ResourceFunctionId
+                   join resourcefunction in _dbcontext.ResourceFunctions on resource.FunctionId equals resourcefunction.ResourceFunctionId
                    where resource.ResourceId == resourceId && resource.IsActive == 1
                    select new Resource
                    {
@@ -266,7 +266,9 @@ namespace DF_EvolutionAPI.Services
                 ).ToListAsync();
 
             var currentUser = resources.Where(r => r.ReportingTo == userId);
-            var someUser = _dbcontext.Resources.Where(r => r.ResourceId == userId).FirstOrDefault();
+            //var someUser = _dbcontext.Resources.Where(r => r.ResourceId == userId).FirstOrDefault();
+            var result = _dbcontext.Resources.Where(r => r.ResourceId == userId);
+            //var someUser = (int)result != null ? result : 0;
 
             var currentQuarter = await _dbcontext.QuarterDetails.FirstOrDefaultAsync(quarter => quarter.Id == 1);
             foreach (var resource in currentUser)

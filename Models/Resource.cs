@@ -17,8 +17,7 @@ namespace DF_EvolutionAPI.Models
         [Required]
         public string EmailId { get; set; }
 
-        public int ResourcefunctionId { get; set; } 
-
+        
         #region Address
         public string Address { get; set; }
         public string CountryId { get; set; }

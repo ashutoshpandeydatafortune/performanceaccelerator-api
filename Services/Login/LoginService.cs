@@ -151,11 +151,11 @@ namespace DF_EvolutionAPI.Services.Login
                    ).ToList();
         }
         
-        private ResourceFunction GetResourceFunction(int resouceFunctionId)
+        private ResourceFunction GetResourceFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
         {
             return (
                     from rf in _dbContext.ResourceFunctions
-                    where rf.ResourceFunctionId == resouceFunctionId
+                    where rf.ResourceFunctionId == functionId
                     select rf
                   ).FirstOrDefault();
         }
