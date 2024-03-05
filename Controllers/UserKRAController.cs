@@ -194,5 +194,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Removed the assigned kras from resources
+        /// </summary>
+        /// <param name="userKRAId"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<IActionResult> UnassignKra(int userKraId)
+        {
+            try
+            {
+                var model = await _userKRAService.UnassignKra(userKraId);
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

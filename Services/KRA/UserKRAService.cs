@@ -14,6 +14,7 @@ using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Services.Email;
 using System.Text;
 using static DF_EvolutionAPI.Models.UserKRADetails;
+using Azure;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -565,10 +566,10 @@ namespace DF_EvolutionAPI.Services
         public async Task<ResponseModel> DeleteUserKRA(int userKRAId)
         {
             ResponseModel model = new ResponseModel();
-
+            UserKRA userKra = null;
             try
             {
-                UserKRA userKra = await GetUserKRAById(userKRAId);
+                userKra = _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id == userKRAId).FirstOrDefault();
 
                 if (userKra != null)
                 {
@@ -689,6 +690,41 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
+        }
+
+        //UnassignKra is used to removed the assigned kras from resources.
+        public async Task<ResponseModel>UnassignKra(int userKraId)
+        {
+            ResponseModel model = new ResponseModel();
+            UserKRA userKra = null;
+            try
+            {
+                userKra =  _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id == userKraId).FirstOrDefault();
+
+
+                if (userKra != null)
+                {
+                    userKra.IsActive = 0;
+
+                    _dbcontext.Update(userKra);
+                    _dbcontext.SaveChanges();
+
+                    model.IsSuccess = true;
+                    model.Messsage = "User KRA Unassigned Successfully";
+                }
+                else
+                {
+                    model.IsSuccess = false;
+                    model.Messsage = "User KRA Not Found";
+                }
+            }
+            catch (Exception ex)
+            {
+                model.IsSuccess = false;
+                model.Messsage = "Error : " + ex.Message;
+            }
+
+            return model;
         }
     }
 }
