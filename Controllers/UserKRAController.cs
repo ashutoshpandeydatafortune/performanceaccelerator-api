@@ -196,17 +196,17 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// Removed the assigned kras from resources
+        /// Removed the assigned or unassign kras from resources
         /// </summary>
         /// <param name="userKRAId"></param>
         /// <returns></returns>
-        [HttpDelete]
+        [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UnassignKra(int userKraId)
+        public async Task<IActionResult> AssignUnassignKra(int userKraId, byte IsActive)
         {
             try
             {
-                var model = await _userKRAService.UnassignKra(userKraId);
+                var model = await _userKRAService.AssignUnassignKra(userKraId,IsActive);
                 return Ok(model);
             }
             catch (Exception ex)

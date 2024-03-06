@@ -353,7 +353,7 @@ namespace DF_EvolutionAPI.Services
                             userKra.Score = 0;
                         }
 
-                        userKra.IsActive = 1;
+                        userKra.IsActive = userKRAModels.IsActive;
                         userKra.UpdateBy = 1;
                         userKra.UpdateDate = DateTime.Now;
 
@@ -694,30 +694,36 @@ namespace DF_EvolutionAPI.Services
         }
 
         //UnassignKra is used to removed the assigned kras from resources.
-        public async Task<ResponseModel>UnassignKra(int userKraId)
+        public async Task<ResponseModel>AssignUnassignKra(int userKraId, byte IsActive)
         {
             ResponseModel model = new ResponseModel();
             UserKRA userKra = null;
             try
             {
-                userKra =  _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id == userKraId).FirstOrDefault();
-
-
+                userKra =  _dbcontext.UserKRA.Where(c=>c.Id == userKraId).FirstOrDefault();
                 if (userKra != null)
                 {
-                    userKra.IsActive = 0;
+                    userKra.IsActive = IsActive;
 
                     _dbcontext.Update(userKra);
                     _dbcontext.SaveChanges();
 
                     model.IsSuccess = true;
-                    model.Messsage = "User KRA Unassigned Successfully";
+                    if (userKra.IsActive == 0)
+                    {
+                        model.Messsage = "User KRA Unassigned Successfully";
+                    }
+                    else
+                    {
+                        model.Messsage = "User KRA Assigned Successfully";
+                    }
                 }
                 else
                 {
                     model.IsSuccess = false;
-                    model.Messsage = "User KRA Not Found";
+                    model.Messsage = "User KRA does not exits";
                 }
+               
             }
             catch (Exception ex)
             {
