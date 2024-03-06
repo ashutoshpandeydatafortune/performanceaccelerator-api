@@ -638,6 +638,7 @@ namespace DF_EvolutionAPI.Services
 
                         QuarterName = quarter.QuarterName,
                         QuarterYear = quarter.QuarterYear,
+                        IsActive = userKra.IsActive
 
                         //StatusName = S.StatusName,
                         //Reason = c.Reason
