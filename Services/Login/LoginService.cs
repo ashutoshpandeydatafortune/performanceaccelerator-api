@@ -112,7 +112,7 @@ namespace DF_EvolutionAPI.Services.Login
                     reportingTo = (int)resource.ReportingTo;
                 }
 
-                ResourceFunction resourceFunction = null;
+                TechFunction resourceFunction = null;
 
                 if (resource.FunctionId != null && resource.FunctionId.HasValue)
                 {
@@ -151,11 +151,11 @@ namespace DF_EvolutionAPI.Services.Login
                    ).ToList();
         }
         
-        private ResourceFunction GetResourceFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
+        private TechFunction GetResourceFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
         {
             return (
-                    from rf in _dbContext.ResourceFunctions
-                    where rf.ResourceFunctionId == functionId
+                    from rf in _dbContext.TechFunctions
+                    where rf.FunctionId == functionId
                     select rf
                   ).FirstOrDefault();
         }

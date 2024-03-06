@@ -21,7 +21,8 @@ namespace DF_EvolutionAPI.Models.Response
         public List<Role> Roles { get; set; }
         public DateTime Expiration { get; set; }
 
-        public ResourceFunction ResourceFunction { get; set; }
+        public TechFunction ResourceFunction { get; set; }
+        
 
     }
 }

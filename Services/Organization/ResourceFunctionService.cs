@@ -16,18 +16,18 @@ namespace DF_EvolutionAPI.Services
             _dbcontext = dbContext;
         }
 
-        public async Task<List<ResourceFunction>> GetAllFunctions()
+        public async Task<List<TechFunction>> GetAllFunctions()
         {
-            return await _dbcontext.ResourceFunctions.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.TechFunctions.Where(c => c.IsActive == 1).ToListAsync();
         }
 
-        public async Task<ResourceFunction> GetFunctionById(int functionId)
+        public async Task<TechFunction> GetFunctionById(int functionId)
         {
-            ResourceFunction resourceFunction;
+            TechFunction resourceFunction;
 
             try
             {
-                resourceFunction = await _dbcontext.FindAsync<ResourceFunction>(functionId);
+                resourceFunction = await _dbcontext.FindAsync<TechFunction>(functionId);
             }
             catch (Exception)
             {

@@ -6,7 +6,7 @@ namespace DF_EvolutionAPI.Services
 {
     public interface IResourceFunctionService
     {
-        public Task<List<ResourceFunction>> GetAllFunctions();
-        public Task<ResourceFunction> GetFunctionById(int functionId);
+        public Task<List<TechFunction>> GetAllFunctions();
+        public Task<TechFunction> GetFunctionById(int functionId);
     }
 }
