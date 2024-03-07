@@ -116,7 +116,7 @@ namespace DF_EvolutionAPI.Services.Login
 
                 if (resource.FunctionId != null && resource.FunctionId.HasValue)
                 {
-                    TechFunction = GetResourceFunction(resource.FunctionId.Value);
+                    TechFunction = GetTechFunction(resource.FunctionId.Value);
                 }
 
                 return new LoginResponse()
@@ -151,7 +151,7 @@ namespace DF_EvolutionAPI.Services.Login
                    ).ToList();
         }
         
-        private TechFunction GetResourceFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
+        private TechFunction GetTechFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
         {
             return (
                     from rf in _dbContext.TechFunctions

@@ -148,12 +148,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="functionId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetDesignationByFunctionId/{resourceFunctionId}")]
-        public async Task<IActionResult> GetDesignationByFunctionId(int resourceFunctionId)
+        [Route("GetDesignationByFunctionId/{functionId}")]
+        public async Task<IActionResult> GetDesignationByFunctionId(int functionId)
         {
             try
             {
-                var resources = await _designationService.GetDesignationByFunctionId(resourceFunctionId);
+                var resources = await _designationService.GetDesignationByFunctionId(functionId);
                 return Ok(resources);
             }
             catch (Exception ex)

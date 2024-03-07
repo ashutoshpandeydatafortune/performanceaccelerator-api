@@ -203,14 +203,14 @@ namespace DF_EvolutionAPI.Services.Designations
             }
         }
         //Displayed all designation by function id.
-        public async Task<List<Designation>> GetDesignationByFunctionId(int resourceFunctionId)
+        public async Task<List<Designation>> GetDesignationByFunctionId(int functionId)
         {
             {
                 try
                 {
                     return await (  from designation in _dbcontext.Designations
                                     join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
-                                    where resource.FunctionId == resourceFunctionId && resource.IsActive == 1
+                                    where resource.FunctionId == functionId && resource.IsActive == 1
                                     group new { designation, resource } by new { designation.DesignationId, designation.ReferenceId, designation.DesignationName, designation.IsActive, designation.CreateBy, designation.UpdateBy, designation.CreateDate, designation.UpdateDate } into grouped
                                     select new Designation
                                     {

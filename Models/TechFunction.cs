@@ -2,7 +2,7 @@
 {
     public class TechFunction
     {
-        public string ResourceFunctionName { get; set; }
+        public string FunctionName { get; set; }
         public int? FunctionId { get; set; }
         public byte IsActive { get; set; }      
     }

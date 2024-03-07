@@ -34,7 +34,6 @@ namespace DF_EvolutionAPI
         public virtual DbSet<ProjectResource> ProjectResources { get; set; }
         public virtual DbSet<AppraisalHistory> AppraisalHistory { get; set; }
         public virtual DbSet<SubmissionStatus> SubmissionStatus { get; set; }
-       // public virtual DbSet<ResourceFunction> ResourceFunctions { get; set; }
         public virtual DbSet<TechFunction> TechFunctions { get; set; }
         public virtual DbSet<RoleMapping> PA_RoleMappings { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
@@ -169,19 +168,11 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
-            //modelBuilder.HasDefaultSchema("dbo").Entity<ResourceFunction>(e =>
-            //{
-            //    e.ToTable("ResourceFunctions");
-            //    //e.HasKey(x => x.ResourceFunctionId);
-            //    e.Property(e => e.ResourceFunctionName).HasColumnName("ResourceFunctionName");
-            //    e.Property(e => e.IsActive).HasColumnName("IsActive");
-            //});
-
             modelBuilder.HasDefaultSchema("dbo").Entity<TechFunction>(e =>
             {
                 e.ToTable("TechFunction");
                 e.HasKey(x => x.FunctionId);
-                e.Property(e => e.ResourceFunctionName).HasColumnName("FunctionName");
+                e.Property(e => e.FunctionName).HasColumnName("FunctionName");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
             });
 

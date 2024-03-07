@@ -232,7 +232,7 @@ namespace DF_EvolutionAPI.Services
                        EmailId = resource.EmailId,
                        EmployeeId = resource.EmployeeId,
                        ReporterName = reportingName.ResourceName,
-                       Function = resourcefunction.ResourceFunctionName,
+                       Function = resourcefunction.FunctionName,
                        Designation = designation.DesignationName,
                        TotalYears = resource.TotalYears,
                       
