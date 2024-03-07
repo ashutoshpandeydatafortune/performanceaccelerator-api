@@ -112,11 +112,11 @@ namespace DF_EvolutionAPI.Services.Login
                     reportingTo = (int)resource.ReportingTo;
                 }
 
-                TechFunction resourceFunction = null;
+                TechFunction TechFunction = null;
 
                 if (resource.FunctionId != null && resource.FunctionId.HasValue)
                 {
-                    resourceFunction = GetResourceFunction(resource.FunctionId.Value);
+                    TechFunction = GetResourceFunction(resource.FunctionId.Value);
                 }
 
                 return new LoginResponse()
@@ -130,7 +130,7 @@ namespace DF_EvolutionAPI.Services.Login
                     ResourceName = resourceName,
                     ReportingToId = reportingTo,
                     Expiration = token.ValidTo,
-                    ResourceFunction = resourceFunction,
+                    ResourceFunction = TechFunction,
                     DesignationName = resource.DesignationName,
                     DesignationId = resource.DesignationId.Value,
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
