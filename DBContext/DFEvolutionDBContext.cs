@@ -40,7 +40,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<PATemplate> PATemplates { get; set; }
         public virtual DbSet<PATemplateDesignation> PA_TemplateDesignations { get; set; }
         public virtual DbSet<PATemplateKra> PA_TemplateKras { get; set; }
-
+        public virtual DbSet<IdentityRole> AspNetRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -414,8 +414,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
-                e.Property(e => e.IsActive).HasColumnName("CreateBy");
-                e.Property(e => e.IsActive).HasColumnName("UpdateBy");
+               
             });
 
             modelBuilder.Entity<Notification>(e =>
