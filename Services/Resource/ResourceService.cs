@@ -298,7 +298,7 @@ namespace DF_EvolutionAPI.Services
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.QuarterId == quarterId && userKras.FinalRating == null
+                where userKras.UserId == userId && userKras.QuarterId == quarterId && userKras.FinalRating == null && userKras.IsActive == 1
                 select resource
             ).Count();
 
@@ -309,13 +309,14 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
+                
                 var rating = await(
                     from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == 1)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == 1 && userKRA.IsActive == 1 && userKRA.FinalComment != null)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
@@ -361,7 +362,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1 && userKRA.IsActive == 1 && userKRA.FinalComment != null)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
