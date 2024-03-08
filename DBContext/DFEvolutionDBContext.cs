@@ -24,7 +24,6 @@ namespace DF_EvolutionAPI
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Resource> Resources { get; set; }
         public virtual DbSet<KRALibrary> KRALibrary { get; set; }
-        public virtual DbSet<RoleMapping> RoleMapping { get; set; }
         public virtual DbSet<Designation> Designations { get; set; }
         public virtual DbSet<UserApproval> UserApproval { get; set; }
         public virtual DbSet<BusinessUnit> BusinessUnits { get; set; }
@@ -40,6 +39,9 @@ namespace DF_EvolutionAPI
         public virtual DbSet<PATemplate> PATemplates { get; set; }
         public virtual DbSet<PATemplateDesignation> PA_TemplateDesignations { get; set; }
         public virtual DbSet<PATemplateKra> PA_TemplateKras { get; set; }
+       // public virtual DbSet<IdentityRole> AspNetRoles { get; set; }
+
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -414,8 +416,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
-                e.Property(e => e.IsActive).HasColumnName("CreateBy");
-                e.Property(e => e.IsActive).HasColumnName("UpdateBy");
+               
             });
 
             modelBuilder.Entity<Notification>(e =>
@@ -472,6 +473,13 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
 
             });
+
+            //modelBuilder.Entity<AspNetRole>(e =>
+            //{
+            //    e.ToTable("AspNetRoles", "dbo");
+            //    e.Property(e => e.Id).HasColumnName("Id");
+            //    e.Property(e => e.Name).HasColumnName("Name");               
+            //});
 
 
 
