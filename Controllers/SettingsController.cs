@@ -57,7 +57,7 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
         /// <summary>
-        /// Inserting rolemapping for  role
+        /// Inserting rolemapping for role
         /// </summary>
         /// <returns></returns>
 
