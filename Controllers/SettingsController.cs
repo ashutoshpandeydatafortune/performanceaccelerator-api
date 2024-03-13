@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -48,6 +49,25 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var result = await _settings.UpdatePermissionByRole(roleMapping);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Inserting rolemapping for  role
+        /// </summary>
+        /// <returns></returns>
+
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> AddRoleMapping(List<RoleMapping> roleMappings)
+        {
+            try
+            {
+                var result = await _settings.AddRoleMapping(roleMappings);
                 return Ok(result);
             }
             catch (Exception ex)
