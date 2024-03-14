@@ -143,9 +143,9 @@ namespace DF_EvolutionAPI.Services
                 foreach (var item in userKRAModel)
                 {
                     //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
-                    var kralist = _dbcontext.UserKRA.Where(kra => kra.IsActive == 1 
-                    && kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
-                    
+                    var kralist = _dbcontext.UserKRA.Where(kra => 
+                     kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
+
                     if (kralist.Count == 0)
                     {
                         item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
@@ -161,7 +161,11 @@ namespace DF_EvolutionAPI.Services
 
                         await _dbcontext.AddAsync(item);
                     }
-                   
+                    else
+                    {
+                        return false;
+                    }
+
                 }
 
                 await _dbcontext.SaveChangesAsync();
