@@ -24,15 +24,26 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             try
             {
-                paTemplates.IsActive = 1;
-                paTemplates.CreateBy = 1;
-                paTemplates.CreateDate = DateTime.Now;
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name);
 
-                _dbContext.Add(paTemplates);
-                model.Messsage = "Template Saved Successfully.";
+                if (existingTemplate == null)
+                {
+                    paTemplates.IsActive = 1;
+                    paTemplates.CreateBy = 1;
+                    paTemplates.CreateDate = DateTime.Now;
 
-                await _dbContext.SaveChangesAsync();
-                model.IsSuccess = true;
+                    _dbContext.Add(paTemplates);
+                    model.Messsage = "Template Saved Successfully.";
+
+                    await _dbContext.SaveChangesAsync();
+                    model.IsSuccess = true;
+                }
+                else
+                {
+                    model.Messsage = "Template already exist.";
+                    model.IsSuccess = false;
+
+                }
             }
             catch (Exception ex)
             {
