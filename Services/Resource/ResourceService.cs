@@ -144,9 +144,11 @@ namespace DF_EvolutionAPI.Services
             {
                 var client = await (from c in _dbcontext.Clients
                                     where c.ClientId == projectResource.ClientId && c.IsActive == 1
-                                    select c).FirstAsync();
-
-                clientList.Add(client);
+                                    select c).FirstOrDefaultAsync();
+                if (client != null)// To restrict adding a null value in the case of an inactive client
+                {
+                    clientList.Add(client);
+                }
             }
 
             return clientList;
@@ -160,7 +162,7 @@ namespace DF_EvolutionAPI.Services
             {
                 var businessUnit = await (from b in _dbcontext.BusinessUnits
                                           where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == 1
-                                          select b).FirstAsync();
+                                          select b).FirstOrDefaultAsync();
 
                 businessUnits.Add(businessUnit);
             }
