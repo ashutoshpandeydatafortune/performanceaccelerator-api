@@ -143,7 +143,7 @@ namespace DF_EvolutionAPI.Services
             foreach (var projectResource in resource.ProjectList)
             {
                 var client = await (from c in _dbcontext.Clients
-                                    where c.ClientId == projectResource.ClientId// && c.IsActive == 1
+                                    where c.ClientId == projectResource.ClientId && c.IsActive == 1
                                     select c).FirstAsync();
 
                 clientList.Add(client);
