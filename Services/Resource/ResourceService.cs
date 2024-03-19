@@ -163,8 +163,10 @@ namespace DF_EvolutionAPI.Services
                 var businessUnit = await (from b in _dbcontext.BusinessUnits
                                           where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == 1
                                           select b).FirstOrDefaultAsync();
-
-                businessUnits.Add(businessUnit);
+                if (businessUnit != null)
+                {
+                    businessUnits.Add(businessUnit);
+                }
             }
 
             return businessUnits;
