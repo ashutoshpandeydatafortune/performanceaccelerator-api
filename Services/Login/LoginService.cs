@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
 using System.Data;
+using Microsoft.AspNetCore.Builder;
 
 namespace DF_EvolutionAPI.Services.Login
 {
@@ -57,13 +58,23 @@ namespace DF_EvolutionAPI.Services.Login
                         UserName = uam.Username,
                         SecurityStamp = Guid.NewGuid().ToString(),
                         EmailConfirmed = true
-                    };
-
+                    }; 
                     var result = await _userManager.CreateAsync(registerUser);
                     if (result.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(registerUser, "Other");
+                        //Adding role for user. 
+                        await _userManager.AddToRoleAsync(registerUser, "Developer");
+                       
                     }
+                   
+                }
+
+                var existingRoles =  _dbContext.AspNetUserRoles
+                    .Where(userRole => userRole.UserId == existingUser.Id)
+                    .FirstOrDefault();
+                if (existingRoles == null)
+                {
+                   object value = await _userManager.AddToRoleAsync(existingUser, "Developer");
                 }
 
                 var user = await _userManager.FindByEmailAsync(uam.Username);

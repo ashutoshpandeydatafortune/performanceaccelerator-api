@@ -41,6 +41,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<PATemplateDesignation> PA_TemplateDesignations { get; set; }
         public virtual DbSet<PATemplateKra> PA_TemplateKras { get; set; }
         public virtual DbSet<IdentityRole> AspNetRoles { get; set; }
+        public virtual DbSet<IdentityUserRole<string>> AspNetUserRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
