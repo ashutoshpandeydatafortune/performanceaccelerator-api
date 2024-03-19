@@ -62,19 +62,19 @@ namespace DF_EvolutionAPI.Services.Login
                     var result = await _userManager.CreateAsync(registerUser);
                     if (result.Succeeded)
                     {
-                        //Adding role for user. 
+                        //Adding role for new user. 
                         await _userManager.AddToRoleAsync(registerUser, "Developer");
                        
                     }
                    
                 }
 
-                var existingRoles =  _dbContext.AspNetUserRoles
-                    .Where(userRole => userRole.UserId == existingUser.Id)
-                    .FirstOrDefault();
-                if (existingRoles == null)
+                //Adding role for existing user.
+                var existingRole =  _dbContext.AspNetUserRoles.Where(userRole => userRole.UserId == existingUser.Id)
+                                    .FirstOrDefault();
+                if (existingRole == null)
                 {
-                   object value = await _userManager.AddToRoleAsync(existingUser, "Developer");
+                   await _userManager.AddToRoleAsync(existingUser, "Developer");
                 }
 
                 var user = await _userManager.FindByEmailAsync(uam.Username);
