@@ -12,5 +12,6 @@ namespace DF_EvolutionAPI.Services
         public Task<ResponseModel> UpdatePermissionByRole(RoleMapping roleMapping);
         public Task<ResponseModel> AddRoleMapping(List<RoleMapping> roleMappings);
         public Task<List<IdentityRole>> GetAllRoles();
+        public ResponseModel CreateOrUpdateUserRole(string emialId, string roleName);
     }
 }

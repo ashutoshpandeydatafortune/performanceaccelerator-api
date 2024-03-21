@@ -1,4 +1,5 @@
 ﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -12,9 +13,11 @@ namespace DF_EvolutionAPI.Services
     public class SettingsService:ISettingsService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+
         public SettingsService(DFEvolutionDBContext dbContext)
         {
             _dbcontext = dbContext;
+
         }
 
         //Displays all the assign roles for particular roleid
@@ -108,6 +111,46 @@ namespace DF_EvolutionAPI.Services
         {
             return _dbcontext.AspNetRoles.ToList();
         }
+        //Update or create roles for user.
+        public ResponseModel CreateOrUpdateUserRole(string emialId, string roleName)
+        {
+            ResponseModel model = new ResponseModel();
+            try { 
+                    var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName).Select(role => role.Id).First();
+                    var userId = _dbcontext.AspNetUser.Where(user => user.Email == emialId).Select(user => user.Id).First();
+                    var existingUserRole = _dbcontext.AspNetUserRole.FirstOrDefault(userRole => userRole.UserId == userId);
 
+                if (existingUserRole != null)
+                {
+                    existingUserRole.UserId = userId;
+                    existingUserRole.RoleId = roleId;
+                   // _dbcontext.AspNetUserRole.Update(existingUserRole); 
+                }
+                else
+                {
+                    var newUserRole = new IdentityUserRole<string>
+                    {
+                        UserId = userId,
+                        RoleId = roleId
+                    };
+                    _dbcontext.AspNetUserRole.Add(newUserRole); // Add new user role
+                }
+                _dbcontext.SaveChanges();
+
+                model.IsSuccess = true;
+                model.Messsage = "User role updated successfully.";
+             }
+            catch (Exception ex)
+            {
+                model.IsSuccess = false;
+                model.Messsage = "An error occurred: " + ex.Message;
+            }
+
+    return model;
+
+
+        }
+
+       
     }
 }
