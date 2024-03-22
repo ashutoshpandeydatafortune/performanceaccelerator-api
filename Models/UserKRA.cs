@@ -7,9 +7,9 @@ namespace DF_EvolutionAPI.Models
     {
         public string DeveloperComment { get; set; }
         public string ManagerComment { get; set; }
-        public int? DeveloperRating { get; set; }
-        public int? ManagerRating { get; set; }
-        public int? FinalRating { get; set; }
+        public double? DeveloperRating { get; set; }
+        public double? ManagerRating { get; set; }
+        public double? FinalRating { get; set; }
         public string FinalComment { get; set; }
         public double Score { get; set; }
         public int? Status { get; set; }
@@ -33,9 +33,9 @@ namespace DF_EvolutionAPI.Models
     {
         public string DeveloperComment { get; set; }
         public string ManagerComment { get; set; }
-        public int? DeveloperRating { get; set; }
-        public int? ManagerRating { get; set; }
-        public int? FinalRating { get; set; }
+        public double? DeveloperRating { get; set; }
+        public double? ManagerRating { get; set; }
+        public double? FinalRating { get; set; }
         public string FinalComment { get; set; }
         public double? Score { get; set; }
         public int? Status { get; set; }
