@@ -116,23 +116,26 @@ namespace DF_EvolutionAPI.Services
         {
             ResponseModel model = new ResponseModel();
             try { 
-                    var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName).Select(role => role.Id).First();
+                    var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName ).Select(role => role.Id).First();
                     var userId = _dbcontext.AspNetUser.Where(user => user.Email == emialId).Select(user => user.Id).First();
                     var existingUserRole = _dbcontext.AspNetUserRole.FirstOrDefault(userRole => userRole.UserId == userId);
 
                 if (existingUserRole != null)
                 {
-                    existingUserRole.UserId = userId;
+                    
                     existingUserRole.RoleId = roleId;
-                    // _dbcontext.AspNetUserRole.Update(existingUserRole); 
+                    existingUserRole.ApplicationName = "Performance Accelerator";
+                    _dbcontext.AspNetUserRole.Update(existingUserRole); 
                    // _dbcontext.AspNetUserRole.Remove(existingUserRole);
                 }
                 else
                 {
-                    var newUserRole = new IdentityUserRole<string>
+                    var newUserRole = new CustomIdentityUserRole
                     {
                         UserId = userId,
-                        RoleId = roleId
+                        RoleId = roleId,
+                        ApplicationName = "Performance Accelerator"
+
                     };
                     _dbcontext.AspNetUserRole.Add(newUserRole); // Add new user role
                 }

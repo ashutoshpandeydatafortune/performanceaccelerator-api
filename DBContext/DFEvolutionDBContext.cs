@@ -42,7 +42,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<PATemplateKra> PA_TemplateKras { get; set; }
         public virtual DbSet<IdentityRole> AspNetRoles { get; set; }
         public virtual DbSet<IdentityUser> AspNetUser { get; set; }
-        public virtual DbSet<IdentityUserRole<string>> AspNetUserRole { get; set; }
+        public virtual DbSet<CustomIdentityUserRole> AspNetUserRole { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,7 +59,7 @@ namespace DF_EvolutionAPI
                 entity.ToTable("AspNetRoles","dbo");
             });
 
-            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+            modelBuilder.Entity<CustomIdentityUserRole>(entity =>
             {
                 entity.ToTable("AspNetUserRoles","dbo");
             });
