@@ -124,7 +124,8 @@ namespace DF_EvolutionAPI.Services
                 {
                     existingUserRole.UserId = userId;
                     existingUserRole.RoleId = roleId;
-                   // _dbcontext.AspNetUserRole.Update(existingUserRole); 
+                    // _dbcontext.AspNetUserRole.Update(existingUserRole); 
+                   // _dbcontext.AspNetUserRole.Remove(existingUserRole);
                 }
                 else
                 {
