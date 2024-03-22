@@ -58,12 +58,22 @@ namespace DF_EvolutionAPI.Services.Login
                         SecurityStamp = Guid.NewGuid().ToString(),
                         EmailConfirmed = true
                     };
-
                     var result = await _userManager.CreateAsync(registerUser);
                     if (result.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(registerUser, "Other");
+                        //Adding role for new user. 
+                        await _userManager.AddToRoleAsync(registerUser, "Developer");
+
                     }
+
+                }
+
+                //Adding role for existing user.
+                var existingRole = _dbContext.AspNetUserRole.Where(userRole => userRole.UserId == existingUser.Id)
+                                    .FirstOrDefault();
+                if (existingRole == null)
+                {
+                    await _userManager.AddToRoleAsync(existingUser, "Developer");
                 }
 
                 var user = await _userManager.FindByEmailAsync(uam.Username);
