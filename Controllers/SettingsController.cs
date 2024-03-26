@@ -101,13 +101,14 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[Action]")]
-        public IActionResult CreateOrUpdateUserRole(string emialId, string roleName)
+        public IActionResult CreateOrUpdateUserRole(string emailId, string roleName)
         {
             try
             {
-                var result = _settings.CreateOrUpdateUserRole(emialId, roleName);
+                var result = _settings.CreateOrUpdateUserRole(emailId, roleName);
                 return Ok(result);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

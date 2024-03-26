@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
-    public class SettingsService:ISettingsService
+    public class SettingsService : ISettingsService
     {
         private readonly DFEvolutionDBContext _dbcontext;
 
@@ -23,9 +24,9 @@ namespace DF_EvolutionAPI.Services
         //Displays all the assign roles for particular roleid
         public async Task<List<RoleMapping>> GetPermissionByRole(string roleId)
         {
-            return  _dbcontext.PA_RoleMappings
+            return _dbcontext.PA_RoleMappings
                 .Where(r => r.RoleId == roleId)
-                .ToList();           
+                .ToList();
         }
 
         public async Task<ResponseModel> UpdatePermissionByRole(RoleMapping roleMapping)
@@ -105,56 +106,56 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-
-
         public async Task<List<IdentityRole>> GetAllRoles()
         {
             return _dbcontext.AspNetRoles.ToList();
         }
-        //Update or create roles for user.
-        public ResponseModel CreateOrUpdateUserRole(string emialId, string roleName)
+
+        //Insert and update user roles.
+        public ResponseModel CreateOrUpdateUserRole(string emailId, string roleName)
         {
             ResponseModel model = new ResponseModel();
-            try { 
-                    var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName ).Select(role => role.Id).First();
-                    var userId = _dbcontext.AspNetUser.Where(user => user.Email == emialId).Select(user => user.Id).First();
-                    var existingUserRole = _dbcontext.AspNetUserRole.FirstOrDefault(userRole => userRole.UserId == userId);
+            try
+            {
+                var userId = _dbcontext.AspNetUsers.Where(user => user.Email == emailId).Select(user => user.Id)
+                           .FirstOrDefault() ?? throw new Exception("The user does not exist");
+
+                var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName).Select(role => role.Id)
+                            .FirstOrDefault() ?? throw new Exception("The role does not exist");
+
+                var existingUserRole = _dbcontext.AspNetUserRoles
+                                    .Where(userRole => userRole.UserId == userId && userRole.ApplicationName == Constant.APPLICATION_NAME).FirstOrDefault();
 
                 if (existingUserRole != null)
                 {
-                    
-                    existingUserRole.RoleId = roleId;
-                    existingUserRole.ApplicationName = "Performance Accelerator";
-                    _dbcontext.AspNetUserRole.Update(existingUserRole); 
-                   // _dbcontext.AspNetUserRole.Remove(existingUserRole);
+                    _dbcontext.AspNetUserRoles.Remove(existingUserRole);
                 }
-                else
-                {
-                    var newUserRole = new CustomIdentityUserRole
-                    {
-                        UserId = userId,
-                        RoleId = roleId,
-                        ApplicationName = "Performance Accelerator"
 
-                    };
-                    _dbcontext.AspNetUserRole.Add(newUserRole); // Add new user role
-                }
+                CreateNewUserRole(userId, roleId, Constant.APPLICATION_NAME);
+
                 _dbcontext.SaveChanges();
 
                 model.IsSuccess = true;
                 model.Messsage = "User role updated successfully.";
-             }
+            }
             catch (Exception ex)
             {
                 model.IsSuccess = false;
                 model.Messsage = "An error occurred: " + ex.Message;
             }
 
-    return model;
-
-
+            return model;
         }
 
-       
+        private void CreateNewUserRole(string userId, string roleId, string applicationName)
+        {
+            var newUserRole = new ApplicationUserRole
+            {
+                UserId = userId,
+                RoleId = roleId,
+                ApplicationName = applicationName
+            };
+            _dbcontext.AspNetUserRoles.Add(newUserRole);
+        }
     }
 }

@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
 using System.Data;
+//using System.Reflection.Metadata;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services.Login
 {
@@ -23,14 +25,14 @@ namespace DF_EvolutionAPI.Services.Login
         private readonly DFEvolutionDBContext _dbContext;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
-              
+
 
         public LoginService(
             DFEvolutionDBContext dbContext,
             IResourceService resourceService,
             RoleManager<IdentityRole> roleManager,
-            UserManager<IdentityUser> userManager 
-          
+            UserManager<IdentityUser> userManager
+
         )
         {
             _dbContext = dbContext;
@@ -45,35 +47,36 @@ namespace DF_EvolutionAPI.Services.Login
 
         public async Task<LoginResponse> ExternalLogin(UserAuthModel uam, IConfiguration configuration)
         {
+
             if (uam.AccountType == "MICROSOFT")
             {
+
                 var existingUser = await _userManager.FindByEmailAsync(uam.Username);
+                var roleId = _dbContext.AspNetRoles.Where(roleid => roleid.Name == Constant.ROLE_NAME)
+                            .FirstOrDefault() ?? throw new Exception("Role does not exist."); ;
 
                 if (existingUser == null)
                 {
-                    var registerUser = new IdentityUser
-                    {
-                        Email = uam.Username,
-                        UserName = uam.Username,
-                        SecurityStamp = Guid.NewGuid().ToString(),
-                        EmailConfirmed = true
-                    };
+                    var registerUser = RegisterUser(uam);
                     var result = await _userManager.CreateAsync(registerUser);
+
                     if (result.Succeeded)
                     {
-                        //Adding role for new user. 
-                        await _userManager.AddToRoleAsync(registerUser, "Developer");
+                        await AddUserRole(registerUser.Id, roleId.Id);
+                    }
+                }
+                else
+                {
+                    //Checking role for existing user.
+                    var existingRole = _dbContext.AspNetUserRoles.Where(userRole => userRole.UserId == existingUser.Id
+                                        && userRole.ApplicationName == Constant.APPLICATION_NAME)
+                                        .FirstOrDefault();
 
+                    if (existingRole == null)
+                    {
+                        await AddUserRole(existingUser.Id, roleId.Id);
                     }
 
-                }
-
-                //Adding role for existing user.
-                var existingRole = _dbContext.AspNetUserRole.Where(userRole => userRole.UserId == existingUser.Id)
-                                    .FirstOrDefault();
-                if (existingRole == null)
-                {
-                    await _userManager.AddToRoleAsync(existingUser, "Developer");
                 }
 
                 var user = await _userManager.FindByEmailAsync(uam.Username);
@@ -89,7 +92,7 @@ namespace DF_EvolutionAPI.Services.Login
 
                 // get user roles
                 var userRoleNames = await _userManager.GetRolesAsync(user);
-                
+
                 List<Role> roles = new List<Role>();
                 foreach (var userRoleName in userRoleNames)
                 {
@@ -151,7 +154,32 @@ namespace DF_EvolutionAPI.Services.Login
                 throw new Exception("Account type does not match");
             }
         }
+        //Method for register user
+        private static IdentityUser RegisterUser(UserAuthModel uam)
+        {
+            var newUser = new IdentityUser
+            {
+                Email = uam.Username,
+                UserName = uam.Username,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                EmailConfirmed = true
+            };
+            return newUser;
+        }
 
+        //Method for adding the role for user
+        private async Task AddUserRole(string userId, string roleId)
+        {
+            var newUserRole = new ApplicationUserRole
+            {
+                UserId = userId,
+                RoleId = roleId,
+                ApplicationName = Constant.APPLICATION_NAME
+            };
+
+            _dbContext.AspNetUserRoles.Add(newUserRole);
+            await _dbContext.SaveChangesAsync();
+        }
         private List<RoleMapping> GetRoleMapping(IdentityRole role)
         {
             return (
@@ -160,7 +188,7 @@ namespace DF_EvolutionAPI.Services.Login
                     select rm
                    ).ToList();
         }
-        
+
         private TechFunction GetTechFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
         {
             return (
