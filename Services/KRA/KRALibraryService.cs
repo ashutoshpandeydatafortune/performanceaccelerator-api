@@ -52,7 +52,8 @@ namespace DF_EvolutionAPI.Services.KRA
             ResponseModel model = new ResponseModel();
 
             try
-            {
+            {              
+
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
                 {
@@ -79,6 +80,14 @@ namespace DF_EvolutionAPI.Services.KRA
                 }
                 else
                 {
+                    // Check if a KRALibrary record with the same name already exists
+                    var existingKraLibrary = await _dbcontext.KRALibrary.FirstOrDefaultAsync(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage);
+                    if (existingKraLibrary != null)
+                    {
+                        model.IsSuccess = false;
+                        model.Messsage = "KRA Library with the same name already exists.";
+                        return model;
+                    }
                     kraLibraryModel.DisplayName = kraLibraryModel.Name;
                     kraLibraryModel.Description=kraLibraryModel.Description;
                     kraLibraryModel.Entity = 1;

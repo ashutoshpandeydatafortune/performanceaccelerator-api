@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
+using DF_EvolutionAPI.Models.Response;
 
 
 namespace DF_EvolutionAPI
