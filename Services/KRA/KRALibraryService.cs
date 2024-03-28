@@ -57,7 +57,7 @@ namespace DF_EvolutionAPI.Services.KRA
                 if (existingKraLibrary != null)
                 {
                     model.IsSuccess = false;
-                    model.Messsage = "KRA Library with the same name already exists.";
+                    model.Messsage = "KRA with the same name already exists.";
                     return model;
                 }
 
