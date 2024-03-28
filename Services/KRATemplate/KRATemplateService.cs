@@ -24,7 +24,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             try
             {
-                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name);
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.IsActive == 1);
 
                 if (existingTemplate == null)
                 {
@@ -59,23 +59,33 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             ResponseModel model = new ResponseModel();
             try
             {
-                PATemplate updatetemplate = _dbContext.PATemplates.Find(paTemplates.TemplateId);
-                if (updatetemplate != null)
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.IsActive == 1);
+                if (existingTemplate != null)
                 {
-                    updatetemplate.Name = paTemplates.Name;
-                    updatetemplate.Description = paTemplates.Description;
-                    updatetemplate.IsActive = 1;
-                    paTemplates.UpdateBy = 1;
-                    paTemplates.UpdateDate = DateTime.Now;
-
-                    await _dbContext.SaveChangesAsync();
-                    model.IsSuccess = true;
-                    model.Messsage = "Template updated successfully.";
+                    model.IsSuccess = false;
+                    model.Messsage = "KRA Library with the same name already exists.";
+                    return model;
                 }
                 else
                 {
-                    model.IsSuccess = false;
-                    model.Messsage = "Template does not exist.";
+                    PATemplate updatetemplate = _dbContext.PATemplates.Find(paTemplates.TemplateId);
+                    if (updatetemplate != null)
+                    {
+                        updatetemplate.Name = paTemplates.Name;
+                        updatetemplate.Description = paTemplates.Description;
+                        updatetemplate.IsActive = 1;
+                        paTemplates.UpdateBy = 1;
+                        paTemplates.UpdateDate = DateTime.Now;
+
+                        await _dbContext.SaveChangesAsync();
+                        model.IsSuccess = true;
+                        model.Messsage = "Template updated successfully.";
+                    }
+                    else
+                    {
+                        model.IsSuccess = false;
+                        model.Messsage = "Template does not exist.";
+                    }
                 }
             }
             catch (Exception ex)

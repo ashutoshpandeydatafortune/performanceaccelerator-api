@@ -302,7 +302,7 @@ namespace DF_EvolutionAPI.Services
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.QuarterId == quarterId && userKras.FinalRating == null && userKras.IsActive == 1
+                where userKras.UserId == userId && userKras.QuarterId == quarterId && userKras.ManagerRating == null  && userKras.IsActive == 1
                 select resource
             ).Count();
 
