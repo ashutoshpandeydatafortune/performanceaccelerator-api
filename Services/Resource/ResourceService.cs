@@ -1,14 +1,11 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Resources;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.Data.Entity.Migrations.Infrastructure;
 
 namespace DF_EvolutionAPI.Services
 {
