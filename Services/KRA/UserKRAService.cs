@@ -152,7 +152,7 @@ namespace DF_EvolutionAPI.Services
                         item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                         item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
                         item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
-
+                       
                         item.IsActive = 1;
                         item.CreateBy = 1;
                         item.UpdateBy = 1;
@@ -348,6 +348,7 @@ namespace DF_EvolutionAPI.Services
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
+                       // userKra.DeveloperRating = userKRAModels.DeveloperRating ?? 0;
                         if (userKRAModels.FinalComment != null)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
@@ -628,11 +629,11 @@ namespace DF_EvolutionAPI.Services
                         RejectedBy = userKra.RejectedBy,
                         QuarterId = (int)userKra.QuarterId,
                         FinalComment = userKra.FinalComment,
-                        FinalRating = (int)userKra.FinalRating,
+                        FinalRating = userKra.FinalRating,
                         ManagerComment = userKra.ManagerComment,
-                        ManagerRating = (int)userKra.ManagerRating,
+                        ManagerRating = userKra.ManagerRating,
                         DeveloperComment = userKra.DeveloperComment,
-                        DeveloperRating = (int)userKra.DeveloperRating,
+                        DeveloperRating = userKra.DeveloperRating,
                         RejectedByName = rejector.ResourceName,
 
                         KRAName = kraLibrary.Name,

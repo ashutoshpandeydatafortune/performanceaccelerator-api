@@ -2,20 +2,17 @@ using DF_EvolutionAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Reflection.Emit;
 using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI
 {
-    public class DFEvolutionDBContext : IdentityDbContext<IdentityUser>
+    public class DFEvolutionDBContext : IdentityDbContext<IdentityUser, IdentityRole, string, IdentityUserClaim<string>, ApplicationUserRole, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
-        public DFEvolutionDBContext()
-        {
-        }
+
         public DFEvolutionDBContext(DbContextOptions<DFEvolutionDBContext> options)
             : base(options)
         {
-           // ChangeTracker.LazyLoadingEnabled = false;
+            // ChangeTracker.LazyLoadingEnabled = false;
         }
 
         public new DbSet<Role> Roles { get; set; }
@@ -41,6 +38,9 @@ namespace DF_EvolutionAPI
         public virtual DbSet<PATemplateDesignation> PA_TemplateDesignations { get; set; }
         public virtual DbSet<PATemplateKra> PA_TemplateKras { get; set; }
         public virtual DbSet<IdentityRole> AspNetRoles { get; set; }
+        public virtual DbSet<IdentityUser> AspNetUsers { get; set; }
+        public virtual DbSet<ApplicationUserRole> AspNetUserRoles { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,14 +55,17 @@ namespace DF_EvolutionAPI
             modelBuilder.Entity<IdentityRole>(entity =>
             {
                 entity.ToTable("AspNetRoles","dbo");
+                entity.Property(e => e.Id).HasColumnName("Id");
             });
 
-            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+            modelBuilder.Entity<ApplicationUserRole>(entity =>
             {
-                entity.ToTable("AspNetUserRoles","dbo");
+                entity.ToTable("AspNetUserRoles", "dbo");
+                entity.Property(e => e.UserId).HasColumnName("UserId");
+                entity.Property(e => e.RoleId).HasColumnName("RoleId");
+                entity.Property(e => e.ApplicationName).HasColumnName("ApplicationName");
             });
 
-            modelBuilder.HasDefaultSchema("dbo");
 
             modelBuilder.HasDefaultSchema("dbo").Entity<Resource>(e =>
             {

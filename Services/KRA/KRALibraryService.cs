@@ -53,6 +53,14 @@ namespace DF_EvolutionAPI.Services.KRA
 
             try
             {
+                var existingKraLibrary = await _dbcontext.KRALibrary.Where(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage && x.IsActive == 1).FirstOrDefaultAsync();
+                if (existingKraLibrary != null)
+                {
+                    model.IsSuccess = false;
+                    model.Messsage = "KRA Library with the same name already exists.";
+                    return model;
+                }
+
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
                 {
@@ -79,6 +87,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 }
                 else
                 {
+                    // Check if a KRALibrary record with the same name already exists
+                  
                     kraLibraryModel.DisplayName = kraLibraryModel.Name;
                     kraLibraryModel.Description=kraLibraryModel.Description;
                     kraLibraryModel.Entity = 1;
@@ -91,10 +101,8 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.IsDefault = 1;
                     kraLibraryModel.IsActive = 1;
                     kraLibraryModel.CreateBy = 1;
-                    kraLibraryModel.UpdateBy = 1;
                     kraLibraryModel.CreateDate = DateTime.Now;
-                    kraLibraryModel.UpdateDate = DateTime.Now;
-
+                    
                     _dbcontext.Add(kraLibraryModel);
                     
                     model.Messsage = "KRA Library Inserted Successfully";

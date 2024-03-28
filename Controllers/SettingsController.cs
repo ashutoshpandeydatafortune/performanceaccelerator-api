@@ -95,5 +95,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// <summary>
+        /// Create or update the role for user
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[Action]")]
+        public IActionResult CreateOrUpdateUserRole(string emailId, string roleName)
+        {
+            try
+            {
+                var result = _settings.CreateOrUpdateUserRole(emailId, roleName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
+
 }
