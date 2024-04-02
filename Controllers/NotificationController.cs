@@ -66,11 +66,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns> It returns the notification of particular id.</returns>
         [HttpGet]
         [Route("GetNotificationsById/{Id}")]
-        public async Task<IActionResult> GetNotificationsById(int Id)
+        public async Task<IActionResult> GetNotificationById(int Id)
         {
             try
             {
-                var result = await _notificationService.GetNotificationsById(Id);
+                var result = await _notificationService.GetNotificationById(Id);
                 return Ok(result);
             }
 
@@ -78,28 +78,6 @@ namespace DF_EvolutionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        /// <summary>
-        ///  update the record in PA_Notification table.
-        /// </summary>
-        /// <param name="notificationModel"></param>
-        /// <returns>It returns the updated notification.</returns>
-        [HttpPost]
-        [Route("[Action]")]
-        public async Task<IActionResult> UpdateNotification(Notification notificationModel)
-        {
-            try
-            {
-                var response = await _notificationService.UpdateNotifications(notificationModel);
-                return Ok(response);
-            }
-
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
         }
     }
 }
