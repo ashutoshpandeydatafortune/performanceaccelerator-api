@@ -1,4 +1,6 @@
-﻿namespace DF_EvolutionAPI.Utils
+﻿using System.Globalization;
+
+namespace DF_EvolutionAPI.Utils
 {
     public class Constant
     {
@@ -33,5 +35,6 @@
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";
 
+        public static int NotificationDays = -7;
     }
 }
