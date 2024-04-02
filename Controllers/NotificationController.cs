@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using System.Collections.Generic;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -46,9 +47,17 @@ namespace DF_EvolutionAPI.Controllers
         [HttpGet]
         [Route("GetNotificationsByResourceId/{resourceId}")]
         public async Task<IActionResult> GetNotificationsByResourceId(int resourceId)
-        {
-            var result = await _notificationService.GetNotificationsByResourceId(resourceId);
-            return Ok(result);
+        {           
+            try
+            {
+                var result = await _notificationService.GetNotificationsByResourceId(resourceId);
+                return Ok(result);
+            }
+
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
@@ -59,9 +68,17 @@ namespace DF_EvolutionAPI.Controllers
         [HttpGet]
         [Route("GetNotificationsById/{Id}")]
         public async Task<IActionResult> GetNotificationsById(int Id)
-        {
-            var result = await _notificationService.GetNotificationsById(Id);
-            return Ok(result);
+        {            
+            try
+            {
+                var result = await _notificationService.GetNotificationsById(Id);
+                return Ok(result);
+            }
+
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
@@ -72,10 +89,18 @@ namespace DF_EvolutionAPI.Controllers
         [HttpPost]
         [Route("[Action]")]
         public async Task<IActionResult> UpdateNotification(Notification notificationModel)
-        {
-            var response = await _notificationService.UpdateNotification(notificationModel);
+        {            
+            try
+            {
+                var response = await _notificationService.UpdateNotifications(notificationModel);
+                return Ok(response);
+            }
 
-            return Ok(response);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
