@@ -48,7 +48,7 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
-                DateTime cutoffDate = DateTime.Now.AddDays(Constant.NotificationDays);
+                DateTime cutoffDate = DateTime.Now.AddDays(Constant.DAYS_TO_LOOK_BACK);
 
                 // Get notifications that meet the criteria
                 List<Notification> notifications = await GetNotifications(resourceId, cutoffDate);
@@ -64,17 +64,17 @@ namespace DF_EvolutionAPI.Services
                 Console.WriteLine($"An error occurred while getting notifications: {ex.Message}");
                 return new List<Notification>();
             }
-
         }
 
-      //Method for fetching notifications that meets the criteria
+        //Method for fetching notifications that meets the criteria
         private async Task<List<Notification>> GetNotifications(int resourceId, DateTime cutoffDate)
         {
-            return  _dbContext.Notifications
+            return  await _dbContext.Notifications
                 .Where(notification => notification.ResourceId == resourceId
                     && notification.IsActive == 1 && notification.CreateAt > cutoffDate)
-                .ToList();
+                .ToListAsync();
         }
+
         //Method for updating IsRead flag as true.
         private async Task MarkNotificationsAsRead(IEnumerable<Notification> notifications)
         {
@@ -90,8 +90,8 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<Notification> GetNotificationById(int Id)
         {
-            return _dbContext.Notifications.Where(notification => notification.Id == Id && notification.IsActive == 1)
-                 .FirstOrDefault();
+            return await _dbContext.Notifications.Where(notification => notification.Id == Id && notification.IsActive == 1)
+                 .FirstOrDefaultAsync();
 
         }        
     }
