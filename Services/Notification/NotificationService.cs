@@ -3,7 +3,6 @@ using DF_EvolutionAPI.ViewModels;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
-using System.Data.Entity;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Utils;
