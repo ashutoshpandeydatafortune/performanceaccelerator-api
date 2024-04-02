@@ -33,5 +33,7 @@
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";
 
+        public static int NotificationDays = -7;
+
     }
 }

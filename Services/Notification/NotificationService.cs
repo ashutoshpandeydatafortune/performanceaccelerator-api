@@ -6,6 +6,7 @@ using System.Linq;
 using System.Data.Entity;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -42,24 +43,36 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
+        //Get all the Active notification and update
         public async Task<List<Notification>> GetNotificationsByResourceId(int resourceId)
         {
-            List<Notification> notifications = _dbContext.Notifications.
-               Where(notification => notification.ResourceId == resourceId
-               && notification.IsActive == 1 && notification.IsRead == 0).ToList();
+            DateTime cutoffDate = DateTime.Now.AddDays(Constant.NotificationDays);
+
+            List<Notification> notifications = _dbContext.Notifications
+                .Where(notification => notification.ResourceId == resourceId
+                    && notification.IsActive == 1 && notification.CreateAt > cutoffDate)
+                .ToList();
 
             if (notifications != null && notifications.Count > 0)
             {
-                foreach (var notification in notifications)
-                {
-                    notification.IsRead = 1;
-                    notification.UpdateAt = DateTime.Now;
-
-                    _dbContext.Notifications.Update(notification);
-                }
-                await _dbContext.SaveChangesAsync();
+                await MarkNotificationsAsRead(notifications);
             }
+
             return notifications;
+
+        }
+
+        //Method for updating IsRead flag as true.
+        public async Task MarkNotificationsAsRead(List<Notification> notifications)
+        {
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = 1;
+                notification.UpdateAt = DateTime.Now;
+
+                _dbContext.Notifications.Update(notification);
+            }
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<Notification> GetNotificationsById(int Id)
@@ -69,7 +82,7 @@ namespace DF_EvolutionAPI.Services
 
         }
 
-        public async Task<ResponseModel> UpdateNotification(Notification notificationModel)
+        public async Task<ResponseModel> UpdateNotifications(Notification notificationModel)
         {
             ResponseModel model = new ResponseModel();
             try
