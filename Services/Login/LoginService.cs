@@ -53,7 +53,7 @@ namespace DF_EvolutionAPI.Services.Login
 
                 var existingUser = await _userManager.FindByEmailAsync(uam.Username);
                 var roleId = _dbContext.AspNetRoles.Where(roleid => roleid.Name == Constant.ROLE_NAME)
-                            .FirstOrDefault() ?? throw new Exception("Role does not exist."); ;
+                            .FirstOrDefault() ?? throw new Exception("Role does not exist.");
 
                 if (existingUser == null)
                 {
