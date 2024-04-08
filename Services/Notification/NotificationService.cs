@@ -71,6 +71,7 @@ namespace DF_EvolutionAPI.Services
             return  await _dbContext.Notifications
                 .Where(notification => notification.ResourceId == resourceId
                     && notification.IsActive == 1 && notification.CreateAt > cutoffDate)
+                .OrderByDescending(notification => notification.CreateAt)
                 .ToListAsync();
         }
 
