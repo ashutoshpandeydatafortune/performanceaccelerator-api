@@ -21,6 +21,7 @@ using DF_EvolutionAPI.Services.KRATemplate;
 using DF_EvolutionAPI.Models.Response;
 
 
+
 namespace DF_EvolutionAPI
 {
     public class Startup
@@ -88,6 +89,9 @@ namespace DF_EvolutionAPI
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IKRATemplateService, KRATemplateService>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<ISkillService, SkillService>();
+            services.AddScoped<ISubSkillService, SubSkillService>();
+            
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
