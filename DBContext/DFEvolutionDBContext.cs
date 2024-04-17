@@ -502,7 +502,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");  
             });
 
             modelBuilder.Entity<ResourceSkill>(e =>
@@ -510,7 +510,7 @@ namespace DF_EvolutionAPI
                 e.ToTable("PA_ResourceSkills", "dbo");
                 e.Property(e => e.ResourceSkillId).HasColumnName("ResourceSkillId");
                 e.Property(e => e.SkillId).HasColumnName("SkillId");
-               // e.Property(e => e.SubSkillId).HasColumnName("SubSkills");
+                e.Property(e => e.SubSkillId).HasColumnName("SubSkillId");
                 e.Property(e => e.ResourceId).HasColumnName("ResourceId");
                 e.Property(e => e.Experience).HasColumnName("Experience");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");

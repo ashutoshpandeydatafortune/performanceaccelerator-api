@@ -91,6 +91,7 @@ namespace DF_EvolutionAPI
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<ISkillService, SkillService>();
             services.AddScoped<ISubSkillService, SubSkillService>();
+            services.AddScoped<IResourceSkillService, ResourceSkillService>();
             
 
             services.AddIdentity<IdentityUser, IdentityRole>(
