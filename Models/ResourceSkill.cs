@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
+
 {
     public class ResourceSkill
     {
-        [Key]
         public int ResourceSkillId { get; set; }
         public int? SkillId { get; set; }
         public int? SubSkillId { get; set; }
@@ -20,21 +20,39 @@ namespace DF_EvolutionAPI.Models
         public DateTime? UpdateDate { get; set; }
     }
 
-    //public class ResourceSkillRequestModel
-    //{
-    //    public int ResourceSkillId { get; set; }
-    //    public int? SkillId { get; set; }
-    //    public List<SubSkillModel> SubSkills { get; set; }
-    //    public int? ResourceId { get; set; }
-    //    public double? Experience { get; set; }
-    //    public byte? IsActive { get; set; }
-    //    public int CreateBy { get; set; }
-       
+    public class ResourceSkillRequestModel
+    {
+        public int ResourceSkillId { get; set; }
+        public string SkillName { get; set; }
+        public List<SubSkillModel> SubSkills { get; set; }
+        public int? ResourceId { get; set; }
+        public double? Experience { get; set; }
+        public byte? IsActive { get; set; }
+        public int CreateBy { get; set; }
+    }
 
-    //}
+    public class SubSkillModel
+    {
+        public int? SubSkillId { get; set; }
+        public string SubSkillName { get; set; }
+    }
 
-    //public class SubSkillModel
-    //{
-    //    public int SubSkillId { get; set; }
-    //}
+    public class  SkillModel
+    {
+        public int SkillId { get; set; }   
+        public string SkillName { get; set; }
+        public List<SubSkillModel> SubSkills { get; set; }
+
+    }
+
+    public class FetchResourceSkill
+    {
+       public string ResourceId { get; set; }
+        public string ResourceName { get; set; }        
+        public List<SkillModel> Skills { get; set; }
+      
+    
+
+    }
 }
+

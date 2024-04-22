@@ -3,7 +3,7 @@ using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+
 using System.Linq;
 using System.Threading.Tasks;
 using static DF_EvolutionAPI.Models.ResourceSkill;
@@ -20,121 +20,337 @@ namespace DF_EvolutionAPI.Services
             _dbContext = dbContext;
         }
 
-        public async Task<ResponseModel> CreateResourceSkill(List<ResourceSkill> resourceSkillModel)
+        public async Task<ResponseModel> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel)
         {
             ResponseModel model = new ResponseModel();
             try
             {
-                foreach (var item in resourceSkillModel)
+
+                var requestSkillId = _dbContext.Skills.Where(name => name.Name == resourceSkillModel.SkillName)
+                    .Select(name => name.SkillId)
+                    .FirstOrDefault();
+
+                List<int?> requestSubSkillIds = new List<int?>();
+
+                foreach (var subSkillModel in resourceSkillModel.SubSkills)
                 {
+                    var subSkillId = _dbContext.SubSkills
+                        .Where(subSkill => subSkill.Name == subSkillModel.SubSkillName)
+                        .Select(subSkill => subSkill.SubSkillId)
+                        .FirstOrDefault();
 
-                    var resourceSkill = _dbContext.ResourceSkills.Where(rs =>
-                     rs.SkillId == item.SkillId && rs.SubSkillId == item.SubSkillId && rs.ResourceId == item.ResourceId).ToList();
-
-                    if (resourceSkill.Count == 0)
+                    requestSubSkillIds.Add(subSkillId);
+                }
+                //Check if the resource skill already exists
+                var resourceSkill = _dbContext.ResourceSkills.FirstOrDefault(rs => rs.SkillId == requestSkillId && rs.ResourceId == (double)resourceSkillModel.ResourceId  && rs.IsActive == 1);
+                if (resourceSkill == null)
+                {
+                    // Create a new resource skill if it doesn't exist
+                    resourceSkill = new ResourceSkill
                     {
-                        item.IsActive = 1;
-                        item.CreateDate = DateTime.Now;
+                        SkillId = requestSkillId,
+                        ResourceId = resourceSkillModel.ResourceId,
+                        Experience = resourceSkillModel.Experience,
+                        IsActive = 1,
+                        CreateBy = resourceSkillModel.CreateBy,
+                        CreateDate = DateTime.Now
+                    };
 
-                        await _dbContext.AddAsync(item);
-                    }
-                    else
+                    _dbContext.ResourceSkills.Add(resourceSkill);
+
+                }
+                //else
+                //{
+                //    model.IsSuccess = false;
+                //    model.Messsage = "Resource skill already exists.";
+                //    return model;
+                //}
+
+                // Remove any existing subskills associated with the resource skill
+                _dbContext.ResourceSkills.RemoveRange(_dbContext.ResourceSkills.Where(rs => rs.ResourceSkillId == resourceSkill.ResourceSkillId));
+                _dbContext.ResourceSkills.Remove(resourceSkill);// to remove the primary key of resourceSkillId
+                                                                // Add each subskill to the resource skill
+                foreach (var subSkillModel in requestSubSkillIds)
+                {
+                    var subSkill = await _dbContext.SubSkills.FindAsync(subSkillModel);
+                    if (subSkill != null)
                     {
-                        model.IsSuccess = false;
-                        model.Messsage = "Resource Skill already exist.";
+                        ResourceSkill skill = new ResourceSkill
+                        {
+                            SkillId = requestSkillId,
+                            SubSkillId = subSkill.SubSkillId,
+                            ResourceId = resourceSkill.ResourceId,
+                            Experience = resourceSkillModel.Experience,
+                            IsActive = 1,
+                            CreateBy = resourceSkill.CreateBy,
+                            CreateDate = DateTime.Now
+                        };
+                        _dbContext.ResourceSkills.Add(skill);
                     }
                 }
 
                 await _dbContext.SaveChangesAsync();
-                model.IsSuccess = true;
-                model.Messsage = "Resource Skill saved successfully.";
-            }
 
+                model.IsSuccess = true;
+                model.Messsage = "Resource skill and subskills saved successfully.";
+            }
             catch (Exception ex)
             {
                 model.IsSuccess = false;
                 model.Messsage = "Error: " + ex.Message;
             }
-
             return model;
         }
 
-        public async Task<ResponseModel> UpdateResourceSkill(List<ResourceSkill> resourceSkillModels)
+        public async Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             ResponseModel model = new ResponseModel();
-
             try
             {
-                foreach (var resourceSkillModel in resourceSkillModels)
+                var requestSkillId = _dbContext.Skills.Where(name => name.Name == resourceSkillRequestModel.SkillName)
+                    .Select(name => name.SkillId)
+                    .FirstOrDefault();
+
+                List<int?> requestSubSkillIds = new List<int?>();
+
+                foreach (var subSkillModel in resourceSkillRequestModel.SubSkills)
                 {
-                    // Find the existing resource skill in the database
-                    var existingResourceSkill = await _dbContext.ResourceSkills.FindAsync(resourceSkillModel.ResourceSkillId);
-                    if (existingResourceSkill != null)
+                    var subSkillId = _dbContext.SubSkills
+                        .Where(subSkill => subSkill.Name == subSkillModel.SubSkillName)
+                        .Select(subSkill => subSkill.SubSkillId)
+                        .FirstOrDefault();
+
+                    requestSubSkillIds.Add(subSkillId);
+                }
+
+
+                var existingResourceSkills = _dbContext.ResourceSkills
+                    .Where(rs => rs.ResourceId == (double)resourceSkillRequestModel.ResourceId &&
+                                 rs.SkillId == requestSkillId &&
+                                 rs.IsActive == 1)
+                    .ToList();
+
+                foreach (var existingResourceSkill in existingResourceSkills)
+                {
+                    _dbContext.ResourceSkills.RemoveRange(existingResourceSkill);
+
+                }
+
+                // Add each subskill to the resource skill
+                foreach (var subSkillModel in requestSubSkillIds)
+                {
+                    var subSkill = await _dbContext.SubSkills.FindAsync(subSkillModel);
+                    if (subSkill != null)
                     {
-                        // Update the properties of the existing resource skill
-                        existingResourceSkill.SkillId = resourceSkillModel.SkillId;
-                        existingResourceSkill.SubSkillId = resourceSkillModel.SubSkillId;
-                        existingResourceSkill.ResourceId = resourceSkillModel.ResourceId;
-                        existingResourceSkill.Experience = resourceSkillModel.Experience;
-                        existingResourceSkill.IsActive = 1;
-                        existingResourceSkill.UpdateBy = resourceSkillModel.UpdateBy;
-                        existingResourceSkill.UpdateDate = DateTime.Now; // Update the update date
-                    }
-                    else
-                    {
-                        model.IsSuccess = false;
-                        model.Messsage = "Resource skill does not exist.";
-                        return model; // Exit the method if resource skill not found
+                        ResourceSkill skill = new ResourceSkill
+                        {
+                            SkillId = requestSkillId,
+                            SubSkillId = subSkill.SubSkillId,
+                            ResourceId = resourceSkillRequestModel.ResourceId,
+                            Experience = resourceSkillRequestModel.Experience,
+                            IsActive = 1,
+                            CreateBy = resourceSkillRequestModel.CreateBy,
+                            CreateDate = DateTime.Now
+                        };
+                        _dbContext.ResourceSkills.Add(skill);
                     }
                 }
 
-                // Save changes to the database
                 await _dbContext.SaveChangesAsync();
 
                 model.IsSuccess = true;
-                model.Messsage = "Resource skills updated successfully.";
+                model.Messsage = "Resource skill and subskills saved successfully.";
             }
             catch (Exception ex)
             {
                 model.IsSuccess = false;
                 model.Messsage = "Error: " + ex.Message;
             }
-
             return model;
         }
 
-        public async Task<List<ResourceSkill>> GetResourceSkills(int? skillId, int? subSkillId)
+        public async Task<List<FetchResourceSkill>> GetResourceSkills()
         {
+            var result = await (
+                from rs in _dbContext.ResourceSkills
+                join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
+                join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
+                from skill in skillGroup.DefaultIfEmpty() 
+                join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+                from subSkill in subSkillGroup.DefaultIfEmpty() 
+                where rs.IsActive == 1 
+                select new
+                {
+                    r.ResourceId,
+                    r.ResourceName,
+                    NewSkillId = skill.SkillId,
+                    SkillName = skill.Name,
+                    NewSubSkillId = subSkill.SubSkillId,
+                    SubSkillName = subSkill.Name
+                }
+            ).ToListAsync();
 
-            if ((skillId != null && skillId != 0) && (subSkillId == null || subSkillId == 0))
+            // Group the results by ResourceId
+            var groupedResults = result.GroupBy(r => r.ResourceId);
+
+            // Create a list to hold the final FetchResourceSkill objects
+            var finalResult = new List<FetchResourceSkill>();
+
+            // Iterate over each group and create the FetchResourceSkill objects
+            foreach (var group in groupedResults)
             {
-                // Filter by skillId only
-                return await _dbContext.ResourceSkills
-                    .Where(rs => rs.SkillId == skillId && rs.IsActive == 1)
-                    .ToListAsync();
+                var skills = new List<SkillModel>();
+
+                // Group skills and subskills
+                var skillGroups = group.GroupBy(r => r.NewSkillId);
+
+                foreach (var skillGroup in skillGroups)
+                {
+                    var subSkills = skillGroup
+                        .Where(r => r.NewSubSkillId != null)
+                        .Select(r => new SubSkillModel
+                        {
+                            SubSkillId = r.NewSubSkillId,
+                            SubSkillName = r.SubSkillName
+                        }).ToList();
+
+                    var skillModel = new SkillModel
+                    {
+                        SkillId = skillGroup.Key,
+                        SkillName = skillGroup.First().SkillName,
+                        SubSkills = subSkills
+                    };
+
+                    skills.Add(skillModel);
+                }
+
+                var fetchResourceSkill = new FetchResourceSkill
+                {
+                    ResourceId = group.Key.ToString(),
+                    ResourceName = group.First().ResourceName,
+                    Skills = skills
+                };
+
+                finalResult.Add(fetchResourceSkill);
             }
-            else if ((skillId == null || skillId == 0) && (subSkillId != null && subSkillId != 0))
-            {
-                // Filter by subSkillID only
-                return await _dbContext.ResourceSkills
-                    .Where(rs => rs.SubSkillId == subSkillId && rs.IsActive == 1)
-                    .ToListAsync();
-            }
-            else if ((skillId != null && skillId != 0) && (subSkillId != null && subSkillId != 0))
-            {
-                // Filter by both skillId and subSkillID
-                return await _dbContext.ResourceSkills
-                    .Where(rs => rs.SkillId == skillId && rs.SubSkillId == subSkillId && rs.IsActive == 1)
-                    .ToListAsync();
-            }
-            else
-            {
-                // Handle other cases or return all ResourceSkills
-                return await _dbContext.ResourceSkills
-                    .Where(rs => rs.IsActive == 1)
-                    .ToListAsync();
-            }
+
+            return finalResult;
         }
+
+        public async Task<List<FetchResourceSkill>> GetResourcesBySkill(string skillName)
+        {
+             var skillId = _dbContext.Skills.Where(name => name.Name == skillName)
+                    .Select(name => name.SkillId)
+                    .FirstOrDefault();
+            var result = await (
+                from rs in _dbContext.ResourceSkills
+                join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
+                join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
+                from skill in skillGroup.DefaultIfEmpty()
+                join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+                from subSkill in subSkillGroup.DefaultIfEmpty()
+                where rs.IsActive == 1 && rs.SkillId == skillId // Filter by SkillId
+                select new
+                {
+                    r.ResourceId,
+                    r.ResourceName,
+                    NewSkillId = skill.SkillId,
+                    SkillName = skill.Name,
+                    NewSubSkillId = subSkill.SubSkillId,
+                    SubSkillName = subSkill.Name
+                }
+            ).ToListAsync();
+
+            // Group the results by ResourceId
+            var groupedResults = result.GroupBy(r => r.ResourceId);
+
+            // Create a list to hold the final FetchResourceSkill objects
+            var finalResult = new List<FetchResourceSkill>();
+
+            // Iterate over each group and create the FetchResourceSkill objects
+            foreach (var group in groupedResults)
+            {
+                var skills = new List<SkillModel>();
+
+                // Group skills and subskills
+                var skillGroups = group.GroupBy(r => r.NewSkillId);
+
+                foreach (var skillGroup in skillGroups)
+                {
+                    var subSkills = skillGroup
+                        .Where(r => r.NewSubSkillId != null)
+                        .Select(r => new SubSkillModel
+                        {
+                            SubSkillId = r.NewSubSkillId,
+                            SubSkillName = r.SubSkillName
+                        }).ToList();
+
+                    var skillModel = new SkillModel
+                    {
+                        SkillId = skillGroup.Key,
+                        SkillName = skillGroup.First().SkillName,
+                        SubSkills = subSkills
+                    };
+
+                    skills.Add(skillModel);
+                }
+
+                var fetchResourceSkill = new FetchResourceSkill
+                {
+                    ResourceId = group.Key.ToString(),
+                    ResourceName = group.First().ResourceName,
+                    Skills = skills
+                };
+
+                finalResult.Add(fetchResourceSkill);
+            }
+
+            return finalResult;
+        }
+
+        //    public async Task<List<FetchResourceSkill>> GetResourceSkills(string skillName, string subSkillName)
+        //    {
+        //        {
+        //            var query = _dbContext.ResourceSkills
+        //.Where(rs => rs.IsActive == 1) // Assuming you have IsActive field
+        //.Select(rs => new FetchResourceSkill
+        //{
+        //    ResourceSkillId = rs.ResourceSkillId, // Assuming this is the primary key of ResourceSkills
+        //    ResourceId = rs.ResourceId.ToString(), // Assuming ResourceId is mapped to ResourceId
+        //    ResourceName = "Cma", // Assuming you have a constant value or some logic to get the resource name
+        //    Skills = rs.SkillId != null ? new List<SkillModel>
+        //    {
+        //        new SkillModel
+        //        {
+        //            //SkillId = rs.SkillId,
+        //            //SkillName = rs.SkillId, // Assuming Skill is a navigation property to Skill entity
+        //            //SubSkills = rs.Skill.SubSkills
+        //            //    .Select(sub => new SubSkillModel
+        //            //    {
+        //            //        SubSkillId = sub.SubSkillId,
+        //            //        SubSkillName = sub.Name
+        //            //    })
+        //            //    .ToList()
+        //        }
+        //    } : null // Handle the case where SkillId is null
+        //})
+        //.ToList();
+
+        //            // Apply filter based on skillName
+        //            if (!string.IsNullOrEmpty(skillName))
+        //            {
+        //                query = query.Where(rs => rs.Skills.Any(s => s.SkillName == skillName));
+        //            }
+
+        //            // Apply filter based on subSkillName
+        //            if (!string.IsNullOrEmpty(subSkillName))
+        //            {
+        //                query = query.Where(rs => rs.Skills.Any(s => s.SubSkills.Any(sub => sub.SubSkillName == subSkillName)));
+        //            }
+
+        //            return await query.ToListAsync();
+        //        }
+        //    }
     }
 }
 

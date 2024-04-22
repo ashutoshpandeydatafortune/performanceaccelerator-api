@@ -7,8 +7,12 @@ namespace DF_EvolutionAPI.Services
 {
     public interface IResourceSkillService
     {
-        public Task<ResponseModel> CreateResourceSkill(List<ResourceSkill> resourceSkillModel);
-        public Task<ResponseModel> UpdateResourceSkill(List<ResourceSkill> resourceSkillModels);
-        public Task<List<ResourceSkill>> GetResourceSkills(int? skillId, int? subSkillId);
+        public Task<ResponseModel> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel);
+        public Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel);
+       
+        public Task<List<FetchResourceSkill>> GetResourceSkills();
+        public Task<List<FetchResourceSkill>> GetResourcesBySkill(string skillName);
+
+
     }
 }

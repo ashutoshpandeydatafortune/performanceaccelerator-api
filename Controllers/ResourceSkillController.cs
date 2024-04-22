@@ -26,8 +26,8 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="resourceSkillModel"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("[Action]")]
-        public async Task<IActionResult> CreateResourceSkill(List<ResourceSkill> resourceSkillModel)
+        [Route("")]
+        public async Task<IActionResult> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel)
         {
             try
             {
@@ -45,13 +45,33 @@ namespace DF_EvolutionAPI.Controllers
         /// </summary>
         /// <param name="resourceSkillModel"></param>
         /// <returns></returns>
-        [HttpPut]
+        [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult> UpdateResourceSkill(List<ResourceSkill> resourceSkillModels)
+        public async Task<IActionResult> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             try
             {
-                var response = await _resourceSkillService.UpdateResourceSkill(resourceSkillModels);
+                var response = await _resourceSkillService.UpdateResourceSkill(resourceSkillRequestModel);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+         /// <summary>
+        /// It is used to update the Resourceskill.
+        /// </summary>
+        /// <param SkillId="skillId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetResourceSkills")]
+        public async Task<IActionResult> GetResourceSkills()
+        {
+            try
+            {
+                var response = await _resourceSkillService.GetResourceSkills();
                 return Ok(response);
             }
             catch (Exception ex)
@@ -63,15 +83,15 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// It is used to update the Resourceskill.
         /// </summary>
-        /// <param SkillId="skillId"></param>
+        /// <param skillName="skillName"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("[Action]")]
-        public async Task<IActionResult> GetResourceSkills(int? skillId, int? subSkillId)
+        [Route("GetResourceSkills/{skillName}")]
+        public async Task<IActionResult> GetResourcesBySkill(string skillName)
         {
             try
             {
-                var response = await _resourceSkillService.GetResourceSkills(skillId, subSkillId);
+                var response = await _resourceSkillService.GetResourcesBySkill(skillName);
                 return Ok(response);
             }
             catch (Exception ex)
