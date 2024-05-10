@@ -57,19 +57,9 @@ namespace DF_EvolutionAPI.Services
                     };
 
                     _dbContext.ResourceSkills.Add(resourceSkill);
-
                 }
-                //else
-                //{
-                //    model.IsSuccess = false;
-                //    model.Messsage = "Resource skill already exists.";
-                //    return model;
-                //}
-
-                // Remove any existing subskills associated with the resource skill
                 _dbContext.ResourceSkills.RemoveRange(_dbContext.ResourceSkills.Where(rs => rs.ResourceSkillId == resourceSkill.ResourceSkillId));
-                _dbContext.ResourceSkills.Remove(resourceSkill);// to remove the primary key of resourceSkillId
-                                                                // Add each subskill to the resource skill
+                _dbContext.ResourceSkills.Remove(resourceSkill);
                 foreach (var subSkillModel in requestSubSkillIds)
                 {
                     var subSkill = await _dbContext.SubSkills.FindAsync(subSkillModel);
@@ -207,7 +197,7 @@ namespace DF_EvolutionAPI.Services
                 foreach (var skillGroup in skillGroups)
                 {
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != null)
+                        .Where(r => r.NewSubSkillId != 0)
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
@@ -278,7 +268,7 @@ namespace DF_EvolutionAPI.Services
                 foreach (var skillGroup in skillGroups)
                 {
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != null)
+                        .Where(r => r.NewSubSkillId != 0)
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
@@ -304,11 +294,8 @@ namespace DF_EvolutionAPI.Services
 
                 finalResult.Add(fetchResourceSkill);
             }
-
             return finalResult;
-        }
-
-       
+        }       
     }
 }
 

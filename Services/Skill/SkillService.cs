@@ -88,29 +88,26 @@ namespace DF_EvolutionAPI.Services
                         model.IsSuccess = false;
                     }
                 }
-
-
             }
             catch (Exception ex)
             {
                 model.Messsage = "Error" + ex.Message;
                 model.IsSuccess = false;
             }
-
             return model;
         }
 
         public async Task<List<Skill>> GetAllSkills()
         {
-           return await _dbContext.Skills.Where(skill => skill.IsActive == 1).ToListAsync(); 
+            return await _dbContext.Skills.Where(skill => skill.IsActive == 1).ToListAsync();
         }
 
-       public async Task<SkillDetails> GetSkillById(int id)
+        public async Task<SkillDetails> GetSkillById(int id)
         {
             var result = await (
                 from skill in _dbContext.Skills
                 join subskill in _dbContext.SubSkills.Where(s => s.IsActive == 1)
-         on skill.SkillId equals subskill.SkillId into subSkillsGroup
+                on skill.SkillId equals subskill.SkillId into subSkillsGroup
                 from subskill in subSkillsGroup.DefaultIfEmpty()
                 where skill.SkillId == id && skill.IsActive == 1
                 select new SkillDetails // Create an instance of Skill
@@ -123,16 +120,14 @@ namespace DF_EvolutionAPI.Services
                         SkillId = sub.SkillId,
                         SubSkillId = sub.SubSkillId,
                         Name = sub.Name,
-                        Description = sub.Description,                       
+                        Description = sub.Description,
                     }).ToList()
                 }
             ).FirstOrDefaultAsync();
-
             return result;
         }
-      
 
-            public async Task<ResponseModel> DeleteSkillById(int id)
+        public async Task<ResponseModel> DeleteSkillById(int id)
         {
             ResponseModel model = new ResponseModel();
             try
