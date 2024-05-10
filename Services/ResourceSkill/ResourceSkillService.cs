@@ -308,49 +308,7 @@ namespace DF_EvolutionAPI.Services
             return finalResult;
         }
 
-        //    public async Task<List<FetchResourceSkill>> GetResourceSkills(string skillName, string subSkillName)
-        //    {
-        //        {
-        //            var query = _dbContext.ResourceSkills
-        //.Where(rs => rs.IsActive == 1) // Assuming you have IsActive field
-        //.Select(rs => new FetchResourceSkill
-        //{
-        //    ResourceSkillId = rs.ResourceSkillId, // Assuming this is the primary key of ResourceSkills
-        //    ResourceId = rs.ResourceId.ToString(), // Assuming ResourceId is mapped to ResourceId
-        //    ResourceName = "Cma", // Assuming you have a constant value or some logic to get the resource name
-        //    Skills = rs.SkillId != null ? new List<SkillModel>
-        //    {
-        //        new SkillModel
-        //        {
-        //            //SkillId = rs.SkillId,
-        //            //SkillName = rs.SkillId, // Assuming Skill is a navigation property to Skill entity
-        //            //SubSkills = rs.Skill.SubSkills
-        //            //    .Select(sub => new SubSkillModel
-        //            //    {
-        //            //        SubSkillId = sub.SubSkillId,
-        //            //        SubSkillName = sub.Name
-        //            //    })
-        //            //    .ToList()
-        //        }
-        //    } : null // Handle the case where SkillId is null
-        //})
-        //.ToList();
-
-        //            // Apply filter based on skillName
-        //            if (!string.IsNullOrEmpty(skillName))
-        //            {
-        //                query = query.Where(rs => rs.Skills.Any(s => s.SkillName == skillName));
-        //            }
-
-        //            // Apply filter based on subSkillName
-        //            if (!string.IsNullOrEmpty(subSkillName))
-        //            {
-        //                query = query.Where(rs => rs.Skills.Any(s => s.SubSkills.Any(sub => sub.SubSkillName == subSkillName)));
-        //            }
-
-        //            return await query.ToListAsync();
-        //        }
-        //    }
+       
     }
 }
 

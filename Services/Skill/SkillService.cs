@@ -105,12 +105,34 @@ namespace DF_EvolutionAPI.Services
            return await _dbContext.Skills.Where(skill => skill.IsActive == 1).ToListAsync(); 
         }
 
-        public async Task<Skill> GetSkillById(int id)
+       public async Task<SkillDetails> GetSkillById(int id)
         {
-            return await _dbContext.Skills.Where(skill => skill.SkillId == id && skill.IsActive == 1).FirstOrDefaultAsync() ?? throw new Exception("Skill does not exist."); ;
-        }
+            var result = await (
+                from skill in _dbContext.Skills
+                join subskill in _dbContext.SubSkills.Where(s => s.IsActive == 1)
+         on skill.SkillId equals subskill.SkillId into subSkillsGroup
+                from subskill in subSkillsGroup.DefaultIfEmpty()
+                where skill.SkillId == id && skill.IsActive == 1
+                select new SkillDetails // Create an instance of Skill
+                {
+                    SkillId = skill.SkillId,
+                    Name = skill.Name,
+                    Description = skill.Description,
+                    subSkills = _dbContext.SubSkills.Where(skill => skill.IsActive == 1 && skill.SkillId == id).Select(sub => new SubSkill // Create an instance of SubSkill for each related subskill
+                    {
+                        SkillId = sub.SkillId,
+                        SubSkillId = sub.SubSkillId,
+                        Name = sub.Name,
+                        Description = sub.Description,                       
+                    }).ToList()
+                }
+            ).FirstOrDefaultAsync();
 
-        public async Task<ResponseModel> DeleteSkillById(int id)
+            return result;
+        }
+      
+
+            public async Task<ResponseModel> DeleteSkillById(int id)
         {
             ResponseModel model = new ResponseModel();
             try

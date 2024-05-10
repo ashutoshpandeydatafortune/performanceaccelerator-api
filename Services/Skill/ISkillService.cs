@@ -10,7 +10,7 @@ namespace DF_EvolutionAPI.Services
         public Task<ResponseModel> CreateSkill(Skill skillModel);
         public Task<ResponseModel> UpdateBySkillId(Skill skillModel);
         public Task<ResponseModel> DeleteSkillById(int id);
-        public Task<Skill> GetSkillById(int id);
+        public Task<SkillDetails> GetSkillById(int id);
         public Task<List<Skill>> GetAllSkills();
 
 
