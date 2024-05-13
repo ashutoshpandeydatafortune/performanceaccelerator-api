@@ -22,7 +22,13 @@ namespace DF_EvolutionAPI.Services
             ResponseModel model = new ResponseModel();
             try
             {
-                var subSkill = await _dbContext.SubSkills.FirstOrDefaultAsync(subSkill => subSkill.Name == subSkillModel.Name && subSkill.IsActive == 1);
+                var subSkill = await (
+                     from skill in _dbContext.Skills
+                     join subskill in _dbContext.SubSkills on skill.SkillId equals subskill.SkillId
+                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.IsActive == 1 && subskill.IsActive == 1
+                     select subskill
+                 ).FirstOrDefaultAsync();
+
                 if (subSkill == null)
                 {
                     subSkillModel.IsActive = 1;
@@ -53,9 +59,14 @@ namespace DF_EvolutionAPI.Services
             ResponseModel model = new ResponseModel();
             try
             {
+                var subSkill = await (
+                     from skill in _dbContext.Skills
+                     join subskill in _dbContext.SubSkills on skill.SkillId equals subskill.SkillId
+                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.IsActive == 1 && subskill.IsActive == 1
+                     select subskill
+                 ).FirstOrDefaultAsync();
 
-                var skill = await _dbContext.SubSkills.FirstOrDefaultAsync(skill => skill.Name == subSkillModel.Name && skill.IsActive == 1);
-                if (skill != null)
+                if (subSkill != null)
                 {
                     model.IsSuccess = false;
                     model.Messsage = "SubSkill with the same name already exists.";
