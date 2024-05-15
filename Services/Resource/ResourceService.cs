@@ -177,6 +177,7 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
+                    where resource.IsActive == 1
                     select new Team
                     {
                         EmailId = resource.EmailId,
