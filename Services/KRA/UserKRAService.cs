@@ -341,7 +341,7 @@ namespace DF_EvolutionAPI.Services
                         userKra.Comment = userKRAModels.Comment;
                         userKra.ApprovedBy = userKRAModels.ApprovedBy;
                         userKra.RejectedBy = userKRAModels.RejectedBy;
-                        userKra.FinalComment = userKRAModels.FinalComment;
+                        userKra.FinalComment = userKRAModels.FinalComment ?? null;
                         userKra.ManagerComment = userKRAModels.ManagerComment;
                         userKra.FinalRating = userKRAModels.FinalRating ?? null;
                         userKra.DeveloperComment = userKRAModels.DeveloperComment;
