@@ -337,19 +337,19 @@ namespace DF_EvolutionAPI.Services
                                            select kraLibrary.Weightage).FirstOrDefault();
                     if (userKra != null)
                     {
-                        userKra.Reason = userKRAModels.Reason;
-                        userKra.Comment = userKRAModels.Comment;
-                        userKra.ApprovedBy = userKRAModels.ApprovedBy;
-                        userKra.RejectedBy = userKRAModels.RejectedBy;
+                        userKra.Reason = userKRAModels.Reason ?? null;
+                        userKra.Comment = userKRAModels.Comment ?? null;
+                        userKra.ApprovedBy = userKRAModels.ApprovedBy ?? null;
+                        userKra.RejectedBy = userKRAModels.RejectedBy ?? null;
                         userKra.FinalComment = userKRAModels.FinalComment ?? null;
-                        userKra.ManagerComment = userKRAModels.ManagerComment;
+                        userKra.ManagerComment = userKRAModels.ManagerComment ?? null;
                         userKra.FinalRating = userKRAModels.FinalRating ?? null;
                         userKra.DeveloperComment = userKRAModels.DeveloperComment;
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                       // userKra.DeveloperRating = userKRAModels.DeveloperRating ?? 0;
-                        if (userKRAModels.FinalComment != null)
+                        
+                       if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
                         }

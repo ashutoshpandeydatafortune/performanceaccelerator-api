@@ -25,20 +25,20 @@ namespace DF_EvolutionAPI.Controllers
         /// </summary>
         /// <param name="resourceSkillModel"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Route("")]
-        public async Task<IActionResult> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel)
-        {
-            try
-            {
-                var response = await _resourceSkillService.CreateResourceSkill(resourceSkillModel);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[HttpPost]
+        //[Route("")]
+        //public async Task<IActionResult> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel)
+        //{
+        //    try
+        //    {
+        //        var response = await _resourceSkillService.CreateResourceSkill(resourceSkillModel);
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         /// <summary>
         /// It is used to update the Resourceskill.

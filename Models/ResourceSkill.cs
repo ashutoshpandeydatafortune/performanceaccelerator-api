@@ -23,9 +23,10 @@ namespace DF_EvolutionAPI.Models
     public class ResourceSkillRequestModel
     {
         public int ResourceSkillId { get; set; }
-        public string SkillName { get; set; }
-        public List<SubSkillModel> SubSkills { get; set; }
-        public int? ResourceId { get; set; }
+        public int ResourceId { get; set; }
+        public string ResourceName { get; set; }
+        public List<SkillModel> Skills { get; set; }
+        
         public double? Experience { get; set; }
         public byte? IsActive { get; set; }
         public int CreateBy { get; set; }
@@ -47,8 +48,8 @@ namespace DF_EvolutionAPI.Models
 
     public class FetchResourceSkill
     {
-       public string ResourceId { get; set; }
-        public string ResourceName { get; set; }        
+       //public int ResourceId { get; set; }
+       // public string ResourceName { get; set; }        
         public List<SkillModel> Skills { get; set; }
       
     
