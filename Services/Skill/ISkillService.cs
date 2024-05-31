@@ -7,14 +7,11 @@ namespace DF_EvolutionAPI.Services
 {
     public interface ISkillService
     {
-        public Task<ResponseModel> CreateSkill(Skill skillModel);
-        public Task<ResponseModel> UpdateBySkillId(Skill skillModel);
-        public Task<ResponseModel> DeleteSkillById(int id);
-        public Task<SkillDetails> GetSkillById(int id);
         public Task<List<Skill>> GetAllSkills();
-
-
-
-
+        public Task<SkillDetails> GetSkillById(int id);
+        public Task<ResponseModel> DeleteSkillById(int id);
+        public Task<ResponseModel> CreateSkill(Skill skillModel);
+        Task<List<Resource>> SearchBySkills(SearchSkill skillModel);
+        public Task<ResponseModel> UpdateBySkillId(Skill skillModel);
     }
 }
