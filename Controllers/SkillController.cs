@@ -121,5 +121,26 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Search resources by skills
+        /// </summary>
+        /// <param name="skillModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> SearchBySkills(SearchSkill searchSkillModel)
+        {
+            try
+            {
+                var response = await _skillService.SearchBySkills(searchSkillModel);
+                return Ok(response);
+            }
+
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -156,5 +156,22 @@ namespace DF_EvolutionAPI.Services
             }
             return model;
         }
+
+        public async Task<List<Resource>> SearchBySkills(SearchSkill skillModel)
+        {
+            var query = _dbContext.Resources.AsQueryable();
+
+            if (skillModel.SkillIds != null && skillModel.SkillIds.Count > 0)
+            {
+                query = query.Where(r => r.ResourceSkills.Any(rs => skillModel.SkillIds.Contains(rs.SkillId.Value)));
+            }
+
+            if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
+            {
+                query = query.Where(r => r.ResourceSkills.Any(rs => rs.Skill.SubSkills.Any(ss => skillModel.SubSkillIds.Contains(ss.SubSkillId))));
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }

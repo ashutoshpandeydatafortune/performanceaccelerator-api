@@ -15,7 +15,9 @@ namespace DF_EvolutionAPI.Models
         public int? UpdateBy { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-      
+        public ICollection<SubSkill> SubSkills { get; set; }
+        public ICollection<ResourceSkill> ResourceSkills { get; set; }
+
     }
 
     public class SkillDetails
