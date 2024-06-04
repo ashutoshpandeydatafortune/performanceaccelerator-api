@@ -35,6 +35,8 @@ namespace DF_EvolutionAPI.Models
     public class SubSkillModel
     {
         public int? SubSkillId { get; set; }
+
+        public int? SkillId { get; set; }
         public string SubSkillName { get; set; }
     }
 
@@ -48,8 +50,8 @@ namespace DF_EvolutionAPI.Models
 
     public class FetchResourceSkill
     {
-       //public int ResourceId { get; set; }
-       // public string ResourceName { get; set; }        
+        public int ResourceId { get; set; }
+        public string ResourceName { get; set; }
         public List<SkillModel> Skills { get; set; }
       
     

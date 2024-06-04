@@ -60,18 +60,38 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// It is used to update the Resourceskill.
         /// </summary>
         /// <param SkillId="skillId"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetResourceSkills")]
+        [Route("GetAllResourceSkills")]
         public async Task<IActionResult> GetResourceSkills()
         {
             try
             {
-                var response = await _resourceSkillService.GetResourceSkills();
+                var response = await _resourceSkillService.GetAllResourceSkills();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// It is used to update the Resourceskill.
+        /// </summary>
+        /// <param ResourceId="resourceId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetResourceSkillsById")]
+        public async Task<IActionResult> GetResourceSkillsById(int resourceId)
+        {
+            try
+            {
+                var response = await _resourceSkillService.GetResourceSkillsById(resourceId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -86,12 +106,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <param skillName="skillName"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetResourceSkills/{skillName}")]
-        public async Task<IActionResult> GetResourcesBySkill(string skillName)
+        [Route("GetResourceSkills")]
+        public async Task<IActionResult> GetResourcesBySkill(int skillId, int resourceId)
         {
             try
             {
-                var response = await _resourceSkillService.GetResourcesBySkill(skillName);
+                var response = await _resourceSkillService.GetResourcesBySkill(skillId, resourceId);
                 return Ok(response);
             }
             catch (Exception ex)

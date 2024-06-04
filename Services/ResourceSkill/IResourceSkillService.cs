@@ -10,8 +10,9 @@ namespace DF_EvolutionAPI.Services
         //public Task<ResponseModel> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel);
         public Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel);
        
-        public Task<List<FetchResourceSkill>> GetResourceSkills();
-        public Task<List<FetchResourceSkill>> GetResourcesBySkill(string skillName);
+        public Task<List<FetchResourceSkill>> GetAllResourceSkills();
+        public Task<List<FetchResourceSkill>> GetResourceSkillsById(int resourceId);
+        public Task<List<FetchResourceSkill>> GetResourcesBySkill(int skillId, int resourceId);
 
 
     }
