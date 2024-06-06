@@ -132,9 +132,10 @@ namespace DF_EvolutionAPI
                 {
                     builder
                     .WithOrigins(
-                        "https://delightful-beach-0135c210f.4.azurestaticapps.net",
                         "http://localhost:4200",
-                        "https://login.windows.net"
+                        "https://login.windows.net",
+                        "https://dfperformance.azurewebsites.net",
+                        "https://delightful-beach-0135c210f.4.azurestaticapps.net"
                      )
                     .AllowAnyMethod()
                     .AllowAnyHeader()
