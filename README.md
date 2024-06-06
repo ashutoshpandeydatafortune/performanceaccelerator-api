@@ -32,7 +32,7 @@ This README would normally document whatever steps are necessary to get your app
 ### How to deploy on Azure ###
 
 * Create an application under AppServices in Azure
-* Under Configuration => Application settings, add following keys:
+* Under Settings => Environment variables, add following keys:
   
 DB__ConnectionString=data source=?;initial catalog=DF_PRMS_DB_Test;user id=?;password=?;MultipleActiveResultSets=True;App=EntityFramework;
 
