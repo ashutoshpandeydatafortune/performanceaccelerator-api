@@ -62,7 +62,7 @@ namespace DF_EvolutionAPI.Services
                 var subSkill = await (
                      from skill in _dbContext.Skills
                      join subskill in _dbContext.SubSkills on skill.SkillId equals subskill.SkillId
-                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.IsActive == 1 && subskill.IsActive == 1
+                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.Description == subSkillModel.Description && skill.IsActive == 1 && subskill.IsActive == 1
                      select subskill
                  ).FirstOrDefaultAsync();
 

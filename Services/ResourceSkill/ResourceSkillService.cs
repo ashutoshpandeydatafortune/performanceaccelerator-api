@@ -310,9 +310,9 @@ namespace DF_EvolutionAPI.Services
                 {
                     r.ResourceId,
                     r.ResourceName,
-                    NewSkillId = skill.SkillId,
+                    NewSkillId = (int?)skill.SkillId,
                     SkillName = skill.Name,
-                    NewSubSkillId = subSkill.SubSkillId,
+                    NewSubSkillId = (int?)subSkill.SubSkillId,
                     SubSkillName = subSkill.Name
                 }
             ).ToListAsync();
@@ -344,7 +344,7 @@ namespace DF_EvolutionAPI.Services
 
                     var skillModel = new SkillModel
                     {
-                        SkillId = skillGroup.Key,
+                        SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
                         SkillName = skillGroup.First().SkillName,
                         SubSkills = subSkill
                     };
