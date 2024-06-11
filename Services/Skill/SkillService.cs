@@ -157,18 +157,34 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
+       
         public async Task<List<Resource>> SearchBySkills(SearchSkill skillModel)
         {
             var query = _dbContext.Resources.AsQueryable();
 
-            if (skillModel.SkillIds != null && skillModel.SkillIds.Count > 0)
+            if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
-                query = query.Where(r => r.ResourceSkills.Any(rs => skillModel.SkillIds.Contains(rs.SkillId.Value)));
-            }
+                // Join with ResourceSkills, Skills, and SubSkills to filter by SearchKey
+                 query = from r in _dbContext.Resources
+                            join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
+                            join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
+                            join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
+                            where skill.Name == skillModel.SearchKey || subskill.Name == skillModel.SearchKey
+                            group r by r.ResourceId into groupedResources
+                            select groupedResources.FirstOrDefault();
 
-            if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
+            }
+            else
             {
-                query = query.Where(r => r.ResourceSkills.Any(rs => rs.Skill.SubSkills.Any(ss => skillModel.SubSkillIds.Contains(ss.SubSkillId))));
+                if (skillModel.SkillIds != null && skillModel.SkillIds.Count > 0)
+                {
+                    query = query.Where(r => r.ResourceSkills.Any(rs => skillModel.SkillIds.Contains(rs.SkillId.Value)));
+                }
+
+                if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
+                {
+                    query = query.Where(r => r.ResourceSkills.Any(rs => rs.Skill.SubSkills.Any(ss => skillModel.SubSkillIds.Contains(ss.SubSkillId))));
+                }
             }
 
             return await query.ToListAsync();
