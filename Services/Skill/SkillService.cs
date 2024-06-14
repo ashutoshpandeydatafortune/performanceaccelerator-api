@@ -165,13 +165,13 @@ namespace DF_EvolutionAPI.Services
             if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
                 // Join with ResourceSkills, Skills, and SubSkills to filter by SearchKey
-                 query = from r in _dbContext.Resources
-                            join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
-                            join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
-                            join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
-                            where skill.Name == skillModel.SearchKey || subskill.Name == skillModel.SearchKey
-                            group r by r.ResourceId into groupedResources
-                            select groupedResources.FirstOrDefault();
+               query = from r in _dbContext.Resources
+                join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
+                join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
+                join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
+                where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
+                group r by r.ResourceId into groupedResources
+                select groupedResources.FirstOrDefault();
 
             }
             else
@@ -183,7 +183,11 @@ namespace DF_EvolutionAPI.Services
 
                 if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
                 {
-                    query = query.Where(r => r.ResourceSkills.Any(rs => rs.Skill.SubSkills.Any(ss => skillModel.SubSkillIds.Contains(ss.SubSkillId))));
+                    query = query.Where(resource =>
+                    resource.ResourceSkills.Any(resourceSkill =>
+                      skillModel.SubSkillIds.Contains(resourceSkill.SubSkillId.Value) // Check if the SubSkillId matches
+    )
+);
                 }
             }
 
