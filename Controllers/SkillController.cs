@@ -1,8 +1,8 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -11,7 +11,7 @@ namespace DF_EvolutionAPI.Controllers
     public class SkillController : Controller
     {
         private ISkillService _skillService;
-       
+
         public SkillController(ISkillService skillService)
         {
             _skillService = skillService;

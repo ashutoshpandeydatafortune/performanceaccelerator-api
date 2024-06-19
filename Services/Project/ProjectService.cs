@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
-    public class ProjectService: IProjectService
+    public class ProjectService : IProjectService
     {
         private readonly DFEvolutionDBContext _dbcontext;
 
@@ -95,7 +95,7 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
-            
+
             return project;
         }
     }

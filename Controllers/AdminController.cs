@@ -1,6 +1,5 @@
 ﻿using DF_EvolutionAPI.Services.Admin;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -8,7 +7,7 @@ namespace DF_EvolutionAPI.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
-       
+
         IAdminService _adminService;
 
         public AdminController(IAdminService adminService)

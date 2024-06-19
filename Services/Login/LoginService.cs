@@ -1,19 +1,19 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Configuration;
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
-using System.Data;
 //using System.Reflection.Metadata;
 using DF_EvolutionAPI.Utils;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services.Login
 {

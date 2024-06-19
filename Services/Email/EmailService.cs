@@ -1,10 +1,10 @@
-﻿using System;
+﻿using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using System;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
-using DF_EvolutionAPI.Utils;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Configuration;
 
 namespace DF_EvolutionAPI.Services.Email
 {

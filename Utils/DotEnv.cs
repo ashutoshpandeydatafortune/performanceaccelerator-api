@@ -10,16 +10,16 @@ namespace DF_EvolutionAPI.Utils
             if (!File.Exists(path))
                 return;
 
-            foreach(var line in File.ReadAllLines(path))
+            foreach (var line in File.ReadAllLines(path))
             {
-                var parts = line.Split(new char[] {'='}, 2);
+                var parts = line.Split(new char[] { '=' }, 2);
 
-                if(parts.Length != 2)
+                if (parts.Length != 2)
                 {
                     continue;
                 }
 
-                Environment.SetEnvironmentVariable(parts[0], parts[1]); 
+                Environment.SetEnvironmentVariable(parts[0], parts[1]);
             }
         }
     }

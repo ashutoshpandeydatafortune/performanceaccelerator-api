@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services.Submission;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -49,9 +48,9 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var submissionstatus = await _submissionStatusService.GetSubmissionStatusById(submissionStatusId);
-                
+
                 if (submissionstatus == null) return NotFound();
-                
+
                 return Ok(submissionstatus);
             }
             catch (Exception ex)

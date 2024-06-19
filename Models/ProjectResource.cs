@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 {
-    public class ProjectResource: BaseEntity_PRMS
+    public class ProjectResource : BaseEntity_PRMS
     {
         public int ProjectResourceId { get; set; }
         public int? ProjectId { get; set; }

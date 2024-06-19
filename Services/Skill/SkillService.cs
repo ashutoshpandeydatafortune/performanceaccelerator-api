@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using Azure;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
-using DF_EvolutionAPI.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 namespace DF_EvolutionAPI.Services
 
 {
@@ -157,7 +156,7 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-       
+
         public async Task<List<Resource>> SearchBySkills(SearchSkill skillModel)
         {
             var query = _dbContext.Resources.AsQueryable();
@@ -165,13 +164,13 @@ namespace DF_EvolutionAPI.Services
             if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
                 // Join with ResourceSkills, Skills, and SubSkills to filter by SearchKey
-               query = from r in _dbContext.Resources
-                join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
-                join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
-                join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
-                where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
-                group r by r.ResourceId into groupedResources
-                select groupedResources.FirstOrDefault();
+                query = from r in _dbContext.Resources
+                        join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
+                        join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
+                        join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
+                        where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
+                        group r by r.ResourceId into groupedResources
+                        select groupedResources.FirstOrDefault();
 
             }
             else

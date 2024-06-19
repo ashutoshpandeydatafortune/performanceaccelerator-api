@@ -8,7 +8,7 @@ namespace DF_EvolutionAPI.Services
 {
     public interface ISettingsService
     {
-        public Task<List<RoleMapping>> GetPermissionByRole( string roleId);
+        public Task<List<RoleMapping>> GetPermissionByRole(string roleId);
         public Task<ResponseModel> UpdatePermissionByRole(RoleMapping roleMapping);
         public Task<ResponseModel> AddRoleMapping(List<RoleMapping> roleMappings);
         public Task<List<IdentityRole>> GetAllRoles();

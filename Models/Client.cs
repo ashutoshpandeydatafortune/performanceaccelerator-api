@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 {
-    public class Client: BaseEntity_PRMS
+    public class Client : BaseEntity_PRMS
     {
         public int? ClientId { get; set; }
         public string ClientName { get; set; }

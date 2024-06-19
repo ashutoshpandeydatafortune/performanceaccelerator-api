@@ -34,7 +34,7 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
-            
+
             return statuslibrary;
         }
 
@@ -55,9 +55,9 @@ namespace DF_EvolutionAPI.Services
                     statusLibrary.IsActive = 1;
                     statusLibrary.UpdateBy = 1;
                     statusLibrary.UpdateDate = DateTime.Now;
-                    
+
                     _dbcontext.Update(statusLibrary);
-                    
+
                     model.Messsage = "Status Updated Successfully";
                 }
                 else
@@ -69,12 +69,12 @@ namespace DF_EvolutionAPI.Services
                     statusModel.UpdateDate = DateTime.Now;
 
                     _dbcontext.Add(statusModel);
-                    
+
                     model.Messsage = "Status Inserted Successfully";
                 }
 
                 _dbcontext.SaveChanges();
-                
+
                 model.IsSuccess = true;
             }
             catch (Exception ex)

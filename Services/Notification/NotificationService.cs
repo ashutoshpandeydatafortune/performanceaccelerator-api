@@ -1,11 +1,11 @@
 ﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -68,7 +68,7 @@ namespace DF_EvolutionAPI.Services
         //Method for fetching notifications that meets the criteria
         private async Task<List<Notification>> GetNotifications(int resourceId, DateTime cutoffDate)
         {
-            return  await _dbContext.Notifications
+            return await _dbContext.Notifications
                 .Where(notification => notification.ResourceId == resourceId
                     && notification.IsActive == 1 && notification.CreateAt > cutoffDate)
                 .OrderByDescending(notification => notification.CreateAt)
@@ -93,6 +93,6 @@ namespace DF_EvolutionAPI.Services
             return await _dbContext.Notifications.Where(notification => notification.Id == Id && notification.IsActive == 1)
                  .FirstOrDefaultAsync();
 
-        }        
+        }
     }
 }

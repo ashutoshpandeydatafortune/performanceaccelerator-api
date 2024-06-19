@@ -7,7 +7,8 @@
         public string ErrorCode { get; set; }
 
         public ErrorResponse() { }
-        public ErrorResponse(bool error, string message, string errorCode) {
+        public ErrorResponse(bool error, string message, string errorCode)
+        {
             Error = error;
             Message = message;
             ErrorCode = errorCode;

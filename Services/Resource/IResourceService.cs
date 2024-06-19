@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using DF_EvolutionAPI.Models;
 
 namespace DF_EvolutionAPI.Services
 {

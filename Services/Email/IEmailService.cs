@@ -1,5 +1,4 @@
-﻿using DF_EvolutionAPI.ViewModels;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services.Email
 {

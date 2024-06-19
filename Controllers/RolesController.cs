@@ -47,9 +47,9 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var role = _rolesService.GetRoleById(roleId);
-                
+
                 if (role == null) return NotFound();
-                
+
                 return Ok(role);
             }
             catch (Exception ex)

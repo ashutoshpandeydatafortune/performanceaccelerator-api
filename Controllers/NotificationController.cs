@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {

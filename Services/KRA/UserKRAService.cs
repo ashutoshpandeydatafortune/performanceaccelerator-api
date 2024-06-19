@@ -1,20 +1,17 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
+using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Services.KRA;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using DF_EvolutionAPI.Utils;
-using DF_EvolutionAPI.Services.Email;
 using System.Text;
-using static DF_EvolutionAPI.Models.UserKRADetails;
-using Azure;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -58,7 +55,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var query = from resource in _dbcontext.Resources
-                            join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId  
+                            join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId
                             join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                             select new UserAssignedKRA()
                             {
@@ -139,11 +136,11 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
-               
+
                 foreach (var item in userKRAModel)
                 {
                     //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
-                    var kralist = _dbcontext.UserKRA.Where(kra => 
+                    var kralist = _dbcontext.UserKRA.Where(kra =>
                      kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
 
                     if (kralist.Count == 0)
@@ -152,7 +149,7 @@ namespace DF_EvolutionAPI.Services
                         item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                         item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
                         item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
-                       
+
                         item.IsActive = 1;
                         item.CreateBy = 1;
                         item.UpdateBy = 1;
@@ -332,9 +329,9 @@ namespace DF_EvolutionAPI.Services
                 foreach (var userKRAModels in userKRAModel)
                 {
                     var userKra = await _dbcontext.UserKRA.FindAsync(userKRAModels.Id);
-                    var weightage =  (from kraLibrary in _dbcontext.KRALibrary
-                                           where kraLibrary.Id == userKra.KRAId
-                                           select kraLibrary.Weightage).FirstOrDefault();
+                    var weightage = (from kraLibrary in _dbcontext.KRALibrary
+                                     where kraLibrary.Id == userKra.KRAId
+                                     select kraLibrary.Weightage).FirstOrDefault();
                     if (userKra != null)
                     {
                         userKra.Reason = userKRAModels.Reason ?? null;
@@ -348,9 +345,9 @@ namespace DF_EvolutionAPI.Services
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                        
-                       //if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
-                       if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
+
+                        //if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
+                        if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
                         }
@@ -408,7 +405,7 @@ namespace DF_EvolutionAPI.Services
                 if (userKRA.isUpdated == true)
                 {
                     //Fetching the manager details.
-                    
+
                     var reportingTos = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
                     var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == reportingTos.ReportingTo.Value).FirstOrDefault();
 
@@ -663,7 +660,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var rating = (
-                    from resources in _dbcontext.Resources 
+                    from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
@@ -689,7 +686,7 @@ namespace DF_EvolutionAPI.Services
                 })
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
-                
+
 
                 return result;
             }
@@ -700,13 +697,13 @@ namespace DF_EvolutionAPI.Services
         }
 
         //UnassignKra is used to removed the assigned kras from resources.
-        public async Task<ResponseModel>AssignUnassignKra(int userKraId, byte IsActive)
+        public async Task<ResponseModel> AssignUnassignKra(int userKraId, byte IsActive)
         {
             ResponseModel model = new ResponseModel();
             UserKRA userKra = null;
             try
             {
-                userKra =  _dbcontext.UserKRA.Where(c=>c.Id == userKraId).FirstOrDefault();
+                userKra = _dbcontext.UserKRA.Where(c => c.Id == userKraId).FirstOrDefault();
                 if (userKra != null)
                 {
                     userKra.IsActive = IsActive;
@@ -729,7 +726,7 @@ namespace DF_EvolutionAPI.Services
                     model.IsSuccess = false;
                     model.Messsage = "User KRA does not exits";
                 }
-               
+
             }
             catch (Exception ex)
             {

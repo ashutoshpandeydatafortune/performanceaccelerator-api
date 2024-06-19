@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using DF_EvolutionAPI.Models;
-using System.Collections.Generic;
+﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using DF_EvolutionAPI.Models.Response;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {

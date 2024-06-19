@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,7 +18,7 @@ namespace DF_EvolutionAPI.Models.Response
         public DateTime CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; } // Nullable DateTime for UpdateDate
 
-        public  List<PATemplateKra> AssignedKras { get; set; }
-        public List<PATemplateDesignation> AssignedDesignations { get; set; }    
+        public List<PATemplateKra> AssignedKras { get; set; }
+        public List<PATemplateDesignation> AssignedDesignations { get; set; }
     }
 }

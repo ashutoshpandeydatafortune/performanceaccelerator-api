@@ -21,7 +21,7 @@ namespace DF_EvolutionAPI.Controllers
         /// get all rolemapping data for particular roleId
         /// </summary>
         /// <returns></returns>
-       
+
         [HttpGet]
         [Route("GetPermissionByRole/{roleId}")]
         public async Task<IActionResult> GetPermissionByRole(string roleId)

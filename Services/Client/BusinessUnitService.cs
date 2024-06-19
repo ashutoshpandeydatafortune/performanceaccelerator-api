@@ -42,7 +42,7 @@ namespace DF_EvolutionAPI.Services
                         ClientsList = clients
                     }).ToListAsync();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }
@@ -58,7 +58,7 @@ namespace DF_EvolutionAPI.Services
             {
                 clients = await _dbcontext.Clients.Where(x => (x.IsActive == 1) && (x.BusinessUnitId == businessUnitId)).ToListAsync();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }

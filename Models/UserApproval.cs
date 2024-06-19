@@ -1,7 +1,7 @@
 ﻿namespace DF_EvolutionAPI.Models
 {
-    public class UserApproval  : BaseEntity
-    {       
+    public class UserApproval : BaseEntity
+    {
         public int ApprovalStatus { get; set; }
         public int AppraisalRange { get; set; }
         public int ApprovedBy { get; set; }

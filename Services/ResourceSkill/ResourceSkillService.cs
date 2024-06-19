@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 using System.Linq;
 using System.Threading.Tasks;
-using static DF_EvolutionAPI.Models.ResourceSkill;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -237,7 +236,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == 1 
+                where rs.IsActive == 1
                 select new
                 {
                     r.ResourceId,

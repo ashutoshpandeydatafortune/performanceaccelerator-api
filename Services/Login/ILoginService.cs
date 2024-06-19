@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services.Login
 {

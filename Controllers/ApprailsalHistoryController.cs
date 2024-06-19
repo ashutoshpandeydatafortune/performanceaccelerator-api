@@ -30,7 +30,7 @@ namespace DF_EvolutionAPI.Controllers
                 var appraisals = _appraisalHistoryService.GetAllAppraisalHistoryList();
 
                 if (appraisals.Result == null) return NotFound();
-                
+
                 return Ok(appraisals.Result);
             }
             catch (Exception ex)
@@ -53,7 +53,7 @@ namespace DF_EvolutionAPI.Controllers
                 var appraisalHistory = await _appraisalHistoryService.GetAppraisalHistoryById(appraisalHistoryId);
 
                 if (appraisalHistory == null) return Content("{}", "application/json");
-                
+
                 return Ok(appraisalHistory);
             }
             catch (Exception ex)

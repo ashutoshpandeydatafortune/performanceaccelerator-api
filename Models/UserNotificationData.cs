@@ -6,9 +6,9 @@ namespace DF_EvolutionAPI.Models
     {
         public string Name { get; set; }
         public string Email { get; set; }
-       
+
 
         public List<Notification> Notifications { get; set; }
         public List<UserKRA> userKRAs { get; set; }
-}
+    }
 }

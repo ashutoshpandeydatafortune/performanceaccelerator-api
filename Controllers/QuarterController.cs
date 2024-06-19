@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -49,9 +48,9 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var quarterDetails = await _quarterService.GetQuarterDetailsById(quarterId);
-                
+
                 if (quarterDetails == null) return NotFound();
-                
+
                 return Ok(quarterDetails);
             }
             catch (Exception ex)

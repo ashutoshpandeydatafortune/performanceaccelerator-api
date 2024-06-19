@@ -48,9 +48,9 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var project = await _projectService.GetProjectByProjectId(projectId);
-                
+
                 if (project == null) return NotFound();
-                
+
                 return Ok(project);
             }
             catch (Exception ex)

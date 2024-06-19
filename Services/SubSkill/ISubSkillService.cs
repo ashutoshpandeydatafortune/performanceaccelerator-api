@@ -1,7 +1,7 @@
-﻿using DF_EvolutionAPI.ViewModels;
-using System.Threading.Tasks;
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {

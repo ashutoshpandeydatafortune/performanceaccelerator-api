@@ -2,8 +2,8 @@
 
 namespace DF_EvolutionAPI.Models.Response
 {
-   public class ApplicationUserRole : IdentityUserRole<string>
+    public class ApplicationUserRole : IdentityUserRole<string>
     {
-       public string ApplicationName { get; set; }
+        public string ApplicationName { get; set; }
     }
 }

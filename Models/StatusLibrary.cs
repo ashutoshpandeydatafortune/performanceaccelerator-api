@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DF_EvolutionAPI.Models
+﻿namespace DF_EvolutionAPI.Models
 {
     public class StatusLibrary : BaseEntity
     {

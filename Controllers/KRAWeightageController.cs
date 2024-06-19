@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-
-using DF_EvolutionAPI.Models;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -51,7 +50,7 @@ namespace DF_EvolutionAPI.Controllers
                 var weightage = await _kraWeightageService.GetKRAWeightageDetailsById(weightageId);
 
                 if (weightage == null) return NotFound();
-                
+
                 return Ok(weightage);
             }
             catch (Exception ex)

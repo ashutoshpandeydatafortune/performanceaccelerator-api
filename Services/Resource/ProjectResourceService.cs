@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
-    public class ProjectResourceService: IProjectResourceService
+    public class ProjectResourceService : IProjectResourceService
     {
         private readonly DFEvolutionDBContext _dbcontext;
 

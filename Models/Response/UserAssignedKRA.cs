@@ -7,6 +7,6 @@
         public int? QuarterId { get; set; }
         public int? IsSpecial { get; set; }
         public string KRAName { get; set; }
-        public string UserName {  get; set; }
+        public string UserName { get; set; }
     }
 }

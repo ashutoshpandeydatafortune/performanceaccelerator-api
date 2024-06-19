@@ -27,7 +27,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var libraries = await _kraLibraryService.GetAllKRALibraryList(isNotSpecial);                
+                var libraries = await _kraLibraryService.GetAllKRALibraryList(isNotSpecial);
                 return Ok(libraries);
             }
             catch (Exception ex)
@@ -50,7 +50,7 @@ namespace DF_EvolutionAPI.Controllers
                 var library = await _kraLibraryService.GetKRALibraryById(kraLibraryId);
 
                 if (library == null) return NotFound();
-                
+
                 return Ok(library);
             }
             catch (Exception ex)
@@ -113,7 +113,7 @@ namespace DF_EvolutionAPI.Controllers
             {
                 var kraWeightage = await _kraLibraryService.GetKRAWeightageDetailsByKRALibraryId(kraLibraryid);
 
-                if(kraWeightage == null) return NotFound();
+                if (kraWeightage == null) return NotFound();
 
                 return Ok(kraWeightage);
             }

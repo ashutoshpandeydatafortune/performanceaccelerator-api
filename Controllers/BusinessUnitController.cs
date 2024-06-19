@@ -1,9 +1,6 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Services;
-using Microsoft.AspNetCore.Http;
+﻿using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -32,7 +29,7 @@ namespace DF_EvolutionAPI.Controllers
                 var businessUnits = await _businessUnitService.GetAllBusinessUnits();
 
                 if (businessUnits == null) return NotFound();
-                
+
                 return Ok(businessUnits);
             }
             catch (Exception ex)

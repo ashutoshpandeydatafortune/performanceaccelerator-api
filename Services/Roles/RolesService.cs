@@ -50,7 +50,7 @@ namespace DF_EvolutionAPI.Services
                     role.IsActive = 1;
 
                     _dbcontext.Update(role);
-                    
+
                     model.Messsage = "Role Updated Successfully";
                 }
                 else
@@ -58,12 +58,12 @@ namespace DF_EvolutionAPI.Services
                     rolesModel.IsActive = 1;
 
                     _dbcontext.Add(rolesModel);
-                    
+
                     model.Messsage = "Role Inserted Successfully";
                 }
 
                 _dbcontext.SaveChanges();
-                
+
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ namespace DF_EvolutionAPI.Services
 
                     _dbcontext.Update<Role>(role);
                     _dbcontext.SaveChanges();
-                    
+
                     model.IsSuccess = true;
                     model.Messsage = "Role Deleted Successfully";
                 }

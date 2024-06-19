@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
-    public class KRAWeightageService: IKRAWeightageService
+    public class KRAWeightageService : IKRAWeightageService
     {
         private readonly DFEvolutionDBContext _dbcontext;
 
@@ -72,7 +72,7 @@ namespace DF_EvolutionAPI.Services
                 }
 
                 _dbcontext.SaveChanges();
-                
+
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -91,14 +91,14 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 KRAWeightage kraWeightage = await GetKRAWeightageDetailsById(weightageId);
-            
+
                 if (kraWeightage != null)
                 {
                     kraWeightage.IsDeleted = 1;
                     _dbcontext.Update(kraWeightage);
 
                     _dbcontext.SaveChanges();
-                    
+
                     model.IsSuccess = true;
                     model.Messsage = "KRA Weightage Deleted Successfully";
                 }

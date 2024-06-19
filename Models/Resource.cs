@@ -18,7 +18,7 @@ namespace DF_EvolutionAPI.Models
         [Required]
         public string EmailId { get; set; }
 
-        
+
         #region Address
         public string Address { get; set; }
         public string CountryId { get; set; }
@@ -54,7 +54,7 @@ namespace DF_EvolutionAPI.Models
         #endregion
 
         public byte IsActive { get; set; }
-       
+
         [NotMapped]
         public string Function { get; set; }
         [NotMapped]
@@ -72,7 +72,7 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public List<BusinessUnit> BusinessUnits { get; set; }
-                
+
         [NotMapped]
         public string ReporterName { get; set; }
 
@@ -81,13 +81,13 @@ namespace DF_EvolutionAPI.Models
 
 
         [NotMapped]
-        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }       
+        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
     }
 
     public class AssignedSpecialKRA
-    { 
+    {
         public int KRAId { get; set; }
         public string KraName { get; set; }
     }
-   
+
 }

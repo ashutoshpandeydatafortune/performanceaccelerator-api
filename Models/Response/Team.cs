@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace DF_EvolutionAPI.Models.Response
+﻿namespace DF_EvolutionAPI.Models.Response
 {
     public class Team
     {
-        public string EmailId { get; set; } 
+        public string EmailId { get; set; }
         public int ResourceId { get; set; }
         public int? ReportingTo { get; set; }
         public string EmployeeId { get; set; }
@@ -29,7 +27,7 @@ namespace DF_EvolutionAPI.Models.Response
         public double? AverageScoreCurrent { get; set; }
         public int PendingEvaluation { get; set; }
         public int? ReportingTo { get; set; }
-      
+
 
     }
     public class UserKRARatingLists
@@ -37,10 +35,10 @@ namespace DF_EvolutionAPI.Models.Response
     {
         // public int? QuarterYear { get; set; }
         public string QuarterYearRange { get; set; }
-       // public string? QuarterName { get; set; }  
+        // public string? QuarterName { get; set; }  
         public double Rating { get; set; }
         public double Score { get; set; }
-       
+
 
     }
 }

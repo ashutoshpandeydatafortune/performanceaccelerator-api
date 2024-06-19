@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using DF_EvolutionAPI.Models.Response;
+﻿using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRATemplate;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 
 namespace DF_EvolutionAPI.Controllers
@@ -13,7 +13,7 @@ namespace DF_EvolutionAPI.Controllers
     {
         private IKRATemplateService _kraTemplateService;
 
-        public KRATemplateController(IKRATemplateService kraTemplateService )
+        public KRATemplateController(IKRATemplateService kraTemplateService)
         {
             _kraTemplateService = kraTemplateService;
         }
@@ -25,18 +25,18 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[Action]")]
-        public async Task<IActionResult>CreateKraTemplate(PATemplate paTemplates)
+        public async Task<IActionResult> CreateKraTemplate(PATemplate paTemplates)
         {
             try
             {
                 var response = await _kraTemplateService.CreateKraTemplate(paTemplates);
                 return Ok(response);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
-        }      
+            }
+        }
 
         /// <summary>
         /// Update the Template fo KRAs.
@@ -52,10 +52,10 @@ namespace DF_EvolutionAPI.Controllers
                 var response = await _kraTemplateService.UpdateKraTemplate(paTemplates);
                 return Ok(response);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
+            }
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace DF_EvolutionAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }           
+            }
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace DF_EvolutionAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
+            }
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace DF_EvolutionAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }            
+            }
         }
 
         /// <summary>

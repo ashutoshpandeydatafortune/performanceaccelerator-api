@@ -1,8 +1,9 @@
 using DF_EvolutionAPI.Services;
 using DF_EvolutionAPI.Services.Designations;
+using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Services.History;
 using DF_EvolutionAPI.Services.KRA;
-using DF_EvolutionAPI.Services.Email;
+using DF_EvolutionAPI.Services.KRATemplate;
 using DF_EvolutionAPI.Services.Login;
 using DF_EvolutionAPI.Services.Submission;
 using DF_EvolutionAPI.Utils;
@@ -17,8 +18,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using DF_EvolutionAPI.Services.KRATemplate;
-using DF_EvolutionAPI.Models.Response;
 
 
 
@@ -83,8 +82,8 @@ namespace DF_EvolutionAPI
             services.AddScoped<IKRAWeightageService, KRAWeightageService>();
             services.AddScoped<IUserApprovalService, UserApprovalService>();
             services.AddScoped<ISubmissionStatusService, SubmissionStatusService>();
-            services.AddScoped<IAppraisalHistoryService, AppraisalHistoryService>();            
-            
+            services.AddScoped<IAppraisalHistoryService, AppraisalHistoryService>();
+
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IKRATemplateService, KRATemplateService>();
@@ -92,7 +91,7 @@ namespace DF_EvolutionAPI
             services.AddScoped<ISkillService, SkillService>();
             services.AddScoped<ISubSkillService, SubSkillService>();
             services.AddScoped<IResourceSkillService, ResourceSkillService>();
-            
+
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
@@ -179,7 +178,7 @@ namespace DF_EvolutionAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                    
+
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {

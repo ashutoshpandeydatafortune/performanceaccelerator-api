@@ -11,7 +11,7 @@ namespace DF_EvolutionAPI.Controllers
     public class SubSkillController : Controller
     {
 
-       private ISubSkillService _subSkillService;
+        private ISubSkillService _subSkillService;
 
         public SubSkillController(ISubSkillService subSkillService)
         {

@@ -16,7 +16,7 @@ namespace DF_EvolutionAPI.Services.History
         {
             _dbcontext = dbContext;
         }
-        
+
         public async Task<List<AppraisalHistory>> GetAllAppraisalHistoryList()
         {
             return await _dbcontext.AppraisalHistory.Where(c => c.IsActive == 1).ToListAsync();
@@ -56,7 +56,7 @@ namespace DF_EvolutionAPI.Services.History
                     appraisalHistory.UpdateDate = DateTime.Now;
 
                     _dbcontext.Update(appraisalHistory);
-                    
+
                     model.Messsage = "Appraisal History Update Successfully";
                 }
                 else
@@ -68,7 +68,7 @@ namespace DF_EvolutionAPI.Services.History
                     appraisalHistoryModel.UpdateDate = DateTime.Now;
 
                     _dbcontext.Add(appraisalHistoryModel);
-                    
+
                     model.Messsage = "Appraisal History Inserted Successfully";
                 }
 
@@ -99,7 +99,7 @@ namespace DF_EvolutionAPI.Services.History
 
                     _dbcontext.Update(appraisalHistory);
                     _dbcontext.SaveChanges();
-                    
+
                     model.IsSuccess = true;
                     model.Messsage = "User ApprovalDeleted Successfully";
                 }

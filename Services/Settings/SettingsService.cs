@@ -1,5 +1,6 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {

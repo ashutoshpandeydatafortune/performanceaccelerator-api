@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 {
-    public class BusinessUnit: BaseEntity_PRMS
+    public class BusinessUnit : BaseEntity_PRMS
     {
         public int BusinessUnitId { get; set; }
         public string BusinessUnitName { get; set; }

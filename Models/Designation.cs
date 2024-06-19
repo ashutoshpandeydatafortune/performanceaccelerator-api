@@ -1,12 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 {
-   
+
     public class Designation
-    {        
+    {
         [Key]
         public int DesignationId { get; set; }
         public int ReferenceId { get; set; }

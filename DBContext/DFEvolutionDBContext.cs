@@ -1,8 +1,8 @@
 using DF_EvolutionAPI.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI
 {
@@ -26,7 +26,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<UserApproval> UserApproval { get; set; }
         public virtual DbSet<BusinessUnit> BusinessUnits { get; set; }
         public virtual DbSet<KRAWeightage> KRAWeightages { get; set; }
-        public virtual DbSet<StatusLibrary> StatusLibrary { get;  set; }
+        public virtual DbSet<StatusLibrary> StatusLibrary { get; set; }
         public virtual DbSet<QuarterDetails> QuarterDetails { get; set; }
         public virtual DbSet<ProjectResource> ProjectResources { get; set; }
         public virtual DbSet<AppraisalHistory> AppraisalHistory { get; set; }
@@ -43,21 +43,21 @@ namespace DF_EvolutionAPI
         public virtual DbSet<Skill> Skills { get; set; }
         public virtual DbSet<SubSkill> SubSkills { get; set; }
         public virtual DbSet<ResourceSkill> ResourceSkills { get; set; }
-       
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<IdentityUser>(entity =>
             {
-                entity.ToTable("AspNetUsers","dbo");
+                entity.ToTable("AspNetUsers", "dbo");
                 entity.Property(e => e.Id).HasColumnName("Id");
             });
 
             modelBuilder.Entity<IdentityRole>(entity =>
             {
-                entity.ToTable("AspNetRoles","dbo");
+                entity.ToTable("AspNetRoles", "dbo");
                 entity.Property(e => e.Id).HasColumnName("Id");
             });
 
@@ -407,7 +407,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
-            
+
             modelBuilder.Entity<RoleMapping>(e =>
             {
                 e.ToTable("PA_RoleMappings", "dbo");
@@ -420,7 +420,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
-               
+
             });
 
             modelBuilder.Entity<Notification>(e =>
@@ -446,7 +446,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");                
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
 
             });
 
@@ -502,7 +502,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");  
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
 
             modelBuilder.Entity<ResourceSkill>(e =>

@@ -21,7 +21,7 @@ namespace DF_EvolutionAPI.Controllers
             _loginService = loginService;
             _configuration = configuration;
         }
-       
+
         [AllowAnonymous]
         [HttpPost("ExternalLogin")]
         public async Task<IActionResult> ExternalLogin(UserAuthModel uam)

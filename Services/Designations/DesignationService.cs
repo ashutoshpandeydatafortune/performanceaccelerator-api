@@ -1,10 +1,9 @@
 ﻿using DF_EvolutionAPI.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DF_EvolutionAPI.Services.Designations
 {
@@ -208,21 +207,21 @@ namespace DF_EvolutionAPI.Services.Designations
             {
                 try
                 {
-                    return await (  from designation in _dbcontext.Designations
-                                    join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
-                                    where resource.FunctionId == functionId && resource.IsActive == 1
-                                    group new { designation, resource } by new { designation.DesignationId, designation.ReferenceId, designation.DesignationName, designation.IsActive, designation.CreateBy, designation.UpdateBy, designation.CreateDate, designation.UpdateDate } into grouped
-                                    select new Designation
-                                    {
-                                        DesignationId = grouped.Key.DesignationId,
-                                        ReferenceId = grouped.Key.ReferenceId,
-                                        DesignationName = grouped.Key.DesignationName,
-                                        IsActive = grouped.Key.IsActive,
-                                        CreateBy = grouped.Key.CreateBy,
-                                        UpdateBy = grouped.Key.UpdateBy,
-                                        CreateDate = grouped.Key.CreateDate,
-                                        UpdateDate = grouped.Key.UpdateDate
-                                    }).ToListAsync();
+                    return await (from designation in _dbcontext.Designations
+                                  join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
+                                  where resource.FunctionId == functionId && resource.IsActive == 1
+                                  group new { designation, resource } by new { designation.DesignationId, designation.ReferenceId, designation.DesignationName, designation.IsActive, designation.CreateBy, designation.UpdateBy, designation.CreateDate, designation.UpdateDate } into grouped
+                                  select new Designation
+                                  {
+                                      DesignationId = grouped.Key.DesignationId,
+                                      ReferenceId = grouped.Key.ReferenceId,
+                                      DesignationName = grouped.Key.DesignationName,
+                                      IsActive = grouped.Key.IsActive,
+                                      CreateBy = grouped.Key.CreateBy,
+                                      UpdateBy = grouped.Key.UpdateBy,
+                                      CreateDate = grouped.Key.CreateDate,
+                                      UpdateDate = grouped.Key.UpdateDate
+                                  }).ToListAsync();
 
                 }
                 catch (Exception)

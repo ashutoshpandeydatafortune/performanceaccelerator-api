@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DF_EvolutionAPI.Models.Response
 {
@@ -12,7 +12,7 @@ namespace DF_EvolutionAPI.Models.Response
         public int TemplateKrasId { get; set; }
 
         [ForeignKey("PATemplate")]
-        public int TemplateId { get; set; }                
+        public int TemplateId { get; set; }
         public byte? IsActive { get; set; }
         public int CreateBy { get; set; }
         public int UpdateBy { get; set; }
@@ -32,7 +32,7 @@ namespace DF_EvolutionAPI.Models.Response
     {
         public int TemplateId { get; set; }
         public List<int> KraIds { get; set; }
-       
+
 
 
     }

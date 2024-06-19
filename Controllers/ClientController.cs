@@ -49,7 +49,7 @@ namespace DF_EvolutionAPI.Controllers
                 var client = await _clientService.GetClientByClientId(clientId);
 
                 if (client == null) return NotFound();
-                
+
                 return Ok(client);
             }
             catch (Exception ex)

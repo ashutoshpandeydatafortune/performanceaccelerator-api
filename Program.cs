@@ -1,12 +1,12 @@
-using System;
-using System.IO;
+using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Utils;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using DF_EvolutionAPI.Models.Response;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.IO;
 
 namespace DF_EvolutionAPI
 {
@@ -21,9 +21,9 @@ namespace DF_EvolutionAPI
 
 
         public static void Main(string[] args)
-        {           
+        {
             try
-            {          
+            {
 
                 var dotenv = Path.Combine(Directory.GetCurrentDirectory(), ".env");
                 DotEnv.Load(dotenv);
@@ -37,7 +37,7 @@ namespace DF_EvolutionAPI
 
                 CreateHostBuilder(args).Build().Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Application failed to start: " + ex.Message);
             }
@@ -49,6 +49,6 @@ namespace DF_EvolutionAPI
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-       
+
     }
 }

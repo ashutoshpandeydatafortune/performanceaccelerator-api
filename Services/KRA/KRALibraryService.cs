@@ -26,7 +26,7 @@ namespace DF_EvolutionAPI.Services.KRA
             }
             else
             {
-               return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1 && x.IsSpecial != 1).ToListAsync();
+                return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1 && x.IsSpecial != 1).ToListAsync();
             }
 
         }
@@ -43,7 +43,7 @@ namespace DF_EvolutionAPI.Services.KRA
             {
                 throw;
             }
-            
+
             return kralibrary;
         }
 
@@ -82,15 +82,15 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.Weightage = kraLibraryModel.Weightage;
 
                     _dbcontext.Update<KRALibrary>(kraLibrary);
-                    
+
                     model.Messsage = "KRA Library Update Successfully";
                 }
                 else
                 {
                     // Check if a KRALibrary record with the same name already exists
-                  
+
                     kraLibraryModel.DisplayName = kraLibraryModel.Name;
-                    kraLibraryModel.Description=kraLibraryModel.Description;
+                    kraLibraryModel.Description = kraLibraryModel.Description;
                     kraLibraryModel.Entity = 1;
                     kraLibraryModel.Entity2 = 1;
                     kraLibraryModel.ApprovedBy = 23;
@@ -102,15 +102,15 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.IsActive = 1;
                     kraLibraryModel.CreateBy = 1;
                     kraLibraryModel.CreateDate = DateTime.Now;
-                    
+
                     _dbcontext.Add(kraLibraryModel);
-                    
+
                     model.Messsage = "KRA Library Inserted Successfully";
                 }
-                 _dbcontext.SaveChanges();
+                _dbcontext.SaveChanges();
 
                 model.Id = kraLibraryModel.Id;
-                model.IsSuccess = true;               
+                model.IsSuccess = true;
             }
             catch (Exception ex)
             {
@@ -223,9 +223,9 @@ namespace DF_EvolutionAPI.Services.KRA
 
                 model.IsSuccess = false;
 
-                if (kraDetails == null ||  kraDetails.Count == 0)
+                if (kraDetails == null || kraDetails.Count == 0)
                 {
-                    model.Messsage = "KRA Details With " + weightageId + " Does Not Exist";  
+                    model.Messsage = "KRA Details With " + weightageId + " Does Not Exist";
                     return kraDetails;
                 }
 

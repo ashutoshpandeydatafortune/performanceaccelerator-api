@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
 
 namespace DF_EvolutionAPI.Models.Response
 {
@@ -15,14 +14,14 @@ namespace DF_EvolutionAPI.Models.Response
         public string ResourceName { get; set; }
         public bool IsEmailConfirmed { get; set; }
         public string DesignationName { get; set; }
-        
+
         public string Token { get; set; }
-       // public IdentityRole Role { get; set; }
+        // public IdentityRole Role { get; set; }
         public List<Role> Roles { get; set; }
         public DateTime Expiration { get; set; }
 
         public TechFunction ResourceFunction { get; set; }
-        
+
 
     }
 }

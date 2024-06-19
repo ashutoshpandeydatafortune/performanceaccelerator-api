@@ -4,6 +4,6 @@
     {
         public string FunctionName { get; set; }
         public int? FunctionId { get; set; }
-        public byte IsActive { get; set; }      
+        public byte IsActive { get; set; }
     }
 }

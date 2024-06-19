@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DF_EvolutionAPI.Models;
-using System.Linq;
+﻿using DF_EvolutionAPI.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -33,7 +33,7 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
-            
+
             return resourceFunction;
         }
     }

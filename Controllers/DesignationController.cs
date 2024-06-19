@@ -1,7 +1,6 @@
 ﻿using DF_EvolutionAPI.Services.Designations;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
@@ -30,7 +29,7 @@ namespace DF_EvolutionAPI.Controllers
                 var designation = await _designationService.GetDesignationDetailsByDesignationName(designationName);
 
                 if (designation == null) return NotFound();
-                
+
                 return Ok(designation);
             }
             catch (Exception ex)

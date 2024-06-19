@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
+﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services.KRA;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using DF_EvolutionAPI.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -185,7 +184,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = _userKRAService.GetUserKraGraph(userId, quarterYearRange); 
+                var model = _userKRAService.GetUserKraGraph(userId, quarterYearRange);
                 return Ok(model);
             }
 
@@ -206,7 +205,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = await _userKRAService.AssignUnassignKra(userKraId,IsActive);
+                var model = await _userKRAService.AssignUnassignKra(userKraId, IsActive);
                 return Ok(model);
             }
             catch (Exception ex)

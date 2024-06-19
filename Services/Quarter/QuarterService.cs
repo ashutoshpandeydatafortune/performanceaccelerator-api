@@ -32,12 +32,12 @@ namespace DF_EvolutionAPI.Services
         public async Task<QuarterDetails> GetQuarterDetailsById(int quarterId)
         {
             QuarterDetails quarterdetails;
-            
+
             try
             {
                 quarterdetails = await _dbcontext.FindAsync<QuarterDetails>(quarterId);
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
             }
@@ -63,9 +63,9 @@ namespace DF_EvolutionAPI.Services
                     quarterDetails.IsActive = 1;
                     quarterDetails.UpdateBy = 1;
                     quarterDetails.UpdateDate = DateTime.Now;
-                    
+
                     _dbcontext.Update(quarterDetails);
-                    
+
                     model.Messsage = "Quarter Details Updated Successfully";
                 }
                 else
@@ -75,16 +75,16 @@ namespace DF_EvolutionAPI.Services
                     quarterModel.UpdateBy = 1;
                     quarterModel.CreateDate = DateTime.Now;
                     quarterModel.UpdateDate = DateTime.Now;
-                    
-                   
-                    
+
+
+
                     _dbcontext.Add(quarterModel);
-                    
+
                     model.Messsage = "Quarter Details Inserted Successfully";
                 }
 
                 _dbcontext.SaveChanges();
-                
+
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -177,7 +177,7 @@ namespace DF_EvolutionAPI.Services
                     select s).First();
 
                 model.IsSuccess = true;
-            
+
                 if (status == null)
                 {
                     model.Messsage = "Status Not Found";
