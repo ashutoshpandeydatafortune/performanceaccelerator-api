@@ -177,7 +177,9 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
+                    //where resource.IsActive == 1 && resource.StatusId == 8    // Alllowing all active resources.
                     where resource.IsActive == 1
+
                     select new Team
                     {
                         EmailId = resource.EmailId,
@@ -271,10 +273,8 @@ namespace DF_EvolutionAPI.Services
                 ).ToListAsync();
 
             var currentUser = resources.Where(r => r.ReportingTo == userId);
-            //var someUser = _dbcontext.Resources.Where(r => r.ResourceId == userId).FirstOrDefault();
             var result = _dbcontext.Resources.Where(r => r.ResourceId == userId);
-            //var someUser = (int)result != null ? result : 0;
-
+           
             var currentQuarter = await _dbcontext.QuarterDetails.FirstOrDefaultAsync(quarter => quarter.Id == 1);
             foreach (var resource in currentUser)
             {
@@ -282,9 +282,9 @@ namespace DF_EvolutionAPI.Services
                 resource.AverageScoreYear = userKraScoreYear.Select(r => r.Rating).FirstOrDefault();
                 var userKraScoreCurrent = GetUserKraScoreCurrent(resource.ResourceId, currentQuarter.Id, currentQuarter.QuarterYearRange);
                 resource.AverageScoreCurrent = userKraScoreCurrent.Select(r => r.Rating).FirstOrDefault();
-                resource.PendingEvaluation = GetNotApprovedKras((int)resource.ResourceId, currentQuarter.Id);
+                resource.PendingEvaluation = GetNotApprovedKras((int)resource.ResourceId);
+               
             }
-
             var tree = currentUser.Select(resource => new
             {
                 Resource = resource,
@@ -294,8 +294,12 @@ namespace DF_EvolutionAPI.Services
             return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
-        //Getting count fo not approved kras.
-        public int GetNotApprovedKras(int userId, int quarterId)
+        /// <summary>
+        /// Gets the count of not approved KRAs for a specified user.
+        /// </summary>
+        /// <param name="userId">The ID of the user for whom to count not approved KRAs.</param>
+        /// <returns>The count of not approved KRAs.</returns>
+        public int GetNotApprovedKras(int userId)
         {
             var count = (
                 from resource in _dbcontext.Resources
@@ -303,7 +307,7 @@ namespace DF_EvolutionAPI.Services
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.QuarterId == quarterId && userKras.ManagerRating == null && userKras.IsActive == 1
+                where userKras.UserId == userId && userKras.FinalRating == null && userKras.IsActive == 1
                 && userKras.DeveloperRating != null 
                 select resource
             ).Count();
