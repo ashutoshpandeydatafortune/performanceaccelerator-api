@@ -304,7 +304,7 @@ namespace DF_EvolutionAPI.Services
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.FinalRating == null && userKras.IsActive == 1
+                where userKras.UserId == userId && userKras.ManagerRating == null && userKras.IsActive == 1
                 && userKras.DeveloperRating != null
                 select resource
             ).Count();
@@ -358,7 +358,7 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-        //Displaying rating od current for quarter 'Jan-Mar'.
+        //Displaying rating od current for quarter 'Jan-Mar'. 
         public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter, string quarterRange)
         {
             try
