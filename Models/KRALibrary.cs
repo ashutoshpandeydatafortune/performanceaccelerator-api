@@ -24,5 +24,9 @@ namespace DF_EvolutionAPI.Models
         public int? IsActive { get; set; }
         public int? IsDeleted { get; set; }
         public int Weightage { get; set; }
+        public bool? IsDescriptionRequired { get; set; }
+        public int? MinimumRatingForDescription { get; set; }
+
+
     }
 }
