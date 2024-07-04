@@ -349,7 +349,8 @@ namespace DF_EvolutionAPI.Services
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
                         
-                       if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
+                       //if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
+                       if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
                         }
@@ -640,11 +641,13 @@ namespace DF_EvolutionAPI.Services
                         Weightage = kraLibrary.Weightage,
                         WeightageId = kraLibrary.WeightageId,
                         KRADisplayName = kraLibrary.DisplayName,
+                        IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                        MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,                        
 
                         QuarterName = quarter.QuarterName,
                         QuarterYear = quarter.QuarterYear,
                         IsActive = userKra.IsActive
-
+                        
                         //StatusName = S.StatusName,
                         //Reason = c.Reason
                     }).ToList();
