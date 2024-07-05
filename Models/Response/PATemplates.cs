@@ -18,9 +18,16 @@ namespace DF_EvolutionAPI.Models.Response
         public int UpdateBy { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; } // Nullable DateTime for UpdateDate
-        public int FunctionId { get; set; }
+        //For adding function name
+        public int? FunctionId { get; set; }
+        [NotMapped]
+        public string FunctionName { get; set; }
+
+        
 
         public  List<PATemplateKra> AssignedKras { get; set; }
-        public List<PATemplateDesignation> AssignedDesignations { get; set; }    
+        public List<PATemplateDesignation> AssignedDesignations { get; set; }
+
+       
     }
 }
