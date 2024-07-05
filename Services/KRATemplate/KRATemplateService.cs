@@ -76,6 +76,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         updatetemplate.IsActive = 1;
                         paTemplates.UpdateBy = 1;
                         paTemplates.UpdateDate = DateTime.Now;
+                        updatetemplate.FunctionId = paTemplates.FunctionId;
 
                         await _dbContext.SaveChangesAsync();
                         model.IsSuccess = true;

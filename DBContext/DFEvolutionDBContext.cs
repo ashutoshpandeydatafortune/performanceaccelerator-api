@@ -448,7 +448,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");                
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.FunctionId).HasColumnName("FunctionId");
+                
 
             });
 
