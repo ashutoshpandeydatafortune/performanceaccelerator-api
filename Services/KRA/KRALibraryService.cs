@@ -53,7 +53,10 @@ namespace DF_EvolutionAPI.Services.KRA
 
             try
             {
-                var existingKraLibrary = await _dbcontext.KRALibrary.Where(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage && x.IsActive == 1).FirstOrDefaultAsync();
+                var existingKraLibrary = await _dbcontext.KRALibrary.Where(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage &&
+                x.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
+                x.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
+                x.Description == kraLibraryModel.Description && x.IsActive == 1).FirstOrDefaultAsync();
                 if (existingKraLibrary != null)
                 {
                     model.IsSuccess = false;
@@ -80,6 +83,9 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.UpdateBy = 1;
                     kraLibrary.UpdateDate = DateTime.Now;
                     kraLibrary.Weightage = kraLibraryModel.Weightage;
+                    kraLibrary.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
+                    kraLibrary.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
+
 
                     _dbcontext.Update<KRALibrary>(kraLibrary);
                     
@@ -102,7 +108,10 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.IsActive = 1;
                     kraLibraryModel.CreateBy = 1;
                     kraLibraryModel.CreateDate = DateTime.Now;
-                    
+                    kraLibraryModel.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
+                    kraLibraryModel.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
+
+
                     _dbcontext.Add(kraLibraryModel);
                     
                     model.Messsage = "KRA Library Inserted Successfully";
@@ -218,6 +227,8 @@ namespace DF_EvolutionAPI.Services.KRA
                         CreateDate = kd.CreateDate,
                         UpdateDate = kd.UpdateDate,
                         Weightage = kd.Weightage,
+                        IsDescriptionRequired = kd.IsDescriptionRequired,
+                        MinimumRatingForDescription = kd.MinimumRatingForDescription,
 
                     }).ToListAsync();
 

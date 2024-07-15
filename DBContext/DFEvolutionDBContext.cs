@@ -352,6 +352,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.IsDescriptionRequired).HasColumnName("IsDescriptionRequired");
+                e.Property(e => e.MinimumRatingForDescription).HasColumnName("MinimumRatingForDescription");
             });
 
             modelBuilder.Entity<Role>(e =>
@@ -446,7 +448,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");                
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.FunctionId).HasColumnName("FunctionId");
+                
 
             });
 

@@ -60,7 +60,8 @@ namespace DF_EvolutionAPI.Models
         public int? WeightageId { get; set; }
         public int? Weightage { get; set; }
         public int? IsSpecial { get; set; }
-     //   public int? TotalWeightage { get; set; } 
+        public bool? IsDescriptionRequired { get; set; }
+        public int? MinimumRatingForDescription { get; set; }
         public double TotalScore { get; set; }
 
         public class UserKRADetailsWithScore
