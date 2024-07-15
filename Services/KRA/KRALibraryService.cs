@@ -53,7 +53,10 @@ namespace DF_EvolutionAPI.Services.KRA
 
             try
             {
-                var existingKraLibrary = await _dbcontext.KRALibrary.Where(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage && x.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired && x.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription && x.IsActive == 1).FirstOrDefaultAsync();
+                var existingKraLibrary = await _dbcontext.KRALibrary.Where(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage &&
+                x.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
+                x.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
+                x.Description == kraLibraryModel.Description && x.IsActive == 1).FirstOrDefaultAsync();
                 if (existingKraLibrary != null)
                 {
                     model.IsSuccess = false;
