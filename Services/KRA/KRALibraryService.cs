@@ -68,7 +68,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 if (kraLibrary != null)
                 {
                     kraLibrary.Name = kraLibraryModel.Name;
-                    kraLibrary.DisplayName = kraLibraryModel.DisplayName;
+                    //kraLibrary.DisplayName = kraLibraryModel.DisplayName;
+                    kraLibrary.DisplayName = kraLibraryModel.Name;
                     kraLibrary.Description = kraLibraryModel.Description;
                     kraLibrary.Entity = kraLibraryModel.Entity;
                     kraLibrary.Entity2 = kraLibraryModel.Entity2;
