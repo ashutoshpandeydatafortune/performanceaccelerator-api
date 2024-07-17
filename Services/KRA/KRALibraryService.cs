@@ -67,8 +67,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
                 {
-                    kraLibrary.Name = kraLibraryModel.Name;
-                    kraLibrary.DisplayName = kraLibraryModel.DisplayName;
+                    kraLibrary.Name = kraLibraryModel.Name;                    
+                    kraLibrary.DisplayName = kraLibraryModel.Name;
                     kraLibrary.Description = kraLibraryModel.Description;
                     kraLibrary.Entity = kraLibraryModel.Entity;
                     kraLibrary.Entity2 = kraLibraryModel.Entity2;
