@@ -94,7 +94,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 else
                 {
                     // Check if a KRALibrary record with the same name already exists
-                  
+
+                    kraLibraryModel.Name = kraLibraryModel.Name;
                     kraLibraryModel.DisplayName = kraLibraryModel.Name;
                     kraLibraryModel.Description=kraLibraryModel.Description;
                     kraLibraryModel.Entity = 1;
