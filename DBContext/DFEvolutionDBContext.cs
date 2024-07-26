@@ -493,6 +493,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+              
             });
 
             modelBuilder.Entity<SubSkill>(e =>
@@ -506,7 +507,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");  
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+             
             });
 
             modelBuilder.Entity<ResourceSkill>(e =>
@@ -522,6 +524,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.SkillExperience).HasColumnName("SkillExperience");
+                e.Property(e => e.SubSkillExperience).HasColumnName("SubSkillExperience");
             });
 
 
