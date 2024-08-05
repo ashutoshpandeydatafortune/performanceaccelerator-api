@@ -81,7 +81,8 @@ namespace DF_EvolutionAPI.Models
 
 
         [NotMapped]
-        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }       
+        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
+        
     }
 
     public class AssignedSpecialKRA
@@ -90,4 +91,5 @@ namespace DF_EvolutionAPI.Models
         public string KraName { get; set; }
     }
    
+    
 }

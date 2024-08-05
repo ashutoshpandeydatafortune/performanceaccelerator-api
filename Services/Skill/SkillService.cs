@@ -157,7 +157,45 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-       
+
+//        public async Task<List<Resource>> SearchBySkills(SearchSkill skillModel)
+//        {
+//            var query = _dbContext.Resources.AsQueryable();
+
+//            if (!string.IsNullOrEmpty(skillModel.SearchKey))
+//            {
+//                // Join with ResourceSkills, Skills, and SubSkills to filter by SearchKey
+//                query = from r in _dbContext.Resources
+//                        join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
+//                        join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
+//                        join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
+//                        where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
+//                        group r by r.ResourceId into groupedResources
+//                        select groupedResources.FirstOrDefault();
+
+//            }
+//            else
+//            {
+//                if (skillModel.SkillId != null && skillModel.SkillId.Count > 0)
+//                {
+//                    query = query.Where(r => r.ResourceSkills.Any(rs => skillModel.SkillIds.Contains(rs.SkillId.Value)));
+//                }
+
+//                if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
+//                {
+//                    query = query.Where(resource =>
+//                    resource.ResourceSkills.Any(resourceSkill =>
+//                      skillModel.SubSkillIds.Contains(resourceSkill.SubSkillId.Value) // Check if the SubSkillId matches
+//    )
+//);
+//                }
+//            }
+
+//            return await query.ToListAsync();
+//        }
+
+
+
         public async Task<List<Resource>> SearchBySkills(SearchSkill skillModel)
         {
             var query = _dbContext.Resources.AsQueryable();
@@ -165,33 +203,42 @@ namespace DF_EvolutionAPI.Services
             if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
                 // Join with ResourceSkills, Skills, and SubSkills to filter by SearchKey
-               query = from r in _dbContext.Resources
-                join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
-                join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
-                join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
-                where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
-                group r by r.ResourceId into groupedResources
-                select groupedResources.FirstOrDefault();
+                query = from r in _dbContext.Resources
+                        join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
+                        join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
+                        join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
+                        where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
+                        group r by r.ResourceId into groupedResources
+                        select groupedResources.FirstOrDefault();
 
             }
             else
             {
-                if (skillModel.SkillIds != null && skillModel.SkillIds.Count > 0)
+                if ( skillModel.SkillId != 0)
                 {
-                    query = query.Where(r => r.ResourceSkills.Any(rs => skillModel.SkillIds.Contains(rs.SkillId.Value)));
+                    query = query.Where(r => r.ResourceSkills.Any(rs => skillModel.SkillId == rs.SkillId.Value));
                 }
 
-                if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
+                if (skillModel.SubSkillId != 0)
                 {
                     query = query.Where(resource =>
                     resource.ResourceSkills.Any(resourceSkill =>
-                      skillModel.SubSkillIds.Contains(resourceSkill.SubSkillId.Value) // Check if the SubSkillId matches
-    )
-);
+                      skillModel.SubSkillId == resourceSkill.SubSkillId.Value));// Check if the SubSkillId matches
+
+
                 }
             }
 
+            //var result = await query
+            //    .Select(r => new Resource
+            //{
+            //    ResourceId = r.ResourceId,
+            //    ResourceSkills = resourceSkill.SubSkillId.Value,
+            //}).ToListAsync();
+
             return await query.ToListAsync();
         }
+
     }
-}
+}    
+
