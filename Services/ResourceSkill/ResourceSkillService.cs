@@ -20,79 +20,7 @@ namespace DF_EvolutionAPI.Services
             _dbContext = dbContext;
         }
 
-        //public async Task<ResponseModel> CreateResourceSkill(ResourceSkillRequestModel resourceSkillModel)
-        //{
-        //    ResponseModel model = new ResponseModel();
-        //    try
-        //    {
-
-        //        var requestSkillId = _dbContext.Skills.Where(name => name.Name == resourceSkillModel.SkillName)
-        //            .Select(name => name.SkillId)
-        //            .FirstOrDefault();
-
-        //        List<int?> requestSubSkillIds = new List<int?>();
-
-        //        foreach (var subSkillModel in resourceSkillModel.SubSkills)
-        //        {
-        //            var subSkillId = _dbContext.SubSkills
-        //                .Where(subSkill => subSkill.Name == subSkillModel.SubSkillName)
-        //                .Select(subSkill => subSkill.SubSkillId)
-        //                .FirstOrDefault();
-
-        //            requestSubSkillIds.Add(subSkillId);
-        //        }
-        //        //Check if the resource skill already exists
-        //        var resourceSkill = _dbContext.ResourceSkills.FirstOrDefault(rs => rs.SkillId == requestSkillId && rs.ResourceId == (double)resourceSkillModel.ResourceId  && rs.IsActive == 1);
-        //        if (resourceSkill == null)
-        //        {
-        //            // Create a new resource skill if it doesn't exist
-        //            resourceSkill = new ResourceSkill
-        //            {
-        //                SkillId = requestSkillId,
-        //                ResourceId = resourceSkillModel.ResourceId,
-        //                Experience = resourceSkillModel.Experience,
-        //                IsActive = 1,
-        //                CreateBy = resourceSkillModel.CreateBy,
-        //                CreateDate = DateTime.Now
-        //            };
-
-        //            _dbContext.ResourceSkills.Add(resourceSkill);
-        //        }
-        //        _dbContext.ResourceSkills.RemoveRange(_dbContext.ResourceSkills.Where(rs => rs.ResourceSkillId == resourceSkill.ResourceSkillId));
-        //        _dbContext.ResourceSkills.Remove(resourceSkill);
-        //        foreach (var subSkillModel in requestSubSkillIds)
-        //        {
-        //            var subSkill = await _dbContext.SubSkills.FindAsync(subSkillModel);
-        //            if (subSkill != null)
-        //            {
-        //                ResourceSkill skill = new ResourceSkill
-        //                {
-        //                    SkillId = requestSkillId,
-        //                    SubSkillId = subSkill.SubSkillId,
-        //                    ResourceId = resourceSkill.ResourceId,
-        //                    Experience = resourceSkillModel.Experience,
-        //                    IsActive = 1,
-        //                    CreateBy = resourceSkill.CreateBy,
-        //                    CreateDate = DateTime.Now
-        //                };
-        //                _dbContext.ResourceSkills.Add(skill);
-        //            }
-        //        }
-
-        //        await _dbContext.SaveChangesAsync();
-
-        //        model.IsSuccess = true;
-        //        model.Messsage = "Resource skill and subskills saved successfully.";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        model.IsSuccess = false;
-        //        model.Messsage = "Error: " + ex.Message;
-        //    }
-        //    return model;
-        //}
-
-        public async Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
+      public async Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             ResponseModel model = new ResponseModel();
             try
@@ -120,10 +48,12 @@ namespace DF_EvolutionAPI.Services
                             SkillId = skill.SkillId,
                             SubSkillId = null, // Assuming SubSkillId can be nullable, set to default/null
                             ResourceId = resourceId,
-                            Experience = resourceSkillRequestModel.Experience,
+                            SkillExperience = skill.SkillExperience,
+                            SubSkillExperience = null,
                             IsActive = resourceSkillRequestModel.IsActive,
                             CreateBy = resourceSkillRequestModel.CreateBy,
                             CreateDate = DateTime.Now
+
                         };
                         _dbContext.ResourceSkills.Add(newResourceSkill);
                     }
@@ -136,7 +66,8 @@ namespace DF_EvolutionAPI.Services
                                 SkillId = skill.SkillId,
                                 SubSkillId = subSkill.SubSkillId,
                                 ResourceId = resourceId,
-                                Experience = resourceSkillRequestModel.Experience,
+                                SkillExperience = skill.SkillExperience,
+                                SubSkillExperience = subSkill.SubSkillExperience,
                                 IsActive = resourceSkillRequestModel.IsActive,
                                 CreateBy = resourceSkillRequestModel.CreateBy,
                                 CreateDate = DateTime.Now
@@ -159,75 +90,7 @@ namespace DF_EvolutionAPI.Services
             }
             return model;
         }
-
-
-        //public async Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
-        //{
-        //    ResponseModel model = new ResponseModel();
-        //    try
-        //    {
-        //        var requestSkillId = _dbContext.Skills.Where(name => name.Name == resourceSkillRequestModel.SkillName)
-        //            .Select(name => name.SkillId)
-        //            .FirstOrDefault();
-
-        //        List<int?> requestSubSkillIds = new List<int?>();
-
-        //        foreach (var subSkillModel in resourceSkillRequestModel.SubSkills)
-        //        {
-        //            var subSkillId = _dbContext.SubSkills
-        //                .Where(subSkill => subSkill.Name == subSkillModel.SubSkillName)
-        //                .Select(subSkill => subSkill.SubSkillId)
-        //                .FirstOrDefault();
-
-        //            requestSubSkillIds.Add(subSkillId);
-        //        }
-
-
-        //        var existingResourceSkills = _dbContext.ResourceSkills
-        //            .Where(rs => rs.ResourceId == (double)resourceSkillRequestModel.ResourceId &&
-        //                         rs.SkillId == requestSkillId &&
-        //                         rs.IsActive == 1)
-        //            .ToList();
-
-        //        foreach (var existingResourceSkill in existingResourceSkills)
-        //        {
-        //            _dbContext.ResourceSkills.RemoveRange(existingResourceSkill);
-
-        //        }
-
-        //        // Add each subskill to the resource skill
-        //        foreach (var subSkillModel in requestSubSkillIds)
-        //        {
-        //            var subSkill = await _dbContext.SubSkills.FindAsync(subSkillModel);
-        //            if (subSkill != null)
-        //            {
-        //                ResourceSkill skill = new ResourceSkill
-        //                {
-        //                    SkillId = requestSkillId,
-        //                    SubSkillId = subSkill.SubSkillId,
-        //                    ResourceId = resourceSkillRequestModel.ResourceId,
-        //                    Experience = resourceSkillRequestModel.Experience,
-        //                    IsActive = 1,
-        //                    CreateBy = resourceSkillRequestModel.CreateBy,
-        //                    CreateDate = DateTime.Now
-        //                };
-        //                _dbContext.ResourceSkills.Add(skill);
-        //            }
-        //        }
-
-        //        await _dbContext.SaveChangesAsync();
-
-        //        model.IsSuccess = true;
-        //        model.Messsage = "Resource skill and subskills saved successfully.";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        model.IsSuccess = false;
-        //        model.Messsage = "Error: " + ex.Message;
-        //    }
-        //    return model;
-        //}
-
+               
         public async Task<List<FetchResourceSkill>> GetAllResourceSkills()
         {
             var result = await (
@@ -310,10 +173,14 @@ namespace DF_EvolutionAPI.Services
                 {
                     r.ResourceId,
                     r.ResourceName,
+                    rs.SkillExperience,
+                    rs.SubSkillExperience,
                     NewSkillId = (int?)skill.SkillId,
                     SkillName = skill.Name,
                     NewSubSkillId = (int?)subSkill.SubSkillId,
-                    SubSkillName = subSkill.Name
+                    SubSkillName = subSkill.Name,
+                    
+
                 }
             ).ToListAsync();
 
@@ -339,14 +206,17 @@ namespace DF_EvolutionAPI.Services
                         {
                             SkillId = r.NewSkillId,
                             SubSkillId = r.NewSubSkillId,
-                            SubSkillName = r.SubSkillName
+                            SubSkillName = r.SubSkillName,
+                            SubSkillExperience = r.SubSkillExperience
+                            
                         }).ToList();
 
                     var skillModel = new SkillModel
                     {
                         SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
                         SkillName = skillGroup.First().SkillName,
-                        SubSkills = subSkill
+                        SubSkills = subSkill,
+                       SkillExperience = skillGroup.First().SkillExperience
                     };
 
                     skill.Add(skillModel);
