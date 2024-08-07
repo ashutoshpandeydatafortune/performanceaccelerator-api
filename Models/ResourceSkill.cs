@@ -21,10 +21,6 @@ namespace DF_EvolutionAPI.Models
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
-        public Skill Skill { get; set; }
-
-        public SubSkill SubSkill { get; set; }
-
     }
 
     public class ResourceSkillRequestModel
