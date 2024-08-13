@@ -55,7 +55,6 @@ namespace DF_PA_API.Services
             ResponseModel model = new ResponseModel();
             try
             {
-
                 var category = _dbContext.Categories.FirstOrDefault(category => category.CategoryName == categoryModel.CategoryName && category.Description == categoryModel.Description && category.IsActive == 1);
                 if (category != null)
                 {
@@ -65,6 +64,7 @@ namespace DF_PA_API.Services
                 }
                 else
                 {
+
                     Category updateCategory = _dbContext.Categories.Find(categoryModel.CategoryId);
                     if (updateCategory != null)
                     {
@@ -129,6 +129,5 @@ namespace DF_PA_API.Services
             }
             return model;
         }
-
     }
 }
