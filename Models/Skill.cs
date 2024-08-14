@@ -15,8 +15,9 @@ namespace DF_EvolutionAPI.Models
         public int? UpdateBy { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-        public ICollection<SubSkill> SubSkills { get; set; }
-        public ICollection<ResourceSkill> ResourceSkills { get; set; }
+        public int? CategoryId { get; set; }
+        [NotMapped]
+        public string CategoryName { get; set; }
 
     }
 
@@ -25,6 +26,8 @@ namespace DF_EvolutionAPI.Models
         public int SkillId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public int? CategoryId { get; set; }
+        public string CategoryName { get; set; }
         public List<SubSkill> subSkills { get; set; }
     }
 }

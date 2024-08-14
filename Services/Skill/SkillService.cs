@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using Azure;
 using DF_EvolutionAPI.ViewModels;
-using DF_EvolutionAPI.Models;
+
 namespace DF_EvolutionAPI.Services
 
 {
@@ -56,8 +56,8 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-
-                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.Description == skillModel.Description && skill.IsActive == 1);
+                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.Description == skillModel.Description
+                 && skill.CategoryId == skillModel.CategoryId && skill.IsActive == 1);
                 if (skill != null)
                 {
                     model.IsSuccess = false;
@@ -74,6 +74,7 @@ namespace DF_EvolutionAPI.Services
                         updateSkill.IsActive = 1;
                         updateSkill.UpdateBy = skillModel.UpdateBy;
                         updateSkill.UpdateDate = DateTime.Now;
+                        updateSkill.CategoryId = skillModel.CategoryId;
 
                         _dbContext.Update(updateSkill);
                         _dbContext.SaveChanges();
@@ -99,13 +100,35 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<Skill>> GetAllSkills()
         {
-            return await _dbContext.Skills.Where(skill => skill.IsActive == 1).ToListAsync();
+
+            var query = from skills in _dbContext.Skills
+                        join category in _dbContext.Categories
+                        on skills.CategoryId equals category.CategoryId
+                        where skills.IsActive == 1
+                        orderby skills.SkillId
+                        select new Skill
+                        {
+                            SkillId = skills.SkillId,
+                            Name = skills.Name,
+                            Description = skills.Description,
+                            IsActive = skills.IsActive,
+                            CreateBy = skills.CreateBy,
+                            UpdateBy = skills.UpdateBy,
+                            CreateDate = skills.CreateDate,
+                            UpdateDate = skills.UpdateDate,
+                            CategoryId = category.CategoryId,
+                            CategoryName = category.CategoryName
+                        };
+
+            return await query.ToListAsync();
+
         }
 
         public async Task<SkillDetails> GetSkillById(int id)
         {
             var result = await (
                 from skill in _dbContext.Skills
+                join category in _dbContext.Categories on skill.CategoryId equals category.CategoryId
                 join subskill in _dbContext.SubSkills.Where(s => s.IsActive == 1)
                 on skill.SkillId equals subskill.SkillId into subSkillsGroup
                 from subskill in subSkillsGroup.DefaultIfEmpty()
@@ -115,6 +138,8 @@ namespace DF_EvolutionAPI.Services
                     SkillId = skill.SkillId,
                     Name = skill.Name,
                     Description = skill.Description,
+                    CategoryId = skill.CategoryId,
+                    CategoryName = category.CategoryName,
                     subSkills = _dbContext.SubSkills.Where(skill => skill.IsActive == 1 && skill.SkillId == id).Select(sub => new SubSkill // Create an instance of SubSkill for each related subskill
                     {
                         SkillId = sub.SkillId,
