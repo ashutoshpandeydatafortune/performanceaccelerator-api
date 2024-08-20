@@ -18,6 +18,7 @@ namespace DF_EvolutionAPI.Models
         public int? CategoryId { get; set; }
         [NotMapped]
         public string CategoryName { get; set; }
+        public List<SubSkill> SubSkills { get; set; }
 
     }
 

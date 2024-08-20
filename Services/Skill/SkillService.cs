@@ -98,31 +98,105 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
+        //public async Task<List<Skill>> GetAllSkills()
+        //{
+
+        //    var query = from skills in _dbContext.Skills
+        //                join category in _dbContext.Categories
+        //                on skills.CategoryId equals category.CategoryId
+        //                where skills.IsActive == 1
+        //                orderby skills.SkillId
+        //                select new Skill
+        //                {
+        //                    SkillId = skills.SkillId,
+        //                    Name = skills.Name,
+        //                    Description = skills.Description,
+        //                    IsActive = skills.IsActive,
+        //                    CreateBy = skills.CreateBy,
+        //                    UpdateBy = skills.UpdateBy,
+        //                    CreateDate = skills.CreateDate,
+        //                    UpdateDate = skills.UpdateDate,
+        //                    CategoryId = category.CategoryId,
+        //                    CategoryName = category.CategoryName
+        //                };
+
+        //    return await query.ToListAsync();
+
+        //}
+
         public async Task<List<Skill>> GetAllSkills()
         {
+            var skills = await (from skill in _dbContext.Skills
+                                join category in _dbContext.Categories
+                                on skill.CategoryId equals category.CategoryId
+                                where skill.IsActive == 1
+                                orderby skill.SkillId
+                                select new Skill
+                                {
+                                    SkillId = skill.SkillId,
+                                    Name = skill.Name,
+                                    Description = skill.Description,
+                                    IsActive = skill.IsActive,
+                                    CreateBy = skill.CreateBy,
+                                    UpdateBy = skill.UpdateBy,
+                                    CreateDate = skill.CreateDate,
+                                    UpdateDate = skill.UpdateDate,
+                                    CategoryId = skill.CategoryId,
+                                    CategoryName = category.CategoryName,
+                                    SubSkills = skill.SubSkills.Where(sub => sub.IsActive == 1).ToList()
+                                }).ToListAsync();
 
-            var query = from skills in _dbContext.Skills
-                        join category in _dbContext.Categories
-                        on skills.CategoryId equals category.CategoryId
-                        where skills.IsActive == 1
-                        orderby skills.SkillId
-                        select new Skill
-                        {
-                            SkillId = skills.SkillId,
-                            Name = skills.Name,
-                            Description = skills.Description,
-                            IsActive = skills.IsActive,
-                            CreateBy = skills.CreateBy,
-                            UpdateBy = skills.UpdateBy,
-                            CreateDate = skills.CreateDate,
-                            UpdateDate = skills.UpdateDate,
-                            CategoryId = category.CategoryId,
-                            CategoryName = category.CategoryName
-                        };
-
-            return await query.ToListAsync();
-
+            return skills;
         }
+
+
+
+        //public async Task<List<Skill>> GetAllSkills()
+        //{
+        //    // Fetch skills along with their category details
+        //    var skills = await (from skill in _dbContext.Skills
+        //                        join category in _dbContext.Categories
+        //                        on skill.CategoryId equals category.CategoryId
+        //                        where skill.IsActive == 1
+        //                        orderby skill.SkillId
+        //                        select new
+        //                        {
+        //                            SkillId = skill.SkillId,
+        //                            Name = skill.Name,
+        //                            Description = skill.Description,
+        //                            IsActive = skill.IsActive,
+        //                            CreateBy = skill.CreateBy,
+        //                            UpdateBy = skill.UpdateBy,
+        //                            CreateDate = skill.CreateDate,
+        //                            UpdateDate = skill.UpdateDate,
+        //                            CategoryId = category.CategoryId,
+        //                            CategoryName = category.CategoryName
+        //                        }).ToListAsync();
+
+        //    // Fetch subskills
+        //    var subSkills = await (from subSkill in _dbContext.SubSkills
+        //                           where subSkill.IsActive == 1
+        //                           select subSkill).ToListAsync();
+
+        //    // Map the skills to include subskills
+        //    var result = skills.Select(skill => new Skill
+        //    {
+        //        SkillId = skill.SkillId,
+        //        Name = skill.Name,
+        //        Description = skill.Description,
+        //        IsActive = skill.IsActive,
+        //        CreateBy = skill.CreateBy,
+        //        UpdateBy = skill.UpdateBy,
+        //        CreateDate = skill.CreateDate,
+        //        UpdateDate = skill.UpdateDate,
+        //        CategoryId = skill.CategoryId,
+        //        CategoryName = skill.CategoryName,
+        //        SubSkills = subSkills.Where(sub => sub.SkillId == skill.SkillId).ToList()
+        //    }).ToList();
+
+        //    return result;
+        //}
+
 
         public async Task<SkillDetails> GetSkillById(int id)
         {
