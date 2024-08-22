@@ -151,6 +151,47 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
+
+        //display skill coording to category
+        public async Task<List<CategoryDetails>> GetSkillByCategoryId(int id)
+        {
+            var categoryWiseSkills = await (
+     from category in _dbContext.Categories
+     join skill in _dbContext.Skills on category.CategoryId equals skill.CategoryId
+     where skill.IsActive == 1 && category.CategoryId == id
+     orderby category.CategoryName, skill.SkillId
+     group skill by new
+     {
+         category.CategoryId,
+         category.CategoryName
+     } into categoryGroup
+     select new CategoryDetails
+     {
+         CategoryId = categoryGroup.Key.CategoryId,
+         CategoryName = categoryGroup.Key.CategoryName,
+         Skills = categoryGroup.Select(skill => new Skill
+         {
+             SkillId = skill.SkillId,
+             Name = skill.Name,
+             Description = skill.Description,
+             IsActive = skill.IsActive,
+             CreateBy = skill.CreateBy,
+             UpdateBy = skill.UpdateBy,
+             CreateDate = skill.CreateDate,
+             UpdateDate = skill.UpdateDate,
+             CategoryId = skill.CategoryId,
+             CategoryName = categoryGroup.Key.CategoryName,
+             SubSkills = skill.SubSkills.Where(sub => sub.IsActive == 1).ToList()
+         }).ToList()
+     }
+ ).ToListAsync();
+
+            return categoryWiseSkills;
+
+        }
+
+
+
         public async Task<ResponseModel> DeleteSkillById(int id)
         {
             ResponseModel model = new ResponseModel();
