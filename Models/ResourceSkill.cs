@@ -58,6 +58,8 @@ namespace DF_EvolutionAPI.Models
     {
         public int SkillId { get; set; }   
         public string SkillName { get; set; }
+
+        public string Category { get; set; }
         public double? SkillExperience { get; set; }
         public List<SubSkillModel> SubSkills { get; set; }
      

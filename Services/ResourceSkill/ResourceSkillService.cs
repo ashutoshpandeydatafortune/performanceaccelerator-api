@@ -159,6 +159,83 @@ namespace DF_EvolutionAPI.Services
             return finalResult;
         }
 
+        //public async Task<List<FetchResourceSkill>> GetResourceSkillsById(int resourceId)
+        //{
+        //    var result = await (
+        //        from rs in _dbContext.ResourceSkills
+        //        join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
+        //        join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
+        //        from skill in skillGroup.DefaultIfEmpty()
+        //        join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+        //        from subSkill in subSkillGroup.DefaultIfEmpty()
+        //        where rs.IsActive == 1 && r.ResourceId == resourceId
+        //        select new
+        //        {
+        //            r.ResourceId,
+        //            r.ResourceName,
+        //            rs.SkillExperience,
+        //            rs.SubSkillExperience,
+        //            NewSkillId = (int?)skill.SkillId,
+        //            SkillName = skill.Name,
+        //            NewSubSkillId = (int?)subSkill.SubSkillId,
+        //            SubSkillName = subSkill.Name,
+
+
+        //        }
+        //    ).ToListAsync();
+
+        //    // Group the results by ResourceId
+        //    var groupedResults = result.GroupBy(r => r.ResourceId);
+
+        //    // Create a list to hold the final FetchResourceSkill objects
+        //    var finalResult = new List<FetchResourceSkill>();
+
+        //    // Iterate over each group and create the FetchResourceSkill objects
+        //    foreach (var group in groupedResults)
+        //    {
+        //        var skill = new List<SkillModel>();
+
+        //        // Group skills and subskills
+        //        var skillGroups = group.GroupBy(r => r.NewSkillId);
+
+        //        foreach (var skillGroup in skillGroups)
+        //        {
+        //            var subSkill = skillGroup
+        //                .Where(r => r.NewSubSkillId != 0)
+        //                .Select(r => new SubSkillModel
+        //                {
+        //                    SkillId = r.NewSkillId,
+        //                    SubSkillId = r.NewSubSkillId,
+        //                    SubSkillName = r.SubSkillName,
+        //                    SubSkillExperience = r.SubSkillExperience
+
+        //                }).ToList();
+
+        //            var skillModel = new SkillModel
+        //            {
+        //                SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
+        //                SkillName = skillGroup.First().SkillName,
+        //                SubSkills = subSkill,
+        //               SkillExperience = skillGroup.First().SkillExperience
+        //            };
+
+        //            skill.Add(skillModel);
+        //        }
+
+        //        var fetchResourceSkill = new FetchResourceSkill
+        //        {
+        //            ResourceId = group.Key,
+        //            ResourceName = group.First().ResourceName,
+        //            Skills = skill
+        //        };
+
+        //        finalResult.Add(fetchResourceSkill);
+        //    }
+
+        //    return finalResult;
+        //}
+
+
         public async Task<List<FetchResourceSkill>> GetResourceSkillsById(int resourceId)
         {
             var result = await (
@@ -168,6 +245,8 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
+                join c in _dbContext.Categories on skill.CategoryId equals c.CategoryId into categoryGroup // Join with Category
+                from category in categoryGroup.DefaultIfEmpty()
                 where rs.IsActive == 1 && r.ResourceId == resourceId
                 select new
                 {
@@ -177,9 +256,10 @@ namespace DF_EvolutionAPI.Services
                     rs.SubSkillExperience,
                     NewSkillId = (int?)skill.SkillId,
                     SkillName = skill.Name,
+                    Category = category.CategoryName,
                     NewSubSkillId = (int?)subSkill.SubSkillId,
                     SubSkillName = subSkill.Name,
-                    
+
 
                 }
             ).ToListAsync();
@@ -208,15 +288,16 @@ namespace DF_EvolutionAPI.Services
                             SubSkillId = r.NewSubSkillId,
                             SubSkillName = r.SubSkillName,
                             SubSkillExperience = r.SubSkillExperience
-                            
+
                         }).ToList();
 
                     var skillModel = new SkillModel
                     {
                         SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
                         SkillName = skillGroup.First().SkillName,
+                        Category = skillGroup.First().Category,
                         SubSkills = subSkill,
-                       SkillExperience = skillGroup.First().SkillExperience
+                        SkillExperience = skillGroup.First().SkillExperience
                     };
 
                     skill.Add(skillModel);
@@ -234,7 +315,6 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult;
         }
-
 
 
         public async Task<List<FetchResourceSkill>> GetResourcesBySkill(int skillId, int resourceId)
@@ -306,6 +386,11 @@ namespace DF_EvolutionAPI.Services
             }
             return finalResult;
         }
+
+
+
+
+
     }
 }
 
