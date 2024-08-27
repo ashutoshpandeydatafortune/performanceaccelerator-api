@@ -34,14 +34,35 @@ namespace DF_EvolutionAPI.Models
         public int ResourceSkillId { get; set; }
         public byte? IsActive { get; set; }
         public int CreateBy { get; set; }
-        public List<SkillModel> Skills { get; set; }    
-       
+        public List<SkillCategory> SkillCategories { get; set; }
+
+    }
+
+    public class SkillCategory
+    {
+        [NotMapped]
+        public string CategoryName { get; set; }
+        public List<SkillModel> Skills { get; set; }
     }
 
     public class FetchResourceSkill
     {
         public int ResourceId { get; set; }
         public string ResourceName { get; set; }
+        public List<SkillModel> Skills { get; set; }
+    }
+
+
+    public class FetchResourceCategorySkills
+    {
+        public int ResourceId { get; set; }
+        public string ResourceName { get; set; }
+        public List<CategorySkillModel> CategoryWiseSkills { get; set; }
+    }
+
+    public class CategorySkillModel
+    {
+        public string CategoryName { get; set; }
         public List<SkillModel> Skills { get; set; }
     }
 
@@ -58,8 +79,7 @@ namespace DF_EvolutionAPI.Models
     {
         public int SkillId { get; set; }   
         public string SkillName { get; set; }
-
-        public string Category { get; set; }
+      
         public double? SkillExperience { get; set; }
         public List<SubSkillModel> SubSkills { get; set; }
      

@@ -23,7 +23,11 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.IsActive == 1);
+                var skill = await (from s in _dbContext.Skills
+                                   join c in _dbContext.Categories
+                                   on s.CategoryId equals c.CategoryId
+                                   where s.Name == skillModel.Name && s.IsActive == 1 && c.IsActive == 1
+                                   select s).FirstOrDefaultAsync();
                 if (skill == null)
                 {
                     skillModel.IsActive = 1;
@@ -103,7 +107,7 @@ namespace DF_EvolutionAPI.Services
             var skills = await (from skill in _dbContext.Skills
                                 join category in _dbContext.Categories
                                 on skill.CategoryId equals category.CategoryId
-                                where skill.IsActive == 1
+                                where skill.IsActive == 1 && category.IsActive == 1
                                 orderby skill.SkillId
                                 select new Skill
                                 {
