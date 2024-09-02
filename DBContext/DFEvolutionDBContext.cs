@@ -356,6 +356,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsDescriptionRequired).HasColumnName("IsDescriptionRequired");
                 e.Property(e => e.MinimumRatingForDescription).HasColumnName("MinimumRatingForDescription");
+                e.Property(e => e.FunctionId).HasColumnName("FunctionId");
             });
 
             modelBuilder.Entity<Role>(e =>

@@ -26,7 +26,19 @@ namespace DF_EvolutionAPI.Models
         public int Weightage { get; set; }
         public bool? IsDescriptionRequired { get; set; }
         public int? MinimumRatingForDescription { get; set; }
+        public int? FunctionId { get; set; }       
+    }
 
-
+    public class KRAList
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+        public int Weightage { get; set; }
+        public bool? IsDescriptionRequired { get; set; }
+        public int? MinimumRatingForDescription { get; set; }
+        public int? FunctionId { get; set; }
+        public string FunctionName { get; set; }
     }
 }
