@@ -1,10 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
@@ -91,10 +91,6 @@ namespace DF_EvolutionAPI.Services.KRA
             {
                 var existingKraLibrary = await (from kra in _dbcontext.KRALibrary
                                                 where kra.Name == kraLibraryModel.Name &&
-                                                      kra.Weightage == kraLibraryModel.Weightage &&
-                                                      kra.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
-                                                      kra.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
-                                                      kra.Description == kraLibraryModel.Description &&
                                                       kra.FunctionId == kraLibraryModel.FunctionId && 
                                                       kra.IsActive == 1
                                                 select kra).FirstOrDefaultAsync();
@@ -127,9 +123,6 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
                     kraLibrary.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
                     kraLibrary.FunctionId = kraLibraryModel.FunctionId;
-                   
-
-
 
                     _dbcontext.Update<KRALibrary>(kraLibrary);
                     

@@ -99,7 +99,6 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
-
         /// <summary>
         /// Get KRA Weightage Details By KRA Library Id
         /// </summary>
@@ -122,7 +121,6 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
 
         /// <summary>
         /// Get KRA  Details By Weightage Id 
