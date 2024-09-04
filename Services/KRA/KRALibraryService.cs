@@ -91,10 +91,7 @@ namespace DF_EvolutionAPI.Services.KRA
             {
                 var existingKraLibrary = await (from kra in _dbcontext.KRALibrary
                                                 where kra.Name == kraLibraryModel.Name &&
-                                                      kra.FunctionId == kraLibraryModel.FunctionId &&
-                                                      kra.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
-                                                      kra.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
-                                                      kra.Description == kraLibraryModel.Description &&
+                                                      kra.FunctionId == kraLibraryModel.FunctionId && 
                                                       kra.IsActive == 1
                                                 select kra).FirstOrDefaultAsync();
                 if (existingKraLibrary != null)
@@ -120,7 +117,7 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.IsDefault = kraLibraryModel.IsDefault;
                     kraLibrary.WeightageId = kraLibraryModel.WeightageId;
                     kraLibrary.IsActive = kraLibraryModel.IsActive;
-                    kraLibrary.UpdateBy = kraLibraryModel.UpdateBy; ;
+                    kraLibrary.UpdateBy = 1;
                     kraLibrary.UpdateDate = DateTime.Now;
                     kraLibrary.Weightage = kraLibraryModel.Weightage;
                     kraLibrary.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
@@ -147,7 +144,7 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.IsSpecial = kraLibraryModel.IsSpecial;
                     kraLibraryModel.IsDefault = 1;
                     kraLibraryModel.IsActive = 1;
-                    kraLibraryModel.CreateBy = kraLibraryModel.CreateBy;
+                    kraLibraryModel.CreateBy = 1;
                     kraLibraryModel.CreateDate = DateTime.Now;
                     kraLibraryModel.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
                     kraLibraryModel.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
