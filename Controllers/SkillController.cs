@@ -142,5 +142,26 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// It is used to fetch skill by category.
+        /// </summary>
+        /// <param ></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetSkillByCategoryId/{id}")]
+        public async Task<IActionResult> GetSkillByCategoryId(int id)
+        {
+            try
+            {
+                var response = await _skillService.GetSkillByCategoryId(id);
+                return Ok(response);
+            }
+
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

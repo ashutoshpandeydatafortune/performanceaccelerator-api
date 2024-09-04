@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
+using DF_PA_API.Services;
 
 namespace DF_EvolutionAPI
 {
@@ -89,6 +90,7 @@ namespace DF_EvolutionAPI
             services.AddScoped<ISkillService, SkillService>();
             services.AddScoped<ISubSkillService, SubSkillService>();
             services.AddScoped<IResourceSkillService, ResourceSkillService>();
+            services.AddScoped<ICategoryService, CategoryService>();
             
 
             services.AddIdentity<IdentityUser, IdentityRole>(

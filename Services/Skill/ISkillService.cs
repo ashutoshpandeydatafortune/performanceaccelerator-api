@@ -13,5 +13,6 @@ namespace DF_EvolutionAPI.Services
         public Task<ResponseModel> CreateSkill(Skill skillModel);
         Task<List<Resource>> SearchBySkills(SearchSkill skillModel);
         public Task<ResponseModel> UpdateBySkillId(Skill skillModel);
+         public Task<List<CategoryDetails>> GetSkillByCategoryId(int id);
     }
 }

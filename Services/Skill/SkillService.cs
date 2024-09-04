@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using Azure;
 using DF_EvolutionAPI.ViewModels;
-using DF_EvolutionAPI.Models;
+
 namespace DF_EvolutionAPI.Services
 
 {
@@ -23,7 +23,11 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.IsActive == 1);
+                var skill = await (from s in _dbContext.Skills
+                                   join c in _dbContext.Categories
+                                   on s.CategoryId equals c.CategoryId
+                                   where s.Name == skillModel.Name && s.IsActive == 1 && c.IsActive == 1
+                                   select s).FirstOrDefaultAsync();
                 if (skill == null)
                 {
                     skillModel.IsActive = 1;
@@ -56,8 +60,8 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-
-                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.Description == skillModel.Description && skill.IsActive == 1);
+                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.Description == skillModel.Description
+                 && skill.CategoryId == skillModel.CategoryId && skill.IsActive == 1);
                 if (skill != null)
                 {
                     model.IsSuccess = false;
@@ -74,6 +78,7 @@ namespace DF_EvolutionAPI.Services
                         updateSkill.IsActive = 1;
                         updateSkill.UpdateBy = skillModel.UpdateBy;
                         updateSkill.UpdateDate = DateTime.Now;
+                        updateSkill.CategoryId = skillModel.CategoryId;
 
                         _dbContext.Update(updateSkill);
                         _dbContext.SaveChanges();
@@ -99,13 +104,34 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<Skill>> GetAllSkills()
         {
-            return await _dbContext.Skills.Where(skill => skill.IsActive == 1).ToListAsync();
+            var skills = await (from skill in _dbContext.Skills
+                                join category in _dbContext.Categories
+                                on skill.CategoryId equals category.CategoryId
+                                where skill.IsActive == 1 && category.IsActive == 1
+                                orderby skill.SkillId
+                                select new Skill
+                                {
+                                    SkillId = skill.SkillId,
+                                    Name = skill.Name,
+                                    Description = skill.Description,
+                                    IsActive = skill.IsActive,
+                                    CreateBy = skill.CreateBy,
+                                    UpdateBy = skill.UpdateBy,
+                                    CreateDate = skill.CreateDate,
+                                    UpdateDate = skill.UpdateDate,
+                                    CategoryId = skill.CategoryId,
+                                    CategoryName = category.CategoryName,
+                                    SubSkills = skill.SubSkills.Where(sub => sub.IsActive == 1).ToList()
+                                }).ToListAsync();
+
+            return skills;
         }
 
         public async Task<SkillDetails> GetSkillById(int id)
         {
             var result = await (
                 from skill in _dbContext.Skills
+                join category in _dbContext.Categories on skill.CategoryId equals category.CategoryId
                 join subskill in _dbContext.SubSkills.Where(s => s.IsActive == 1)
                 on skill.SkillId equals subskill.SkillId into subSkillsGroup
                 from subskill in subSkillsGroup.DefaultIfEmpty()
@@ -115,6 +141,8 @@ namespace DF_EvolutionAPI.Services
                     SkillId = skill.SkillId,
                     Name = skill.Name,
                     Description = skill.Description,
+                    CategoryId = skill.CategoryId,
+                    CategoryName = category.CategoryName,
                     subSkills = _dbContext.SubSkills.Where(skill => skill.IsActive == 1 && skill.SkillId == id).Select(sub => new SubSkill // Create an instance of SubSkill for each related subskill
                     {
                         SkillId = sub.SkillId,
@@ -126,6 +154,47 @@ namespace DF_EvolutionAPI.Services
             ).FirstOrDefaultAsync();
             return result;
         }
+
+
+        //display skill coording to category
+        public async Task<List<CategoryDetails>> GetSkillByCategoryId(int id)
+        {
+            var categoryWiseSkills = await (
+     from category in _dbContext.Categories
+     join skill in _dbContext.Skills on category.CategoryId equals skill.CategoryId
+     where skill.IsActive == 1 && category.CategoryId == id
+     orderby category.CategoryName, skill.SkillId
+     group skill by new
+     {
+         category.CategoryId,
+         category.CategoryName
+     } into categoryGroup
+     select new CategoryDetails
+     {
+         CategoryId = categoryGroup.Key.CategoryId,
+         CategoryName = categoryGroup.Key.CategoryName,
+         Skills = categoryGroup.Select(skill => new Skill
+         {
+             SkillId = skill.SkillId,
+             Name = skill.Name,
+             Description = skill.Description,
+             IsActive = skill.IsActive,
+             CreateBy = skill.CreateBy,
+             UpdateBy = skill.UpdateBy,
+             CreateDate = skill.CreateDate,
+             UpdateDate = skill.UpdateDate,
+             CategoryId = skill.CategoryId,
+             CategoryName = categoryGroup.Key.CategoryName,
+             SubSkills = skill.SubSkills.Where(sub => sub.IsActive == 1).ToList()
+         }).ToList()
+     }
+ ).ToListAsync();
+
+            return categoryWiseSkills;
+
+        }
+
+
 
         public async Task<ResponseModel> DeleteSkillById(int id)
         {

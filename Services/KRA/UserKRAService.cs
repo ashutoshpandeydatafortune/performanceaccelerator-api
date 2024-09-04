@@ -642,12 +642,12 @@ namespace DF_EvolutionAPI.Services
                         WeightageId = kraLibrary.WeightageId,
                         KRADisplayName = kraLibrary.DisplayName,
                         IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
-                        MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,                        
-
+                        MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                         QuarterName = quarter.QuarterName,
                         QuarterYear = quarter.QuarterYear,
-                        IsActive = userKra.IsActive
-                        
+                        IsActive = userKra.IsActive,
+                        Description = kraLibrary.Description
+
                         //StatusName = S.StatusName,
                         //Reason = c.Reason
                     }).ToList();
