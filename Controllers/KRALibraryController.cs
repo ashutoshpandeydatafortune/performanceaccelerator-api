@@ -141,5 +141,24 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// <summary>
+        /// get all kra Libraries
+        /// </summary>
+        /// /// <param name="functionId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllKRAsByFunction/{functionId}")]
+        public async Task<IActionResult> GetAllKRAsByFunction(int functionId)
+        {
+            try
+            {
+                var libraries = await _kraLibraryService.GetAllKRAsByFunction(functionId);
+                return Ok(libraries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

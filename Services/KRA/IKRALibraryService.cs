@@ -13,5 +13,6 @@ namespace DF_EvolutionAPI.Services.KRA
         public Task<List<KRALibrary>> GetKRADetailsByWeightageId(int weightageId);
         public Task<ResponseModel> CreateorUpdateKRALibrary(KRALibrary kraLibraryModel);
         public Task<KRAWeightage> GetKRAWeightageDetailsByKRALibraryId(int kraLibraryId);
+        public Task<List<KRAList>> GetAllKRAsByFunction(int functionId);
     }
 }

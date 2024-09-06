@@ -291,6 +291,33 @@ namespace DF_EvolutionAPI.Services.KRA
 
             return kraDetails;
         }
+
+        public async Task<List<KRAList>> GetAllKRAsByFunction(int functionId)
+        {
+            //Checked isSpecial condition for displaying kras list.
+           
+                //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
+                var query = from kraLibrary in _dbcontext.KRALibrary
+                            join function in _dbcontext.TechFunctions
+                            on kraLibrary.FunctionId equals function.FunctionId
+                            where kraLibrary.IsActive == 1 && kraLibrary.FunctionId == functionId
+                            select new KRAList
+                            {
+                                Id = kraLibrary.Id,
+                                Name = kraLibrary.Name,
+                                DisplayName = kraLibrary.DisplayName,
+                                Description = kraLibrary.Description,
+                                Weightage = kraLibrary.Weightage,
+                                IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                                MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                                FunctionId = kraLibrary.FunctionId ?? null,
+                                FunctionName = function.FunctionName ?? null
+                            };
+
+                return await query.ToListAsync();
+        }   
+
+        
     }
 }
 
