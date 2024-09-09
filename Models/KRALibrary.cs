@@ -37,5 +37,6 @@ namespace DF_EvolutionAPI.Models
         public int? MinimumRatingForDescription { get; set; }
         public int? FunctionId { get; set; }
         public string FunctionName { get; set; }
+        public int? IsSpecial { get; set; }
     }
 }
