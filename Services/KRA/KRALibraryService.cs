@@ -5,6 +5,7 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
@@ -25,8 +26,9 @@ namespace DF_EvolutionAPI.Services.KRA
                 //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
-                            on kraLibrary.FunctionId equals function.FunctionId
-                            where kraLibrary.IsActive == 1
+                            on kraLibrary.FunctionId equals function.FunctionId into kraTechGroup
+                            from techFunc in kraTechGroup.DefaultIfEmpty()
+                            where kraLibrary.IsActive == 1 && (kraLibrary.FunctionId == null || techFunc.FunctionId != null)
                             select new KRAList
                             {
                                 Id = kraLibrary.Id,
@@ -36,8 +38,10 @@ namespace DF_EvolutionAPI.Services.KRA
                                 Weightage = kraLibrary.Weightage,
                                 IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
                                 MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                                FunctionName = techFunc != null ? techFunc.FunctionName : null,
                                 FunctionId = kraLibrary.FunctionId?? null,
-                                FunctionName = function.FunctionName?? null
+                                IsSpecial = kraLibrary.IsSpecial,
+                                
                             };
 
                 return await query.ToListAsync();
@@ -58,8 +62,9 @@ namespace DF_EvolutionAPI.Services.KRA
                                 Weightage = kraLibrary.Weightage,
                                 IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
                                 MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
-                                FunctionId = kraLibrary.FunctionId,
-                                FunctionName = function.FunctionName
+                                FunctionId = kraLibrary.FunctionId?? null,
+                                FunctionName = function.FunctionName != null ? function.FunctionName: null,
+                                IsSpecial = kraLibrary.IsSpecial,
                             };
 
                 return await query.ToListAsync();
@@ -292,11 +297,9 @@ namespace DF_EvolutionAPI.Services.KRA
             return kraDetails;
         }
 
+        // Displays the functionwise kras.
         public async Task<List<KRAList>> GetAllKRAsByFunction(int functionId)
-        {
-            //Checked isSpecial condition for displaying kras list.
-           
-                //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
+        {      
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
