@@ -5,7 +5,6 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
@@ -40,8 +39,7 @@ namespace DF_EvolutionAPI.Services.KRA
                                 MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                                 FunctionName = techFunc != null ? techFunc.FunctionName : null,
                                 FunctionId = kraLibrary.FunctionId?? null,
-                                IsSpecial = kraLibrary.IsSpecial,
-                                
+                                IsSpecial = kraLibrary.IsSpecial,                                
                             };
 
                 return await query.ToListAsync();
@@ -297,7 +295,7 @@ namespace DF_EvolutionAPI.Services.KRA
             return kraDetails;
         }
 
-        // Displays the functionwise kras.
+        // Get the all kras functionwise.
         public async Task<List<KRAList>> GetAllKRAsByFunction(int functionId)
         {      
                 var query = from kraLibrary in _dbcontext.KRALibrary
@@ -318,8 +316,7 @@ namespace DF_EvolutionAPI.Services.KRA
                             };
 
                 return await query.ToListAsync();
-        }   
-
+        }
         
     }
 }

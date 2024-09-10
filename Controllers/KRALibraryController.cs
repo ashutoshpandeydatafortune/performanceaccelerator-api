@@ -142,7 +142,7 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
         /// <summary>
-        /// get all kra Libraries
+        /// get all kras functionwise
         /// </summary>
         /// /// <param name="functionId"></param>
         /// <returns></returns>
@@ -152,8 +152,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var libraries = await _kraLibraryService.GetAllKRAsByFunction(functionId);
-                return Ok(libraries);
+                var kras = await _kraLibraryService.GetAllKRAsByFunction(functionId);
+                return Ok(kras);
             }
             catch (Exception ex)
             {

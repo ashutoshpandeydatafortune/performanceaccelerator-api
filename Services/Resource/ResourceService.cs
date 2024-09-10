@@ -220,7 +220,7 @@ namespace DF_EvolutionAPI.Services
             return children.Any() ? children.Cast<object>().ToList() : null;
         }
 
-        // For displaying the profile details
+        // Gets the profile details
         public async Task<Resource> GetProfileDetails(int? resourceId)
         {
             var resources = new Resource();
@@ -255,7 +255,7 @@ namespace DF_EvolutionAPI.Services
         }
 
 
-        //Displaying the team members details
+        // Gets the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
             var resources = await (
@@ -311,7 +311,8 @@ namespace DF_EvolutionAPI.Services
 
             return count;
         }
-        //Displaying yearly rating
+
+        //Gets average yearly KRA rating for a user within the specified quarter range.
         public async Task<List<UserKRARatingLists>> GetUserKraScoreYear(int userId, string quarterRange)
         {
             try
@@ -346,9 +347,9 @@ namespace DF_EvolutionAPI.Services
                     .ToList();
                 var averageRating = results?.Any() == true ? Math.Round((double)results.Average(average => average.Rating), 2) : 0.0;
                 var resultList = new List<UserKRARatingLists>
-        {
-            new UserKRARatingLists { Rating = (double)averageRating }
-        };
+                {
+                    new UserKRARatingLists { Rating = (double)averageRating }
+                };
 
                 return resultList;
             }
@@ -358,7 +359,7 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-        //Displaying rating od current for quarter 'Jan-Mar'. 
+        // Gets the average KRA rating for a user in the specified quarter and quarter range.
         public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter, string quarterRange)
         {
             try
@@ -394,9 +395,9 @@ namespace DF_EvolutionAPI.Services
                 // var averageRating = Math.Round((double)results.Average(x => x.Rating),2);
 
                 var resultList = new List<UserKRARatingLists>
-        {
-             new UserKRARatingLists { Rating = (double)averageRating }
-        };
+                {
+                    new UserKRARatingLists { Rating = (double)averageRating }
+                };
 
                 return resultList;
             }
