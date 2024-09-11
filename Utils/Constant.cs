@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace DF_EvolutionAPI.Utils
+﻿namespace DF_EvolutionAPI.Utils
 {
     public class Constant
     {
