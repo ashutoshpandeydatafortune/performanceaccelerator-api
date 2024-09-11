@@ -1,9 +1,9 @@
 ﻿using System;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
-using System.Collections.Generic;
+
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -47,7 +47,7 @@ namespace DF_EvolutionAPI.Controllers
         [HttpGet]
         [Route("GetNotificationsByResourceId/{resourceId}")]
         public async Task<IActionResult> GetNotificationsByResourceId(int resourceId)
-        {           
+        {
             try
             {
                 var result = await _notificationService.GetNotificationsByResourceId(resourceId);
@@ -79,28 +79,6 @@ namespace DF_EvolutionAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        /// <summary>
-        ///  update the record in PA_Notification table.
-        /// </summary>
-        /// <param name="notificationModel"></param>
-        /// <returns>It returns the updated notification.</returns>
-        [HttpPost]
-        [Route("[Action]")]
-        public async Task<IActionResult> UpdateNotification(Notification notificationModel)
-        {            
-            try
-            {
-                var response = await _notificationService.UpdateNotifications(notificationModel);
-                return Ok(response);
-            }
-
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
         }
     }
 }

@@ -35,6 +35,6 @@ namespace DF_EvolutionAPI.Utils
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";
 
-        public static int NotificationDays = -7;
+        public static int DAYS_TO_LOOK_BACK = -7;
     }
 }

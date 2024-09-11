@@ -1,11 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using System.Threading.Tasks;
-using System;
+﻿using System;
 using System.Linq;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -88,7 +88,7 @@ namespace DF_EvolutionAPI.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<Notification> GetNotificationById(int Id)
+        public async Task<Notification> GetNotificationsById(int Id)
         {
             return await _dbContext.Notifications.Where(notification => notification.Id == Id && notification.IsActive == 1)
                  .FirstOrDefaultAsync();
