@@ -66,12 +66,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="Id"></param>
         /// <returns> It returns the notification of particular id.</returns>
         [HttpGet]
-        [Route("GetNotificationsById/{Id}")]
-        public async Task<IActionResult> GetNotificationsById(int Id)
+        [Route("GetNotificationById/{Id}")]
+        public async Task<IActionResult> GetNotificationById(int Id)
         {            
             try
             {
-                var result = await _notificationService.GetNotificationsById(Id);
+                var result = await _notificationService.GetNotificationById(Id);
                 return Ok(result);
             }
 

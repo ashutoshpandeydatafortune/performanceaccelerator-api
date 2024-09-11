@@ -7,7 +7,7 @@ namespace DF_EvolutionAPI.Services
 {
     public interface INotificationService
     {
-        public Task<Notification> GetNotificationsById(int Id);
+        public Task<Notification> GetNotificationById(int Id);
         public Task<ResponseModel> CreateNotification(Notification notificationModel);      
         public Task<List<Notification>> GetNotificationsByResourceId(int resourceId);
     }
