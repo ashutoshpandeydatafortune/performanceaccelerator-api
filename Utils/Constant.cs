@@ -34,6 +34,5 @@
         public static string ROLE_NAME = "Developer";
 
         public static int DAYS_TO_LOOK_BACK = -7;
-
     }
 }

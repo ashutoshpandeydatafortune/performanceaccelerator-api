@@ -1,11 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using System.Threading.Tasks;
-using System;
+﻿using System;
 using System.Linq;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {

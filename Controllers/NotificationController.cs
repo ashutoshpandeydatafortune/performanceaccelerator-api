@@ -1,8 +1,9 @@
 ﻿using System;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -65,9 +66,9 @@ namespace DF_EvolutionAPI.Controllers
         /// <param name="Id"></param>
         /// <returns> It returns the notification of particular id.</returns>
         [HttpGet]
-        [Route("GetNotificationsById/{Id}")]
+        [Route("GetNotificationById/{Id}")]
         public async Task<IActionResult> GetNotificationById(int Id)
-        {
+        {            
             try
             {
                 var result = await _notificationService.GetNotificationById(Id);
