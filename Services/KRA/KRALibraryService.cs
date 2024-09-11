@@ -1,10 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
@@ -17,16 +17,55 @@ namespace DF_EvolutionAPI.Services.KRA
             _dbcontext = dbContext;
         }
 
-        public async Task<List<KRALibrary>> GetAllKRALibraryList(int? isNotSpecial)
+        public async Task<List<KRAList>> GetAllKRALibraryList(int? isNotSpecial)
         {
             //Checked isSpecial condition for displaying kras list.
             if (isNotSpecial == null || isNotSpecial == 0)
             {
-                return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
+                //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
+                var query = from kraLibrary in _dbcontext.KRALibrary
+                            join function in _dbcontext.TechFunctions
+                            on kraLibrary.FunctionId equals function.FunctionId into kraTechGroup
+                            from techFunc in kraTechGroup.DefaultIfEmpty()
+                            where kraLibrary.IsActive == 1 && (kraLibrary.FunctionId == null || techFunc.FunctionId != null)
+                            select new KRAList
+                            {
+                                Id = kraLibrary.Id,
+                                Name = kraLibrary.Name,
+                                DisplayName = kraLibrary.DisplayName,
+                                Description = kraLibrary.Description,
+                                Weightage = kraLibrary.Weightage,
+                                IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                                MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                                FunctionName = techFunc != null ? techFunc.FunctionName : null,
+                                FunctionId = kraLibrary.FunctionId?? null,
+                                IsSpecial = kraLibrary.IsSpecial,                                
+                            };
+
+                return await query.ToListAsync();
             }
             else
             {
-               return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1 && x.IsSpecial != 1).ToListAsync();
+                //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1 && x.IsSpecial != 1).ToListAsync();
+                var query = from kraLibrary in _dbcontext.KRALibrary
+                            join function in _dbcontext.TechFunctions
+                            on kraLibrary.FunctionId equals function.FunctionId
+                            where kraLibrary.IsActive == 1 && kraLibrary.IsSpecial != 1
+                            select new KRAList
+                            {
+                                Id= kraLibrary.Id,
+                                Name = kraLibrary.Name,
+                                DisplayName = kraLibrary.DisplayName,
+                                Description = kraLibrary.Description,
+                                Weightage = kraLibrary.Weightage,
+                                IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                                MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                                FunctionId = kraLibrary.FunctionId?? null,
+                                FunctionName = function.FunctionName != null ? function.FunctionName: null,
+                                IsSpecial = kraLibrary.IsSpecial,
+                            };
+
+                return await query.ToListAsync();
             }
 
         }
@@ -52,13 +91,27 @@ namespace DF_EvolutionAPI.Services.KRA
             ResponseModel model = new ResponseModel();
 
             try
-            {              
+            {
+                var existingKraLibrary = await (from kra in _dbcontext.KRALibrary
+                                                where kra.Name == kraLibraryModel.Name &&
+                                                      kra.FunctionId == kraLibraryModel.FunctionId &&
+                                                      kra.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
+                                                      kra.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
+                                                      kra.Description == kraLibraryModel.Description &&
+                                                      kra.IsActive == 1
+                                                select kra).FirstOrDefaultAsync();
+                if (existingKraLibrary != null)
+                {
+                    model.IsSuccess = false;
+                    model.Messsage = "KRA Library with the same name already exists.";
+                    return model;
+                }
 
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
                 {
-                    kraLibrary.Name = kraLibraryModel.Name;
-                    kraLibrary.DisplayName = kraLibraryModel.DisplayName;
+                    kraLibrary.Name = kraLibraryModel.Name;                    
+                    kraLibrary.DisplayName = kraLibraryModel.Name;
                     kraLibrary.Description = kraLibraryModel.Description;
                     kraLibrary.Entity = kraLibraryModel.Entity;
                     kraLibrary.Entity2 = kraLibraryModel.Entity2;
@@ -70,9 +123,12 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.IsDefault = kraLibraryModel.IsDefault;
                     kraLibrary.WeightageId = kraLibraryModel.WeightageId;
                     kraLibrary.IsActive = kraLibraryModel.IsActive;
-                    kraLibrary.UpdateBy = 1;
+                    kraLibrary.UpdateBy = kraLibraryModel.UpdateBy; ;
                     kraLibrary.UpdateDate = DateTime.Now;
                     kraLibrary.Weightage = kraLibraryModel.Weightage;
+                    kraLibrary.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
+                    kraLibrary.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
+                    kraLibrary.FunctionId = kraLibraryModel.FunctionId;
 
                     _dbcontext.Update<KRALibrary>(kraLibrary);
                     
@@ -81,13 +137,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 else
                 {
                     // Check if a KRALibrary record with the same name already exists
-                    var existingKraLibrary = await _dbcontext.KRALibrary.FirstOrDefaultAsync(x => x.Name == kraLibraryModel.Name && x.Weightage == kraLibraryModel.Weightage);
-                    if (existingKraLibrary != null)
-                    {
-                        model.IsSuccess = false;
-                        model.Messsage = "KRA Library with the same name already exists.";
-                        return model;
-                    }
+
+                    kraLibraryModel.Name = kraLibraryModel.Name;
                     kraLibraryModel.DisplayName = kraLibraryModel.Name;
                     kraLibraryModel.Description=kraLibraryModel.Description;
                     kraLibraryModel.Entity = 1;
@@ -99,10 +150,13 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.IsSpecial = kraLibraryModel.IsSpecial;
                     kraLibraryModel.IsDefault = 1;
                     kraLibraryModel.IsActive = 1;
-                    kraLibraryModel.CreateBy = 1;
-                    kraLibraryModel.UpdateBy = 1;
+                    kraLibraryModel.CreateBy = kraLibraryModel.CreateBy;
                     kraLibraryModel.CreateDate = DateTime.Now;
-                    kraLibraryModel.UpdateDate = DateTime.Now;
+                    kraLibraryModel.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
+                    kraLibraryModel.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
+                    kraLibraryModel.FunctionId = kraLibraryModel.FunctionId;
+
+
 
                     _dbcontext.Add(kraLibraryModel);
                     
@@ -219,6 +273,8 @@ namespace DF_EvolutionAPI.Services.KRA
                         CreateDate = kd.CreateDate,
                         UpdateDate = kd.UpdateDate,
                         Weightage = kd.Weightage,
+                        IsDescriptionRequired = kd.IsDescriptionRequired,
+                        MinimumRatingForDescription = kd.MinimumRatingForDescription,
 
                     }).ToListAsync();
 
@@ -241,6 +297,30 @@ namespace DF_EvolutionAPI.Services.KRA
 
             return kraDetails;
         }
+
+        // Get the all kras functionwise.
+        public async Task<List<KRAList>> GetAllKRAsByFunction(int functionId)
+        {      
+                var query = from kraLibrary in _dbcontext.KRALibrary
+                            join function in _dbcontext.TechFunctions
+                            on kraLibrary.FunctionId equals function.FunctionId
+                            where kraLibrary.IsActive == 1 && kraLibrary.FunctionId == functionId
+                            select new KRAList
+                            {
+                                Id = kraLibrary.Id,
+                                Name = kraLibrary.Name,
+                                DisplayName = kraLibrary.DisplayName,
+                                Description = kraLibrary.Description,
+                                Weightage = kraLibrary.Weightage,
+                                IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                                MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                                FunctionId = kraLibrary.FunctionId ?? null,
+                                FunctionName = function.FunctionName ?? null
+                            };
+
+                return await query.ToListAsync();
+        }
+        
     }
 }
 

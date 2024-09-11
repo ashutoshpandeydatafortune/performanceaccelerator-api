@@ -14,6 +14,7 @@ namespace DF_EvolutionAPI.Models
         public string ResourceName { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? DateOfJoin { get; set; }
+
         [Required]
         public string EmailId { get; set; }
 
@@ -47,6 +48,8 @@ namespace DF_EvolutionAPI.Models
         public double? TenureInMonths { get; set; }
         public double? TenureInYears { get; set; }
         public int? YearBucket { get; set; }
+        public List<ResourceSkill> ResourceSkills { get; set; }
+
 
         #endregion
 
@@ -59,6 +62,7 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public List<ProjectResource> ResourceProjectList { get; set; }
+
 
         [NotMapped]
         public List<Project> ProjectList { get; set; }

@@ -99,7 +99,6 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
-
         /// <summary>
         /// Get KRA Weightage Details By KRA Library Id
         /// </summary>
@@ -123,7 +122,6 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
-
         /// <summary>
         /// Get KRA  Details By Weightage Id 
         /// </summary>
@@ -137,6 +135,25 @@ namespace DF_EvolutionAPI.Controllers
             {
                 var kraDetails = await _kraLibraryService.GetKRADetailsByWeightageId(weightageId);
                 return Ok(kraDetails);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// <summary>
+        /// get all kras functionwise
+        /// </summary>
+        /// /// <param name="functionId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllKRAsByFunction/{functionId}")]
+        public async Task<IActionResult> GetAllKRAsByFunction(int functionId)
+        {
+            try
+            {
+                var kras = await _kraLibraryService.GetAllKRAsByFunction(functionId);
+                return Ok(kras);
             }
             catch (Exception ex)
             {

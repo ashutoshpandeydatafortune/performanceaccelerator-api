@@ -18,8 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
-using DF_EvolutionAPI.Models.Response;
-
+using DF_PA_API.Services;
 
 namespace DF_EvolutionAPI
 {
@@ -88,6 +87,11 @@ namespace DF_EvolutionAPI
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IKRATemplateService, KRATemplateService>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<ISkillService, SkillService>();
+            services.AddScoped<ISubSkillService, SubSkillService>();
+            services.AddScoped<IResourceSkillService, ResourceSkillService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
@@ -125,22 +129,21 @@ namespace DF_EvolutionAPI
                 options.AddPolicy("CorsPolicy",
                 builder =>
                 {
+                    // Read the CORS origins from the environment variable
+                    var corsOrigins = Configuration["Cors:Origins"]?.Split(',') ?? new string[] { };
+
                     builder
-                    .WithOrigins(
-                        "https://delightful-beach-0135c210f.4.azurestaticapps.net",
-                        "http://localhost:4200",
-                        "https://login.windows.net"
-                     )
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials()
-                    .WithMethods("PUT", "DELETE", "GET", "POST");
+                        .WithOrigins(corsOrigins) // Use the origins from your .env file
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                        .WithMethods("PUT", "DELETE", "GET", "POST", "PATCH");
                 });
             });
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "DF_EvolutionAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "DF Performance Accelerator API", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -178,7 +181,7 @@ namespace DF_EvolutionAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DF Performation Accelerator API");
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DF Performance Accelerator API");
                 });
             }
 

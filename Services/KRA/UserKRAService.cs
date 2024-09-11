@@ -337,19 +337,20 @@ namespace DF_EvolutionAPI.Services
                                            select kraLibrary.Weightage).FirstOrDefault();
                     if (userKra != null)
                     {
-                        userKra.Reason = userKRAModels.Reason;
-                        userKra.Comment = userKRAModels.Comment;
-                        userKra.ApprovedBy = userKRAModels.ApprovedBy;
-                        userKra.RejectedBy = userKRAModels.RejectedBy;
-                        userKra.FinalComment = userKRAModels.FinalComment;
-                        userKra.ManagerComment = userKRAModels.ManagerComment;
+                        userKra.Reason = userKRAModels.Reason ?? null;
+                        userKra.Comment = userKRAModels.Comment ?? null;
+                        userKra.ApprovedBy = userKRAModels.ApprovedBy ?? null;
+                        userKra.RejectedBy = userKRAModels.RejectedBy ?? null;
+                        userKra.FinalComment = userKRAModels.FinalComment ?? null;
+                        userKra.ManagerComment = userKRAModels.ManagerComment ?? null;
                         userKra.FinalRating = userKRAModels.FinalRating ?? null;
                         userKra.DeveloperComment = userKRAModels.DeveloperComment;
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                       // userKra.DeveloperRating = userKRAModels.DeveloperRating ?? 0;
-                        if (userKRAModels.FinalComment != null)
+                        
+                       //if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
+                       if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
                         }
@@ -640,10 +641,12 @@ namespace DF_EvolutionAPI.Services
                         Weightage = kraLibrary.Weightage,
                         WeightageId = kraLibrary.WeightageId,
                         KRADisplayName = kraLibrary.DisplayName,
-
+                        IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                        MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                         QuarterName = quarter.QuarterName,
                         QuarterYear = quarter.QuarterYear,
-                        IsActive = userKra.IsActive
+                        IsActive = userKra.IsActive,
+                        Description = kraLibrary.Description
 
                         //StatusName = S.StatusName,
                         //Reason = c.Reason

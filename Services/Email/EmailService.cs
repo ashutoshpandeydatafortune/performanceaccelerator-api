@@ -17,36 +17,37 @@ namespace DF_EvolutionAPI.Services.Email
             _configuration = configuration;
         }
 
+
         public async Task<bool> SendEmail(string toEmail, string subject, string htmlContent)
         {
-            
             try
             {
-                using var smtpClient = new SmtpClient(Constant.SMTP_HOST, Constant.SMTP_PORT)
+                using (var smtpClient = new SmtpClient(Constant.SMTP_HOST, Constant.SMTP_PORT))
                 {
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential(Constant.SMTP_USERNAME, Constant.SMTP_PASSWORD)
-                };
+                    smtpClient.EnableSsl = true;
+                    smtpClient.Credentials = new NetworkCredential(Constant.SMTP_USERNAME, Constant.SMTP_PASSWORD);
 
-                using var mail = new MailMessage
-                {
-                    From = new MailAddress(Constant.SMTP_USERNAME),
-                    Subject = subject,
-                    Body = htmlContent,
-                    IsBodyHtml = true
-                };
-             
-                mail.To.Add(toEmail);              
+                    using (var mail = new MailMessage())
+                    {
+                        mail.From = new MailAddress(Constant.SMTP_USERNAME);
+                        mail.Subject = subject;
+                        mail.Body = htmlContent;
+                        mail.IsBodyHtml = true;
+                        mail.To.Add(toEmail);
 
-                //await smtpClient.SendMailAsync(mail);               
+                        await smtpClient.SendMailAsync(mail);
+                    }
+
+                    return true;
+                }
             }
             catch (Exception ex)
             {
-                 throw new Exception($"Failed to send email: {ex.Message}");
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+                return false;
             }
-
-            return true;
         }
+
     }
 }
 

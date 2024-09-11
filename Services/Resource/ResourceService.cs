@@ -177,6 +177,9 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
+                    where resource.IsActive == 1 && resource.StatusId == 8    // Alllowing all active resources.
+                    //where resource.IsActive == 1
+
                     select new Team
                     {
                         EmailId = resource.EmailId,
@@ -217,7 +220,7 @@ namespace DF_EvolutionAPI.Services
             return children.Any() ? children.Cast<object>().ToList() : null;
         }
 
-        // For displaying the profile details
+        // Gets the profile details
         public async Task<Resource> GetProfileDetails(int? resourceId)
         {
             var resources = new Resource();
@@ -239,7 +242,7 @@ namespace DF_EvolutionAPI.Services
                        Function = resourcefunction.FunctionName,
                        Designation = designation.DesignationName,
                        TotalYears = resource.TotalYears,
-                      
+
                    }).FirstOrDefaultAsync();
 
                 return resources;
@@ -251,7 +254,8 @@ namespace DF_EvolutionAPI.Services
 
         }
 
-        //Displaying the team members details
+
+        // Gets the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
             var resources = await (
@@ -259,7 +263,7 @@ namespace DF_EvolutionAPI.Services
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                     select new TeamDetails
                     {
-                       
+
                         EmailId = resource.EmailId,
                         Experience = resource.TotalYears,
                         ResourceId = resource.ResourceId,
@@ -270,20 +274,18 @@ namespace DF_EvolutionAPI.Services
                 ).ToListAsync();
 
             var currentUser = resources.Where(r => r.ReportingTo == userId);
-            //var someUser = _dbcontext.Resources.Where(r => r.ResourceId == userId).FirstOrDefault();
             var result = _dbcontext.Resources.Where(r => r.ResourceId == userId);
-            //var someUser = (int)result != null ? result : 0;
 
             var currentQuarter = await _dbcontext.QuarterDetails.FirstOrDefaultAsync(quarter => quarter.Id == 1);
             foreach (var resource in currentUser)
             {
-                var userKraScoreYear = await GetUserKraScoreYear(resource.ResourceId,currentQuarter.QuarterYearRange);
+                var userKraScoreYear = await GetUserKraScoreYear(resource.ResourceId, currentQuarter.QuarterYearRange);
                 resource.AverageScoreYear = userKraScoreYear.Select(r => r.Rating).FirstOrDefault();
                 var userKraScoreCurrent = GetUserKraScoreCurrent(resource.ResourceId, currentQuarter.Id, currentQuarter.QuarterYearRange);
                 resource.AverageScoreCurrent = userKraScoreCurrent.Select(r => r.Rating).FirstOrDefault();
-                resource.PendingEvaluation = GetNotApprovedKras((int)resource.ResourceId, currentQuarter.Id);
-            }
+                resource.PendingEvaluation = GetNotApprovedKras((int)resource.ResourceId);
 
+            }
             var tree = currentUser.Select(resource => new
             {
                 Resource = resource,
@@ -293,8 +295,8 @@ namespace DF_EvolutionAPI.Services
             return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
-        //Getting count fo not approved kras.
-        public int GetNotApprovedKras(int userId, int quarterId)
+        //Gets the count of not approved KRAs for a specified user.
+        public int GetNotApprovedKras(int userId)
         {
             var count = (
                 from resource in _dbcontext.Resources
@@ -302,19 +304,21 @@ namespace DF_EvolutionAPI.Services
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.QuarterId == quarterId && userKras.FinalRating == null && userKras.IsActive == 1
+                where userKras.UserId == userId && userKras.ManagerRating == null && userKras.IsActive == 1
+                && userKras.DeveloperRating != null
                 select resource
             ).Count();
 
             return count;
         }
-        //Displaying yearly rating
+
+        //Gets average yearly KRA rating for a user within the specified quarter range.
         public async Task<List<UserKRARatingLists>> GetUserKraScoreYear(int userId, string quarterRange)
         {
             try
             {
-                
-                var rating = await(
+
+                var rating = await (
                     from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
@@ -343,9 +347,9 @@ namespace DF_EvolutionAPI.Services
                     .ToList();
                 var averageRating = results?.Any() == true ? Math.Round((double)results.Average(average => average.Rating), 2) : 0.0;
                 var resultList = new List<UserKRARatingLists>
-        {
-            new UserKRARatingLists { Rating = (double)averageRating }
-        };
+                {
+                    new UserKRARatingLists { Rating = (double)averageRating }
+                };
 
                 return resultList;
             }
@@ -355,7 +359,7 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-        //Displaying rating od current for quarter 'Jan-Mar'.
+        // Gets the average KRA rating for a user in the specified quarter and quarter range.
         public List<UserKRARatingLists> GetUserKraScoreCurrent(int userId, int currentQuarter, string quarterRange)
         {
             try
@@ -388,12 +392,12 @@ namespace DF_EvolutionAPI.Services
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
                 var averageRating = results?.Any() == true ? Math.Round((double)results.Average(x => x.Rating), 2) : 0.0;
-               // var averageRating = Math.Round((double)results.Average(x => x.Rating),2);
+                // var averageRating = Math.Round((double)results.Average(x => x.Rating),2);
 
                 var resultList = new List<UserKRARatingLists>
-        {
-            new UserKRARatingLists { Rating = (double)averageRating }
-        };
+                {
+                    new UserKRARatingLists { Rating = (double)averageRating }
+                };
 
                 return resultList;
             }

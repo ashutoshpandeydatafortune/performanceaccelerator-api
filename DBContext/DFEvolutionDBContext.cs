@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
+using DF_PA_API.Models;
 
 namespace DF_EvolutionAPI
 {
@@ -40,6 +41,10 @@ namespace DF_EvolutionAPI
         public virtual DbSet<IdentityRole> AspNetRoles { get; set; }
         public virtual DbSet<IdentityUser> AspNetUsers { get; set; }
         public virtual DbSet<ApplicationUserRole> AspNetUserRoles { get; set; }
+        public virtual DbSet<Skill> Skills { get; set; }
+        public virtual DbSet<SubSkill> SubSkills { get; set; }
+        public virtual DbSet<ResourceSkill> ResourceSkills { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -349,6 +354,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.IsDescriptionRequired).HasColumnName("IsDescriptionRequired");
+                e.Property(e => e.MinimumRatingForDescription).HasColumnName("MinimumRatingForDescription");
+                e.Property(e => e.FunctionId).HasColumnName("FunctionId");
             });
 
             modelBuilder.Entity<Role>(e =>
@@ -443,7 +451,9 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
-                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");                
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.FunctionId).HasColumnName("FunctionId");
+                
 
             });
 
@@ -474,6 +484,70 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
 
             });
+
+            modelBuilder.Entity<Skill>(e =>
+            {
+                e.ToTable("PA_Skills", "dbo");
+                e.Property(e => e.SkillId).HasColumnName("SkillId");
+                e.Property(e => e.Name).HasColumnName("Name");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.CategoryId).HasColumnName("CategoryId");
+              
+            });
+
+            modelBuilder.Entity<SubSkill>(e =>
+            {
+                e.ToTable("PA_SubSkills", "dbo");
+                e.Property(e => e.SubSkillId).HasColumnName("SubSkillId");
+                e.Property(e => e.SkillId).HasColumnName("SkillId");
+                e.Property(e => e.Name).HasColumnName("Name");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+             
+            });
+
+            modelBuilder.Entity<ResourceSkill>(e =>
+            {
+                e.ToTable("PA_ResourceSkills", "dbo");
+                e.Property(e => e.ResourceSkillId).HasColumnName("ResourceSkillId");
+                e.Property(e => e.SkillId).HasColumnName("SkillId");
+                e.Property(e => e.SubSkillId).HasColumnName("SubSkillId");
+                e.Property(e => e.ResourceId).HasColumnName("ResourceId");
+                e.Property(e => e.Experience).HasColumnName("Experience");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.SkillExperience).HasColumnName("SkillExperience");
+                e.Property(e => e.SubSkillExperience).HasColumnName("SubSkillExperience");
+            });
+
+            modelBuilder.Entity<Category>(e =>
+            {
+                e.ToTable("PA_Categories", "dbo");
+                e.Property(e => e.CategoryId).HasColumnName("CategoryId");
+                e.Property(e => e.CategoryName).HasColumnName("CategoryName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+
+            });
+
+
+
 
 
 
