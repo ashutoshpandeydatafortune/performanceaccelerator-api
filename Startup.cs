@@ -19,6 +19,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
 using DF_PA_API.Services;
+using DF_PA_API.Services.RolesMaster;
 
 namespace DF_EvolutionAPI
 {
@@ -91,7 +92,8 @@ namespace DF_EvolutionAPI
             services.AddScoped<ISubSkillService, SubSkillService>();
             services.AddScoped<IResourceSkillService, ResourceSkillService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            
+            services.AddScoped<IRolesMasterService, RolesMasterService>();
+
 
             services.AddIdentity<IdentityUser, IdentityRole>(
                    option =>
