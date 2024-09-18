@@ -7,7 +7,8 @@ namespace DF_PA_API.Models
     {
         [Key]
         public int RoleId { get; set; }
-        public string RoleName { get; set; }      
+        public string RoleName { get; set; }  
+        public string Description {  get; set; }     
         public byte? IsActive { get; set; }
         public int? CreateBy { get; set; }
         public int? UpdateBy { get; set; }

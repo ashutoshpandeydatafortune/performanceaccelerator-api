@@ -551,7 +551,8 @@ namespace DF_EvolutionAPI
             {
                 e.ToTable("PA_Roles", "dbo");
                 e.Property(e => e.RoleId).HasColumnName("RoleId");
-                e.Property(e => e.RoleName).HasColumnName("RoleName");               
+                e.Property(e => e.RoleName).HasColumnName("RoleName");
+                e.Property(e => e.Description).HasColumnName("Description");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
                 e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");

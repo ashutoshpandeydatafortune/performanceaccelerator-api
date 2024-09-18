@@ -38,33 +38,33 @@ namespace DF_PA_API.Controllers
             }
         }
 
-        /// <summary>
-        /// Update an existing role.
-        /// </summary>
-        /// <param name="roleMaster"></param>
-        /// <returns></returns>
-        [HttpPut]
-        [Route("Update")]
-        public async Task<IActionResult> UpdateRoleMaster(RoleMaster roleMaster)
-        {
-            try
+            /// <summary>
+            /// Update an existing role.
+            /// </summary>
+            /// <param name="roleMaster"></param>
+            /// <returns></returns>
+            [HttpPut]
+            [Route("[Action]")]
+            public async Task<IActionResult> UpdateRoleMaster(RoleMaster roleMaster)
             {
-                var response = await _rolesMasterService.UpdateRoleMaster(roleMaster);
-                return Ok(response);
+                try
+                {
+                    var response = await _rolesMasterService.UpdateRoleMaster(roleMaster);
+                    return Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
         /// <summary>
         /// Get all roles.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("GetAll")]
-        public async Task<IActionResult> GetAllRoles()
+        [Route("[Action]")]
+        public async Task<IActionResult> GetAllRolesMaster()
         {
             try
             {
@@ -83,7 +83,7 @@ namespace DF_PA_API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("Delete/{id}")]
+        [Route("DeleteRoleMaster/{id}")]
         public async Task<IActionResult> DeleteRoleMasterById(int id)
         {
             try

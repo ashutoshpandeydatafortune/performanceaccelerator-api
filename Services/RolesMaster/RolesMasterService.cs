@@ -71,6 +71,7 @@ namespace DF_PA_API.Services.RolesMaster
                 if (roleToUpdate != null)
                 {
                     roleToUpdate.RoleName = roleMaster.RoleName;
+                    roleToUpdate.Description = roleMaster.Description;
                     roleToUpdate.IsActive = 1;
                     roleToUpdate.UpdateBy = roleMaster.UpdateBy;
                     roleToUpdate.UpdateDate = DateTime.UtcNow;
