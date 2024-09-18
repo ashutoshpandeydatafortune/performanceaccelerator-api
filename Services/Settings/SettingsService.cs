@@ -1,13 +1,13 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Models.Response;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System;
 using System.Linq;
+using System.Data;
+using DF_PA_API.Models;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Utils;
+using System.Collections.Generic;
+using DF_EvolutionAPI.ViewModels;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -22,7 +22,7 @@ namespace DF_EvolutionAPI.Services
         }
 
         //Displays all the assign roles for particular roleid
-        public async Task<List<RoleMapping>> GetPermissionByRole(string roleId)
+        public async Task<List<RoleMapping>> GetPermissionsByRole(string roleId)
         {
             return _dbcontext.PA_RoleMappings
                 .Where(r => r.RoleId == roleId)
@@ -106,9 +106,14 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public async Task<List<IdentityRole>> GetAllRoles()
+        //public async Task<List<IdentityRole>> GetAllRoles()
+        //{
+        //    return _dbcontext.AspNetRoles.ToList();
+        //}
+
+        public async Task<List<RoleMaster>> GetAllRoles()
         {
-            return _dbcontext.AspNetRoles.ToList();
+            return  _dbcontext.RoleMasters.Where(r => r.IsActive == 1).ToList();
         }
 
         //Insert and update user roles.

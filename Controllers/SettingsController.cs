@@ -23,12 +23,12 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
        
         [HttpGet]
-        [Route("GetPermissionByRole/{roleId}")]
-        public async Task<IActionResult> GetPermissionByRole(string roleId)
+        [Route("GetPermissionsByRole/{roleId}")]
+        public async Task<IActionResult> GetPermissionsByRole(string roleId)
         {
             try
             {
-                var result = await _settings.GetPermissionByRole(roleId);
+                var result = await _settings.GetPermissionsByRole(roleId);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -10,7 +10,7 @@ namespace DF_PA_API.Services.RolesMaster
         Task<ResponseModel> CreateRoleMaster(RoleMaster roleMaster);
         Task<ResponseModel> UpdateRoleMaster(RoleMaster roleMaster);
         Task<List<RoleMaster>> GetAllRolesMaster();
-        Task<ResponseModel> DeleteRoleMasterById(int id);
+        Task<ResponseModel> DeleteRoleMasterById(string id);
 
     }
 }

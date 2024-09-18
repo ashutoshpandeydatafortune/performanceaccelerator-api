@@ -84,7 +84,7 @@ namespace DF_PA_API.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("DeleteRoleMaster/{id}")]
-        public async Task<IActionResult> DeleteRoleMasterById(int id)
+        public async Task<IActionResult> DeleteRoleMasterById(string id)
         {
             try
             {

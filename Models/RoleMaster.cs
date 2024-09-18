@@ -6,7 +6,7 @@ namespace DF_PA_API.Models
     public class RoleMaster
     {
         [Key]
-        public int RoleId { get; set; }
+        public string RoleId { get; set; }
         public string RoleName { get; set; }  
         public string Description {  get; set; }     
         public byte? IsActive { get; set; }

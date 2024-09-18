@@ -103,7 +103,7 @@ namespace DF_PA_API.Services.RolesMaster
                 .ToList();
         }
 
-        public async Task<ResponseModel> DeleteRoleMasterById(int id)
+        public async Task<ResponseModel> DeleteRoleMasterById(string id)
         {
             ResponseModel model = new ResponseModel();
 

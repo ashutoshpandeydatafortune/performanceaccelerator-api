@@ -14,6 +14,7 @@ using DF_EvolutionAPI.Models.Response;
 using System.Data;
 //using System.Reflection.Metadata;
 using DF_EvolutionAPI.Utils;
+using DF_PA_API.Models;
 
 namespace DF_EvolutionAPI.Services.Login
 {
@@ -23,20 +24,15 @@ namespace DF_EvolutionAPI.Services.Login
 
         private IResourceService _resourceService;
         private readonly DFEvolutionDBContext _dbContext;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
-
 
         public LoginService(
             DFEvolutionDBContext dbContext,
             IResourceService resourceService,
-            RoleManager<IdentityRole> roleManager,
             UserManager<IdentityUser> userManager
-
         )
         {
             _dbContext = dbContext;
-            _roleManager = roleManager;
             _userManager = userManager;
             _resourceService = resourceService;
 
@@ -47,13 +43,12 @@ namespace DF_EvolutionAPI.Services.Login
 
         public async Task<LoginResponse> ExternalLogin(UserAuthModel uam, IConfiguration configuration)
         {
-
             if (uam.AccountType == "MICROSOFT")
             {
-
                 var existingUser = await _userManager.FindByEmailAsync(uam.Username);
-                var roleId = _dbContext.AspNetRoles.Where(roleid => roleid.Name == Constant.ROLE_NAME)
-                            .FirstOrDefault() ?? throw new Exception("Role does not exist.");
+
+                var roleId = _dbContext.RoleMasters.FirstOrDefault(r => r.RoleName == Constant.ROLE_NAME)
+                             ?? throw new Exception("Role does not exist.");
 
                 if (existingUser == null)
                 {
@@ -62,7 +57,7 @@ namespace DF_EvolutionAPI.Services.Login
 
                     if (result.Succeeded)
                     {
-                        await AddUserRole(registerUser.Id, roleId.Id);
+                        await AddUserRole(registerUser.Id, roleId.RoleId);
                     }
                 }
                 else
@@ -70,13 +65,12 @@ namespace DF_EvolutionAPI.Services.Login
                     //Checking role for existing user.
                     var existingRole = _dbContext.AspNetUserRoles.Where(userRole => userRole.UserId == existingUser.Id
                                         && userRole.ApplicationName == Constant.APPLICATION_NAME)
-                                        .FirstOrDefault();
+                        .FirstOrDefault();
 
                     if (existingRole == null)
                     {
-                        await AddUserRole(existingUser.Id, roleId.Id);
+                        await AddUserRole(existingUser.Id, roleId.RoleId);
                     }
-
                 }
 
                 var user = await _userManager.FindByEmailAsync(uam.Username);
@@ -91,17 +85,20 @@ namespace DF_EvolutionAPI.Services.Login
                 };
 
                 // get user roles
-                var userRoleNames = await _userManager.GetRolesAsync(user);
+                var userRoles = await _userManager.GetRolesAsync(user);
 
                 List<Role> roles = new List<Role>();
-                foreach (var userRoleName in userRoleNames)
+                foreach (var userRoleName in userRoles)
                 {
-                    var identityRole = await _roleManager.FindByNameAsync(userRoleName);
-
-                    var role = new Role();
-                    role.RoleName = userRoleName;
-                    role.RoleMappings = GetRoleMapping(identityRole);
-                    roles.Add(role);
+                    var role = _dbContext.RoleMasters.FirstOrDefault(r => r.RoleName == userRoleName);
+                    if (role != null)
+                    {
+                        roles.Add(new Role
+                        {
+                            RoleName = userRoleName,
+                            RoleMappings = GetRoleMapping(role)
+                        });
+                    }
                 }
 
                 JwtSecurityToken token = GetAuthToken(configuration, claims);
@@ -112,7 +109,6 @@ namespace DF_EvolutionAPI.Services.Login
                 string resourceName;
 
                 Resource resource = await _resourceService.GetResourceByEmailId(user.UserName);
-
                 if (resource == null || resource.ResourceId == 0)
                 {
                     throw new Exception("Resource Not Available !!!");
@@ -125,14 +121,9 @@ namespace DF_EvolutionAPI.Services.Login
                     reportingTo = (int)resource.ReportingTo;
                 }
 
-                TechFunction TechFunction = null;
+                var techFunction = resource.FunctionId.HasValue ? GetTechFunction(resource.FunctionId.Value) : null;
 
-                if (resource.FunctionId != null && resource.FunctionId.HasValue)
-                {
-                    TechFunction = GetTechFunction(resource.FunctionId.Value);
-                }
-
-                return new LoginResponse()
+                return new LoginResponse
                 {
                     Id = user.Id,
                     Roles = roles,
@@ -143,7 +134,7 @@ namespace DF_EvolutionAPI.Services.Login
                     ResourceName = resourceName,
                     ReportingToId = reportingTo,
                     Expiration = token.ValidTo,
-                    ResourceFunction = TechFunction,
+                    ResourceFunction = techFunction,
                     DesignationName = resource.DesignationName,
                     DesignationId = resource.DesignationId.Value,
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
@@ -154,17 +145,16 @@ namespace DF_EvolutionAPI.Services.Login
                 throw new Exception("Account type does not match");
             }
         }
-        //Method for register user
+
         private static IdentityUser RegisterUser(UserAuthModel uam)
         {
-            var newUser = new IdentityUser
+            return new IdentityUser
             {
                 Email = uam.Username,
                 UserName = uam.Username,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 EmailConfirmed = true
             };
-            return newUser;
         }
 
         //Method for adding the role for user
@@ -180,16 +170,15 @@ namespace DF_EvolutionAPI.Services.Login
             _dbContext.AspNetUserRoles.Add(newUserRole);
             await _dbContext.SaveChangesAsync();
         }
-        private List<RoleMapping> GetRoleMapping(IdentityRole role)
+
+        private List<RoleMapping> GetRoleMapping(RoleMaster role)
         {
-            return (
-                    from rm in _dbContext.PA_RoleMappings
-                    where rm.RoleId == role.Id
-                    select rm
-                   ).ToList();
+            return _dbContext.PA_RoleMappings
+                .Where(rm => rm.RoleId == role.RoleId)
+                .ToList();
         }
 
-        private TechFunction GetTechFunction(int functionId)//Renamed parameter from resourceFunctionId to functionId to avoid confusion
+        private TechFunction GetTechFunction(int functionId)
         {
             return (
                     from rf in _dbContext.TechFunctions
@@ -205,11 +194,11 @@ namespace DF_EvolutionAPI.Services.Login
             int expiryInMinutes = Convert.ToInt32(configuration["Jwt:ExpiryInMinutes"]);
 
             var token = new JwtSecurityToken(
-              issuer: configuration["Jwt:Site"],
-              audience: configuration["Jwt:Site"],
-              expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
-              signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature),
-              claims: claims
+                issuer: configuration["Jwt:Site"],
+                audience: configuration["Jwt:Site"],
+                expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
+                signingCredentials: new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature),
+                claims: claims
             );
 
             return token;
