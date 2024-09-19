@@ -47,7 +47,6 @@ namespace DF_EvolutionAPI
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<RoleMaster> RoleMasters { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

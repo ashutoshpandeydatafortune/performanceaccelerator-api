@@ -1,9 +1,8 @@
-﻿using DF_PA_API.Services.RolesMaster;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using DF_PA_API.Models;
-using DF_PA_API.Services;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using DF_PA_API.Services.RolesMaster;
 
 namespace DF_PA_API.Controllers
 {

@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Linq;
+using System.Data;
 using System.Text;
 using System.Net.Http;
+using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using System.Security.Claims;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Configuration;
-using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Models.Response;
-using System.Data;
-//using System.Reflection.Metadata;
-using DF_EvolutionAPI.Utils;
-using DF_PA_API.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace DF_EvolutionAPI.Services.Login
 {

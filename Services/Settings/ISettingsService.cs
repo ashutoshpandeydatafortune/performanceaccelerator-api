@@ -1,9 +1,8 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using DF_PA_API.Models;
-using Microsoft.AspNetCore.Identity;
-using System.Collections.Generic;
+﻿using DF_PA_API.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
 
 namespace DF_EvolutionAPI.Services
 {

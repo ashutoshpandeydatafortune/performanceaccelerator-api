@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Data;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
-using DF_EvolutionAPI.Utils;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services
@@ -24,9 +25,9 @@ namespace DF_EvolutionAPI.Services
         //Displays all the assign roles for particular roleid
         public async Task<List<RoleMapping>> GetPermissionsByRole(string roleId)
         {
-            return _dbcontext.PA_RoleMappings
+            return await _dbcontext.PA_RoleMappings
                 .Where(r => r.RoleId == roleId)
-                .ToList();
+                .ToListAsync();
         }
 
         public async Task<ResponseModel> UpdatePermissionByRole(RoleMapping roleMapping)
@@ -106,14 +107,11 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        //public async Task<List<IdentityRole>> GetAllRoles()
-        //{
-        //    return _dbcontext.AspNetRoles.ToList();
-        //}
-
         public async Task<List<RoleMaster>> GetAllRoles()
         {
-            return  _dbcontext.RoleMasters.Where(r => r.IsActive == 1).ToList();
+            return await _dbcontext.RoleMasters.Where(r => r.IsActive == 1)
+                     .OrderBy(role => role.CreateDate)
+                    .ToListAsync();
         }
 
         //Insert and update user roles.

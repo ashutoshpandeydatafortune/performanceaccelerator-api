@@ -1,11 +1,11 @@
-﻿using DF_EvolutionAPI;
-using DF_EvolutionAPI.ViewModels;
+﻿using System;
+using System.Linq;
+using DF_EvolutionAPI;
 using DF_PA_API.Models;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
 using System.Collections.Generic;
+using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_PA_API.Services.RolesMaster
 {
@@ -98,9 +98,10 @@ namespace DF_PA_API.Services.RolesMaster
 
         public async Task<List<RoleMaster>> GetAllRolesMaster()
         {
-            return  _dbContext.RoleMasters
+            return await _dbContext.RoleMasters
                 .Where(role => role.IsActive == 1)
-                .ToList();
+                .OrderBy(role => role.CreateDate)
+                .ToListAsync();
         }
 
         public async Task<ResponseModel> DeleteRoleMasterById(string id)
