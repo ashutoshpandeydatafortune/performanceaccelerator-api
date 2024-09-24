@@ -103,15 +103,15 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// It is used to update the Resourceskill.
         /// </summary>
-        /// <param skillName="skillName"></param>
+        /// <param name="searchSkillModel"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("GetResourceSkills")]
-        public async Task<IActionResult> GetResourcesBySkill(int skillId, int resourceId)
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> GetResourcesBySkill(SearchSkill searchSkillModel)
         {
             try
             {
-                var response = await _resourceSkillService.GetResourcesBySkill(skillId, resourceId);
+                var response = await _resourceSkillService.GetResourcesBySkill(searchSkillModel);
                 return Ok(response);
             }
             catch (Exception ex)

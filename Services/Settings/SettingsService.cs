@@ -110,7 +110,7 @@ namespace DF_EvolutionAPI.Services
         public async Task<List<RoleMaster>> GetAllRoles()
         {
             return await _dbcontext.RoleMasters.Where(r => r.IsActive == 1)
-                     .OrderBy(role => role.CreateDate)
+                     .OrderBy(role => role.RoleName)
                     .ToListAsync();
         }
 
