@@ -252,8 +252,9 @@ namespace DF_EvolutionAPI.Services
                             r.TotalYears,
                             NewSkillId = skill.SkillId,
                             SkillName = skill.Name,
-                            NewSubSkillId = subSkill.SubSkillId,
-                            SubSkillName = subSkill.Name
+                            NewSubSkillId = subSkill != null ? subSkill.SubSkillId : (int?)null, // Allow null SubSkillId
+                            SubSkillName = subSkill != null ? subSkill.Name : null // Allow null SubSkillName
+
                         };
 
             // Step 1: Identify matching resources based on SearchKey, SkillIds, or SubSkillIds
@@ -281,7 +282,7 @@ namespace DF_EvolutionAPI.Services
                 if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
                 {
                     matchedResourceIds = query
-                        .Where(r => skillModel.SubSkillIds.Contains(r.NewSubSkillId))
+                        .Where(r => skillModel.SubSkillIds.Contains((int)r.NewSubSkillId))
                         .Select(r => r.ResourceId);
                 }
             }
