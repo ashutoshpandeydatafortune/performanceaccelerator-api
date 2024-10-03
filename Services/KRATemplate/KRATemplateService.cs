@@ -28,8 +28,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
                 if (existingTemplate == null)
                 {
-                    paTemplates.IsActive = 1;
-                    paTemplates.CreateBy = 1;
+                    paTemplates.IsActive = 1;                   
                     paTemplates.CreateDate = DateTime.Now;
 
                     _dbContext.Add(paTemplates);
@@ -74,8 +73,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         updatetemplate.Name = paTemplates.Name;
                         updatetemplate.Description = paTemplates.Description;
                         updatetemplate.IsActive = 1;
-                        paTemplates.UpdateBy = 1;
-                        paTemplates.UpdateDate = DateTime.Now;
+                        updatetemplate.UpdateBy = paTemplates.UpdateBy;
+                        updatetemplate.UpdateDate = DateTime.Now;
                         updatetemplate.FunctionId = paTemplates.FunctionId;
 
                         await _dbContext.SaveChangesAsync();
@@ -239,7 +238,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 foreach (var existingRecord in existingRecords)
                 {
                     existingRecord.IsActive = 0;
-                    existingRecord.UpdateBy = 1;
+                    existingRecord.UpdateBy = paTemplateDesignation.CreateBy;
                     existingRecord.UpdateDate = DateTime.Now;
                     _dbContext.PA_TemplateDesignations.Update(existingRecord);
                 }
@@ -257,7 +256,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                                 TemplateId = paTemplateDesignation.TemplateId,
                                 DesignationId = designationId,
                                 IsActive = 1,
-                                CreateBy = 1,
+                                CreateBy = paTemplateDesignation.CreateBy,
                                 CreateDate = DateTime.Now
                             };
 
@@ -290,7 +289,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 foreach (var existingRecord in existingRecords)
                 {
                     existingRecord.IsActive = 0;
-                    existingRecord.UpdateBy = 1;
+                    existingRecord.UpdateBy = paTemplateKras.CreateBy;
                     existingRecord.UpdateDate = DateTime.Now;
                     _dbContext.PA_TemplateKras.Update(existingRecord);
                 }
@@ -305,7 +304,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             {
                                 TemplateId = paTemplateKras.TemplateId,
                                 KraId = kraid,
-                                CreateBy = 1,
+                                CreateBy = paTemplateKras.CreateBy,
                                 IsActive = 1,
                                 CreateDate = DateTime.Now
                             };
