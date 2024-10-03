@@ -47,6 +47,8 @@ namespace DF_EvolutionAPI.Services
                     existingRoleMappings.CanDelete = roleMapping.CanDelete;
                     existingRoleMappings.IsActive = 1;
                     existingRoleMappings.UpdateDate = DateTime.Now;
+                    existingRoleMappings.UpdateBy = roleMapping.UpdateBy;
+
 
                     await _dbcontext.SaveChangesAsync();
                 }
@@ -87,7 +89,8 @@ namespace DF_EvolutionAPI.Services
                         CanWrite = roleMapping.CanWrite,
                         CanDelete = roleMapping.CanDelete,
                         IsActive = 1,
-                        CreateDate = DateTime.Now
+                        CreateDate = DateTime.Now,
+                        CreateBy = roleMapping.CreateBy,
                     };
 
                     _dbcontext.PA_RoleMappings.Add(newRoleMapping);
