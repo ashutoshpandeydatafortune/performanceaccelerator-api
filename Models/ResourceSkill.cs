@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_EvolutionAPI.Models
 
@@ -21,27 +19,18 @@ namespace DF_EvolutionAPI.Models
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
-        public Skill Skill { get; set; }
-
-        public SubSkill SubSkill { get; set; }
-
     }
 
     public class ResourceSkillRequestModel
     {
         public int ResourceId { get; set; }
-        public string ResourceName { get; set; }
-        public int ResourceSkillId { get; set; }
         public byte? IsActive { get; set; }
         public int CreateBy { get; set; }
         public List<SkillCategory> SkillCategories { get; set; }
-
     }
 
     public class SkillCategory
     {
-        [NotMapped]
-        public string CategoryName { get; set; }
         public List<SkillModel> Skills { get; set; }
     }
 
@@ -49,9 +38,10 @@ namespace DF_EvolutionAPI.Models
     {
         public int ResourceId { get; set; }
         public string ResourceName { get; set; }
+        public double? TotalYears { get; set; }
+        public DateTime? DateOfJoin { get; set; }
         public List<SkillModel> Skills { get; set; }
     }
-
 
     public class FetchResourceCategorySkills
     {

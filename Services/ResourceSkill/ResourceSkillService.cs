@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using static DF_EvolutionAPI.Models.ResourceSkill;
+using NuGet.Protocol;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -19,7 +20,7 @@ namespace DF_EvolutionAPI.Services
         {
             _dbContext = dbContext;
         }
-      
+
         public async Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             ResponseModel model = new ResponseModel();
@@ -102,7 +103,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == 1 
+                where rs.IsActive == 1
                 select new
                 {
                     r.ResourceId,
@@ -232,32 +233,64 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult;
         }
-
-
-
-        public async Task<List<FetchResourceSkill>> GetResourcesBySkill(int skillId, int resourceId)
+        public async Task<List<FetchResourceSkill>> GetResourcesBySkill(SearchSkill skillModel)
         {
-            //var skillId = _dbContext.Skills.Where(name => name.Name == skillName)
-            //       .Select(name => name.SkillId)
-            //       .FirstOrDefault();
-            var result = await (
-                from rs in _dbContext.ResourceSkills
-                join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
-                join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
-                from skill in skillGroup.DefaultIfEmpty()
-                join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
-                from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == 1 && rs.SkillId == skillId && r.ResourceId == resourceId // Filter by SkillId
-                select new
+            // Base query for resource, skills, and subskills
+            var query = from rs in _dbContext.ResourceSkills
+                        join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
+                        join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
+                        from skill in skillGroup.DefaultIfEmpty()
+                        join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+                        from subSkill in subSkillGroup.DefaultIfEmpty()
+                        select new
+                        {
+                            r.ResourceId,
+                            r.ResourceName,
+                            rs.SkillExperience,
+                            rs.SubSkillExperience,
+                            r.DateOfJoin,
+                            r.TotalYears,
+                            NewSkillId = skill.SkillId,
+                            SkillName = skill.Name,
+                            NewSubSkillId = subSkill != null ? subSkill.SubSkillId : (int?)null, // Allow null SubSkillId
+                            SubSkillName = subSkill != null ? subSkill.Name : null // Allow null SubSkillName
+
+                        };
+
+            // Step 1: Identify matching resources based on SearchKey, SkillIds, or SubSkillIds
+            IQueryable<int> matchedResourceIds = query.Select(q => q.ResourceId);
+
+            // If SearchKey is provided, find resources that match the SearchKey
+            if (!string.IsNullOrEmpty(skillModel.SearchKey))
+            {
+                matchedResourceIds = query
+                    .Where(r => r.SkillName.Contains(skillModel.SearchKey) ||
+                                r.SubSkillName.Contains(skillModel.SearchKey))
+                    .Select(r => r.ResourceId);
+            }
+            else
+            {
+                // If SkillIds are provided, find resources that have matching SkillIds or SubSkillIds
+                if (skillModel.SkillIds != null && skillModel.SkillIds.Count > 0)
                 {
-                    r.ResourceId,
-                    r.ResourceName,
-                    NewSkillId = skill.SkillId,
-                    SkillName = skill.Name,
-                    NewSubSkillId = subSkill.SubSkillId,
-                    SubSkillName = subSkill.Name
+                    matchedResourceIds = query
+                        .Where(r => skillModel.SkillIds.Contains(r.NewSkillId))
+                        .Select(r => r.ResourceId);
                 }
-            ).ToListAsync();
+
+                // If SubSkillIds are provided, find resources that have matching SubSkillIds
+                if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
+                {
+                    matchedResourceIds = query
+                        .Where(r => skillModel.SubSkillIds.Contains((int)r.NewSubSkillId))
+                        .Select(r => r.ResourceId);
+                }
+            }
+            // Step 2: Fetch all skills for matched resources
+            var filteredQuery = query.Where(r => matchedResourceIds.Contains(r.ResourceId));
+
+            // Execute the filtered query
+            var result = await filteredQuery.ToListAsync();
 
             // Group the results by ResourceId
             var groupedResults = result.GroupBy(r => r.ResourceId);
@@ -265,7 +298,7 @@ namespace DF_EvolutionAPI.Services
             // Create a list to hold the final FetchResourceSkill objects
             var finalResult = new List<FetchResourceSkill>();
 
-            // Iterate over each group and create the FetchResourceSkill objects
+            // Step 3: Iterate over each group and create the FetchResourceSkill objects
             foreach (var group in groupedResults)
             {
                 var skills = new List<SkillModel>();
@@ -275,35 +308,42 @@ namespace DF_EvolutionAPI.Services
 
                 foreach (var skillGroup in skillGroups)
                 {
+                    // Get all subskills for each skill
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != 0)
+                        .Where(r => r.NewSubSkillId != 0) // Ensure no invalid subskills
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
                             SubSkillName = r.SubSkillName
                         }).ToList();
 
-                    var skillModel = new SkillModel
+                    var skillModels = new SkillModel
                     {
                         SkillId = skillGroup.Key,
                         SkillName = skillGroup.First().SkillName,
-                        SubSkills = subSkills
+                        SkillExperience = skillGroup.First().SkillExperience,
+                        SubSkills = subSkills // Add the subskills for each skill
                     };
 
-                    skills.Add(skillModel);
+                    skills.Add(skillModels);
                 }
 
+                // Create the FetchResourceSkill object for each resource
                 var fetchResourceSkill = new FetchResourceSkill
                 {
-                    //ResourceId = group.Key,
-                    //ResourceName = group.First().ResourceName,
-                    Skills = skills
+                    ResourceId = group.Key,
+                    ResourceName = group.First().ResourceName,
+                    DateOfJoin = group.First().DateOfJoin,
+                    TotalYears = group.First().TotalYears,
+                    Skills = skills // Add the skills (with subskills) for the resource
                 };
 
                 finalResult.Add(fetchResourceSkill);
             }
+
             return finalResult;
         }
     }
+
 }
 

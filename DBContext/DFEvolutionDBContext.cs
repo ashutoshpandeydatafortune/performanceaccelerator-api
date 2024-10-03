@@ -45,7 +45,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<SubSkill> SubSkills { get; set; }
         public virtual DbSet<ResourceSkill> ResourceSkills { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
-       
+        public virtual DbSet<RoleMaster> RoleMasters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -425,6 +425,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
                
             });
 
@@ -546,6 +548,19 @@ namespace DF_EvolutionAPI
 
             });
 
+            modelBuilder.Entity<RoleMaster>(e =>
+            {
+                e.ToTable("PA_Roles", "dbo");
+                e.Property(e => e.RoleId).HasColumnName("RoleId");
+                e.Property(e => e.RoleName).HasColumnName("RoleName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+
+            });
 
 
 

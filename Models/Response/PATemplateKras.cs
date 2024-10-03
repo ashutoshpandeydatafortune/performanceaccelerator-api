@@ -31,6 +31,7 @@ namespace DF_EvolutionAPI.Models.Response
     public class PATtemplateKrasList
     {
         public int TemplateId { get; set; }
+        public int CreateBy { get; set; }
         public List<int> KraIds { get; set; }
        
 

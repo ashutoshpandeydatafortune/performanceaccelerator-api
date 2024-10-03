@@ -31,6 +31,7 @@ namespace DF_EvolutionAPI.Models.Response
     public class PATtemplateDesignationList
     {
         public int TemplateId { get; set; }
+        public int CreateBy { get; set; }
         public List<int> DesignationIds { get; set; }
        
 

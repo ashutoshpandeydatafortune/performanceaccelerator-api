@@ -1,13 +1,14 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Models.Response;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Data;
+using DF_PA_API.Models;
 using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -22,11 +23,11 @@ namespace DF_EvolutionAPI.Services
         }
 
         //Displays all the assign roles for particular roleid
-        public async Task<List<RoleMapping>> GetPermissionByRole(string roleId)
+        public async Task<List<RoleMapping>> GetPermissionsByRole(string roleId)
         {
-            return _dbcontext.PA_RoleMappings
+            return await _dbcontext.PA_RoleMappings
                 .Where(r => r.RoleId == roleId)
-                .ToList();
+                .ToListAsync();
         }
 
         public async Task<ResponseModel> UpdatePermissionByRole(RoleMapping roleMapping)
@@ -46,6 +47,8 @@ namespace DF_EvolutionAPI.Services
                     existingRoleMappings.CanDelete = roleMapping.CanDelete;
                     existingRoleMappings.IsActive = 1;
                     existingRoleMappings.UpdateDate = DateTime.Now;
+                    existingRoleMappings.UpdateBy = roleMapping.UpdateBy;
+
 
                     await _dbcontext.SaveChangesAsync();
                 }
@@ -86,7 +89,8 @@ namespace DF_EvolutionAPI.Services
                         CanWrite = roleMapping.CanWrite,
                         CanDelete = roleMapping.CanDelete,
                         IsActive = 1,
-                        CreateDate = DateTime.Now
+                        CreateDate = DateTime.Now,
+                        CreateBy = roleMapping.CreateBy,
                     };
 
                     _dbcontext.PA_RoleMappings.Add(newRoleMapping);
@@ -106,9 +110,11 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public async Task<List<IdentityRole>> GetAllRoles()
+        public async Task<List<RoleMaster>> GetAllRoles()
         {
-            return _dbcontext.AspNetRoles.ToList();
+            return await _dbcontext.RoleMasters.Where(r => r.IsActive == 1)
+                     .OrderBy(role => role.RoleName)
+                    .ToListAsync();
         }
 
         //Insert and update user roles.
