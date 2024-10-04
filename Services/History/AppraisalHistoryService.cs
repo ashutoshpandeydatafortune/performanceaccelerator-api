@@ -1,10 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using DF_PA_API.Models;
 
 namespace DF_EvolutionAPI.Services.History
 {
@@ -19,7 +20,7 @@ namespace DF_EvolutionAPI.Services.History
         
         public async Task<List<AppraisalHistory>> GetAllAppraisalHistoryList()
         {
-            return await _dbcontext.AppraisalHistory.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.AppraisalHistory.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<AppraisalHistory> GetAppraisalHistoryById(int appraisalHistoryId)
@@ -51,7 +52,7 @@ namespace DF_EvolutionAPI.Services.History
                     appraisalHistory.LastAppraisal = appraisalHistoryModel.LastAppraisal;
                     appraisalHistory.Percentage = appraisalHistoryModel.Percentage;
                     appraisalHistory.LastAppraisalDate = appraisalHistoryModel.LastAppraisalDate;
-                    appraisalHistory.IsActive = 1;
+                    appraisalHistory.IsActive = (int)Status.IS_ACTIVE;
                     appraisalHistory.UpdateBy = 1;
                     appraisalHistory.UpdateDate = DateTime.Now;
 
@@ -61,7 +62,7 @@ namespace DF_EvolutionAPI.Services.History
                 }
                 else
                 {
-                    appraisalHistoryModel.IsActive = 1;
+                    appraisalHistoryModel.IsActive = (int)Status.IS_ACTIVE;
                     appraisalHistoryModel.CreateBy = 1;
                     appraisalHistoryModel.UpdateBy = 1;
                     appraisalHistoryModel.CreateDate = DateTime.Now;
@@ -153,7 +154,7 @@ namespace DF_EvolutionAPI.Services.History
 
                 var userInfo = await (
                     from s in _dbcontext.UserKRA
-                    where s.Id == appraisalHistory.UserId && s.IsActive == 1
+                    where s.Id == appraisalHistory.UserId && s.IsActive == (int)Status.IS_ACTIVE
                     select s).FirstAsync();
 
                 model.IsSuccess = true;

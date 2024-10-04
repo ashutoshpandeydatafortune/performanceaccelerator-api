@@ -45,7 +45,7 @@ namespace DF_EvolutionAPI.Services
                     existingRoleMappings.CanRead = roleMapping.CanRead;
                     existingRoleMappings.CanWrite = roleMapping.CanWrite;
                     existingRoleMappings.CanDelete = roleMapping.CanDelete;
-                    existingRoleMappings.IsActive = 1;
+                    existingRoleMappings.IsActive = (int)Status.IS_ACTIVE;
                     existingRoleMappings.UpdateDate = DateTime.Now;
                     existingRoleMappings.UpdateBy = roleMapping.UpdateBy;
 
@@ -88,7 +88,7 @@ namespace DF_EvolutionAPI.Services
                         CanRead = roleMapping.CanRead,
                         CanWrite = roleMapping.CanWrite,
                         CanDelete = roleMapping.CanDelete,
-                        IsActive = 1,
+                        IsActive = (int)Status.IS_ACTIVE,
                         CreateDate = DateTime.Now,
                         CreateBy = roleMapping.CreateBy,
                     };
@@ -112,7 +112,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<RoleMaster>> GetAllRoles()
         {
-            return await _dbcontext.RoleMasters.Where(r => r.IsActive == 1)
+            return await _dbcontext.RoleMasters.Where(r => r.IsActive == (int)Status.IS_ACTIVE)
                      .OrderBy(role => role.RoleName)
                     .ToListAsync();
         }

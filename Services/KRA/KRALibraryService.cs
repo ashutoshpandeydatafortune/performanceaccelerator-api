@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
@@ -27,7 +28,7 @@ namespace DF_EvolutionAPI.Services.KRA
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId into kraTechGroup
                             from techFunc in kraTechGroup.DefaultIfEmpty()
-                            where kraLibrary.IsActive == 1 && (kraLibrary.FunctionId == null || techFunc.FunctionId != null)
+                            where kraLibrary.IsActive == (int)Status.IS_ACTIVE && (kraLibrary.FunctionId == null || techFunc.FunctionId != null)
                             select new KRAList
                             {
                                 Id = kraLibrary.Id,
@@ -50,7 +51,7 @@ namespace DF_EvolutionAPI.Services.KRA
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
-                            where kraLibrary.IsActive == 1 && kraLibrary.IsSpecial != 1
+                            where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.IsSpecial != 1
                             select new KRAList
                             {
                                 Id= kraLibrary.Id,
@@ -98,7 +99,7 @@ namespace DF_EvolutionAPI.Services.KRA
                                                       kra.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
                                                       kra.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
                                                       kra.Description == kraLibraryModel.Description &&
-                                                      kra.IsActive == 1
+                                                      kra.IsActive == (int)Status.IS_ACTIVE
                                                 select kra).FirstOrDefaultAsync();
                 if (existingKraLibrary != null)
                 {
@@ -149,7 +150,7 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.Comment = "test ";
                     kraLibraryModel.IsSpecial = kraLibraryModel.IsSpecial;
                     kraLibraryModel.IsDefault = 1;
-                    kraLibraryModel.IsActive = 1;
+                    kraLibraryModel.IsActive = (int)Status.IS_ACTIVE;
                     kraLibraryModel.CreateBy = kraLibraryModel.CreateBy;
                     kraLibraryModel.CreateDate = DateTime.Now;
                     kraLibraryModel.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
@@ -187,7 +188,7 @@ namespace DF_EvolutionAPI.Services.KRA
                 if (kraLibrary != null)
                 {
                     kraLibrary.IsDeleted = 1;
-                    kraLibrary.IsActive = 0;
+                    kraLibrary.IsActive = (int)Status.IN_ACTIVE;
 
                     _dbcontext.Update(kraLibrary);
                     _dbcontext.SaveChanges();
@@ -220,7 +221,7 @@ namespace DF_EvolutionAPI.Services.KRA
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryId);
                 kraweightage = await (
                     from kw in _dbcontext.KRAWeightages
-                    where kw.Id == kraLibrary.WeightageId && kw.IsActive == 1
+                    where kw.Id == kraLibrary.WeightageId && kw.IsActive == (int)Status.IS_ACTIVE
                     select kw).FirstAsync();
 
                 model.IsSuccess = false;
@@ -304,7 +305,7 @@ namespace DF_EvolutionAPI.Services.KRA
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
-                            where kraLibrary.IsActive == 1 && kraLibrary.FunctionId == functionId
+                            where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.FunctionId == functionId
                             select new KRAList
                             {
                                 Id = kraLibrary.Id,

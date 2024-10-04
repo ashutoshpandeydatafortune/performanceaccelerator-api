@@ -1,10 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using System.Threading.Tasks;
-using System;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -25,13 +26,13 @@ namespace DF_EvolutionAPI.Services
                 var subSkill = await (
                      from skill in _dbContext.Skills
                      join subskill in _dbContext.SubSkills on skill.SkillId equals subskill.SkillId
-                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.IsActive == 1 && subskill.IsActive == 1
+                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.IsActive == (int)Status.IS_ACTIVE && subskill.IsActive == (int)Status.IS_ACTIVE
                      select subskill
                  ).FirstOrDefaultAsync();
 
                 if (subSkill == null)
                 {
-                    subSkillModel.IsActive = 1;
+                    subSkillModel.IsActive = (int)Status.IS_ACTIVE;
                     subSkillModel.CreateDate = DateTime.UtcNow;
 
                     _dbContext.Add(subSkillModel);
@@ -62,7 +63,7 @@ namespace DF_EvolutionAPI.Services
                 var subSkill = await (
                      from skill in _dbContext.Skills
                      join subskill in _dbContext.SubSkills on skill.SkillId equals subskill.SkillId
-                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.Description == subSkillModel.Description && skill.IsActive == 1 && subskill.IsActive == 1
+                     where skill.SkillId == subSkillModel.SkillId && subskill.Name == subSkillModel.Name && skill.Description == subSkillModel.Description && skill.IsActive == (int)Status.IS_ACTIVE && subskill.IsActive == (int)Status.IS_ACTIVE
                      select subskill
                  ).FirstOrDefaultAsync();
 
@@ -80,7 +81,7 @@ namespace DF_EvolutionAPI.Services
                         updateSubSkill.Name = subSkillModel.Name;
                         updateSubSkill.SkillId = subSkillModel.SkillId;
                         updateSubSkill.Description = subSkillModel.Description;
-                        updateSubSkill.IsActive = 1;
+                        updateSubSkill.IsActive = (int)Status.IS_ACTIVE;
                         updateSubSkill.UpdateBy = subSkillModel.UpdateBy;
                         updateSubSkill.UpdateDate = DateTime.Now;
 
@@ -109,12 +110,12 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<SubSkill>> GetAllSubSkills()
         {
-            return await _dbContext.SubSkills.Where(subskill => subskill.IsActive == 1).ToListAsync();
+            return await _dbContext.SubSkills.Where(subskill => subskill.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<SubSkill> GetSubSkillById(int id)
         {
-            return await _dbContext.SubSkills.Where(subskill => subskill.SkillId == id && subskill.IsActive == 1).FirstOrDefaultAsync() ?? throw new Exception("SubSkill does not exist."); ;
+            return await _dbContext.SubSkills.Where(subskill => subskill.SkillId == id && subskill.IsActive == (int)Status.IS_ACTIVE).FirstOrDefaultAsync() ?? throw new Exception("SubSkill does not exist."); ;
         }
 
         public async Task<ResponseModel> DeleteSubSkillById(int id)
@@ -125,7 +126,7 @@ namespace DF_EvolutionAPI.Services
                 var deleteSubSkill = _dbContext.SubSkills.Find(id);
                 if (deleteSubSkill != null)
                 {
-                    deleteSubSkill.IsActive = 0;
+                    deleteSubSkill.IsActive = (int)Status.IN_ACTIVE;
                     deleteSubSkill.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();

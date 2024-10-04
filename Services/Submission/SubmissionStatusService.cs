@@ -1,5 +1,6 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
+using DF_PA_API.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace DF_EvolutionAPI.Services.Submission
 
         public async Task<List<SubmissionStatus>> GetAllSubmissionStatusList()
         {
-            return await _dbcontext.SubmissionStatus.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.SubmissionStatus.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<SubmissionStatus> GetSubmissionStatusById(int submissionStatusId)
@@ -50,7 +51,7 @@ namespace DF_EvolutionAPI.Services.Submission
                     submissionStatus.SubmissionName = submissionstatusModel.SubmissionName;
                     submissionStatus.Description = submissionstatusModel.Description;
                     submissionStatus.StatusId = submissionstatusModel.StatusId;
-                    submissionStatus.IsActive = 1;
+                    submissionStatus.IsActive = (int)Status.IS_ACTIVE;
                     submissionStatus.UpdateBy = 1;
                     submissionStatus.UpdateDate = DateTime.Now;
 
@@ -60,7 +61,7 @@ namespace DF_EvolutionAPI.Services.Submission
                 }
                 else
                 {
-                    submissionstatusModel.IsActive = 1;
+                    submissionstatusModel.IsActive = (int)Status.IS_ACTIVE;
                     submissionstatusModel.CreateBy = 1;
                     submissionstatusModel.UpdateBy = 1;
                     submissionstatusModel.CreateDate = DateTime.Now;

@@ -1,10 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
+﻿using System;
+using System.Linq;
+using DF_PA_API.Models;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -21,7 +22,7 @@ namespace DF_EvolutionAPI.Services
         {
             if (type == "current")
             {
-                return await _dbcontext.QuarterDetails.Where(c => c.IsActive == 1).OrderBy(x => x.QuarterYear).ToListAsync();
+                return await _dbcontext.QuarterDetails.Where(c => c.IsActive == (int)Status.IS_ACTIVE).OrderBy(x => x.QuarterYear).ToListAsync();
             }
             else
             {
@@ -60,7 +61,7 @@ namespace DF_EvolutionAPI.Services
                     quarterDetails.QuarterYearRange = quarterModel.QuarterYearRange;
                     quarterDetails.StatusId = quarterModel.StatusId;
                     quarterDetails.Description = quarterModel.Description;
-                    quarterDetails.IsActive = 1;
+                    quarterDetails.IsActive = (int)Status.IS_ACTIVE;
                     quarterDetails.UpdateBy = 1;
                     quarterDetails.UpdateDate = DateTime.Now;
                     
@@ -70,7 +71,7 @@ namespace DF_EvolutionAPI.Services
                 }
                 else
                 {
-                    quarterModel.IsActive = 1;
+                    quarterModel.IsActive = (int)Status.IS_ACTIVE;
                     quarterModel.CreateBy = 1;
                     quarterModel.UpdateBy = 1;
                     quarterModel.CreateDate = DateTime.Now;
@@ -173,7 +174,7 @@ namespace DF_EvolutionAPI.Services
 
                 var status = (
                     from s in _dbcontext.KRAWeightages
-                    where s.Id == quarterDetails.StatusId && s.IsActive == 1
+                    where s.Id == quarterDetails.StatusId && s.IsActive == (int)Status.IS_ACTIVE
                     select s).First();
 
                 model.IsSuccess = true;

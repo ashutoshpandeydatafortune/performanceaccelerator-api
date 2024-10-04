@@ -1,20 +1,19 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Models.Response;
-using DF_EvolutionAPI.Services.KRA;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using DF_EvolutionAPI.Utils;
-using DF_EvolutionAPI.Services.Email;
+﻿using System;
 using System.Text;
-using static DF_EvolutionAPI.Models.UserKRADetails;
-using Azure;
+using System.Linq;
+using DF_PA_API.Models;
+using System.Data.Entity;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting;
+using DF_EvolutionAPI.Services.KRA;
+using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Services.Email;
+using DF_EvolutionAPI.Models.Response;
+
 
 namespace DF_EvolutionAPI.Services
 {
@@ -35,7 +34,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<UserKRA>> GetAllUserKRAList()
         {
-            return await _dbcontext.UserKRA.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.UserKRA.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<UserKRA> GetUserKRAById(int userKRAId)
@@ -43,7 +42,7 @@ namespace DF_EvolutionAPI.Services
             UserKRA userKRA;
             try
             {
-                userKRA = await _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id == userKRAId).FirstOrDefaultAsync();
+                userKRA = await _dbcontext.UserKRA.Where(c => c.IsActive == (int)Status.IS_ACTIVE && c.Id == userKRAId).FirstOrDefaultAsync();
             }
             catch (Exception)
             {
@@ -86,7 +85,7 @@ namespace DF_EvolutionAPI.Services
                 var query = from resource in _dbcontext.Resources
                             join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId
                             join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
-                            where resource.DesignationId == designationId && userKRA.IsActive == 1
+                            where resource.DesignationId == designationId && userKRA.IsActive == (int)Status.IS_ACTIVE
                             select new UserAssignedKRA()
                             {
                                 KRAName = kraLibrary.Name,
@@ -153,7 +152,7 @@ namespace DF_EvolutionAPI.Services
                         item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
                         item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
                        
-                        item.IsActive = 1;
+                        item.IsActive = (int)Status.IS_ACTIVE;
                         item.CreateBy = 1;
                         item.UpdateBy = 1;
                         item.CreateDate = DateTime.Now;
@@ -222,7 +221,7 @@ namespace DF_EvolutionAPI.Services
                     Title = Constant.SUBJECT_KRA_CREATED,
                     Description = userKRA.KRAName,     // store kra name
                     IsRead = 0,
-                    IsActive = 1,
+                    IsActive = (int)Status.IS_ACTIVE,
                     CreateAt = DateTime.Now
                 };
 
@@ -401,7 +400,7 @@ namespace DF_EvolutionAPI.Services
                     Title = Constant.SUBJECT_KRA_UPDATED,
                     Description = userKRA.KRAName,     // store kra name
                     IsRead = 0,
-                    IsActive = 1,
+                    IsActive = (int)Status.IS_ACTIVE,
                     CreateAt = DateTime.Now
                 };
 
@@ -505,7 +504,7 @@ namespace DF_EvolutionAPI.Services
                     */
 
 
-                    userKra.IsActive = 1;
+                    userKra.IsActive = (int)Status.IS_ACTIVE;
                     userKra.UpdateBy = 1;
                     userKra.UpdateDate = DateTime.Now;
 
@@ -545,7 +544,7 @@ namespace DF_EvolutionAPI.Services
                     userKRAModel.ApprovedBy = userKRAModel.ApprovedBy;
                     userKRAModel.RejectedBy = userKRAModel.RejectedBy;
 
-                    userKRAModel.IsActive = 1;
+                    userKRAModel.IsActive = (int)Status.IS_ACTIVE;
                     userKRAModel.CreateBy = 1;
                     userKRAModel.UpdateBy = 1;
                     userKRAModel.CreateDate = DateTime.Now;
@@ -575,7 +574,7 @@ namespace DF_EvolutionAPI.Services
             UserKRA userKra = null;
             try
             {
-                userKra = _dbcontext.UserKRA.Where(c => c.IsActive == 1 && c.Id == userKRAId).FirstOrDefault();
+                userKra = _dbcontext.UserKRA.Where(c => c.IsActive == (int)Status.IS_ACTIVE && c.Id == userKRAId).FirstOrDefault();
 
                 if (userKra != null)
                 {
@@ -670,7 +669,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterYearRange && quarterDetail.IsActive == 1 && userKRA.IsActive == 1 && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterYearRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
@@ -717,7 +716,7 @@ namespace DF_EvolutionAPI.Services
                     _dbcontext.SaveChanges();
 
                     model.IsSuccess = true;
-                    if (userKra.IsActive == 0)
+                    if (userKra.IsActive == (int)Status.IN_ACTIVE)
                     {
                         model.Messsage = "User KRA Unassigned Successfully";
                     }
