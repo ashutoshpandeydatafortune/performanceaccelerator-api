@@ -153,8 +153,7 @@ namespace DF_EvolutionAPI.Services
                         item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
                        
                         item.IsActive = (int)Status.IS_ACTIVE;
-                        item.CreateBy = 1;
-                        item.UpdateBy = 1;
+                        item.CreateBy = item.CreateBy;                        
                         item.CreateDate = DateTime.Now;
                         item.UpdateDate = DateTime.Now;
 
@@ -359,7 +358,7 @@ namespace DF_EvolutionAPI.Services
                         }
 
                         userKra.IsActive = userKRAModels.IsActive;
-                        userKra.UpdateBy = 1;
+                        userKra.UpdateBy = userKRAModels.UpdateBy;
                         userKra.UpdateDate = DateTime.Now;
 
                         await _dbcontext.SaveChangesAsync();
