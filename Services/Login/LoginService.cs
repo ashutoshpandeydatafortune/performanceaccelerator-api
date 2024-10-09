@@ -46,7 +46,8 @@ namespace DF_EvolutionAPI.Services.Login
             {
                 var existingUser = await _userManager.FindByEmailAsync(uam.Username);
 
-                var roleId = _dbContext.RoleMasters.FirstOrDefault(r => r.RoleName == Constant.ROLE_NAME)
+                //var roleId = _dbContext.RoleMasters.FirstOrDefault(r => r.RoleName == Constant.ROLE_NAME)
+                var roleId = _dbContext.RoleMasters.FirstOrDefault(r => r.IsDefault == 1)
                              ?? throw new Exception("Role does not exist.");
 
                 if (existingUser == null)
@@ -62,8 +63,11 @@ namespace DF_EvolutionAPI.Services.Login
                 else
                 {
                     //Checking role for existing user.
-                    var existingRole = _dbContext.AspNetUserRoles.Where(userRole => userRole.UserId == existingUser.Id
-                                        && userRole.ApplicationName == Constant.APPLICATION_NAME)
+                    //var existingRole = _dbContext.AspNetUserRoles.Where(userRole => userRole.UserId == existingUser.Id
+                    //                    && userRole.ApplicationName == Constant.APPLICATION_NAME)
+                    //    .FirstOrDefault();
+                    var existingRole = _dbContext.UserRoles.Where(userRole => userRole.UserId == existingUser.Id
+                                       )
                         .FirstOrDefault();
 
                     if (existingRole == null)
@@ -84,7 +88,12 @@ namespace DF_EvolutionAPI.Services.Login
                 };
 
                 // get user roles
-                var userRoles = await _userManager.GetRolesAsync(user);
+                // var userRoles = await _userManager.GetRolesAsync(user);
+
+                var userRoles = _dbContext.UserRoles.Where(ur => ur.UserId == user.Id)
+                               .Join(_dbContext.RoleMasters,ur => ur.RoleId,rm => rm.RoleId,
+                               (ur, rm) => new { ur, rm.RoleName })
+                               .Select(r => r.RoleName).ToList();
 
                 List<Role> roles = new List<Role>();
                 foreach (var userRoleName in userRoles)
@@ -157,16 +166,30 @@ namespace DF_EvolutionAPI.Services.Login
         }
 
         //Method for adding the role for user
+        //private async Task AddUserRole(string userId, string roleId)
+        //{
+        //    var newUserRole = new ApplicationUserRole
+        //    {
+        //        UserId = userId,
+        //        RoleId = roleId,
+        //        ApplicationName = Constant.APPLICATION_NAME
+        //    };
+
+        //    _dbContext.AspNetUserRoles.Add(newUserRole);
+        //    await _dbContext.SaveChangesAsync();
+        //}
+
         private async Task AddUserRole(string userId, string roleId)
         {
-            var newUserRole = new ApplicationUserRole
+            var newUserRole = new UserRole
             {
+                Id = Guid.NewGuid().ToString(),
                 UserId = userId,
                 RoleId = roleId,
-                ApplicationName = Constant.APPLICATION_NAME
+               // ApplicationName = Constant.APPLICATION_NAME
             };
 
-            _dbContext.AspNetUserRoles.Add(newUserRole);
+            _dbContext.UserRoles.Add(newUserRole);
             await _dbContext.SaveChangesAsync();
         }
 

@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Data;
 using DF_PA_API.Models;
-using DF_EvolutionAPI.Utils;
+using System.Data.Entity;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using DF_EvolutionAPI.Models.Response;
+
 
 namespace DF_EvolutionAPI.Services
 {
@@ -126,18 +126,21 @@ namespace DF_EvolutionAPI.Services
                 var userId = _dbcontext.AspNetUsers.Where(user => user.Email == emailId).Select(user => user.Id)
                            .FirstOrDefault() ?? throw new Exception("The user does not exist");
 
-                var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName).Select(role => role.Id)
-                            .FirstOrDefault() ?? throw new Exception("The role does not exist");
+                //var roleId = _dbcontext.AspNetRoles.Where(role => role.Name == roleName).Select(role => role.Id)
+                //            .FirstOrDefault() ?? throw new Exception("The role does not exist");
 
-                var existingUserRole = _dbcontext.AspNetUserRoles
-                                    .Where(userRole => userRole.UserId == userId && userRole.ApplicationName == Constant.APPLICATION_NAME).FirstOrDefault();
+                var roleId = _dbcontext.RoleMasters.Where(role => role.RoleName == roleName).Select(role => role.RoleId)
+                                            .FirstOrDefault() ?? throw new Exception("The role does not exist");
+
+                var existingUserRole = _dbcontext.UserRoles
+                                    .Where(userRole => userRole.UserId == userId ).FirstOrDefault();
 
                 if (existingUserRole != null)
                 {
-                    _dbcontext.AspNetUserRoles.Remove(existingUserRole);
+                    _dbcontext.UserRoles.Remove(existingUserRole);
                 }
 
-                CreateNewUserRole(userId, roleId, Constant.APPLICATION_NAME);
+                CreateNewUserRole(userId, roleId);
 
                 _dbcontext.SaveChanges();
 
@@ -153,15 +156,27 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        private void CreateNewUserRole(string userId, string roleId, string applicationName)
+        //private void CreateNewUserRole(string userId, string roleId, string applicationName)
+        //{
+        //    var newUserRole = new ApplicationUserRole
+        //    {
+        //        UserId = userId,
+        //        RoleId = roleId,
+        //        ApplicationName = applicationName
+        //    };
+        //    _dbcontext.AspNetUserRoles.Add(newUserRole);
+        //}
+
+        private void CreateNewUserRole(string userId, string roleId)
         {
-            var newUserRole = new ApplicationUserRole
+            var newUserRole = new UserRole
             {
+                Id = Guid.NewGuid().ToString(),
                 UserId = userId,
                 RoleId = roleId,
-                ApplicationName = applicationName
+                // ApplicationName = Constant.APPLICATION_NAME
             };
-            _dbcontext.AspNetUserRoles.Add(newUserRole);
+            _dbcontext.UserRoles.Add(newUserRole);
         }
     }
 }

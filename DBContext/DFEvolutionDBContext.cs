@@ -46,6 +46,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<ResourceSkill> ResourceSkills { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<RoleMaster> RoleMasters { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -559,6 +560,18 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.IsDefault).HasColumnName("IsDefault");
+                e.Property(e => e.IsAdmin).HasColumnName("IsAdmin");
+
+            });
+
+            modelBuilder.Entity<UserRole>(e =>
+            {
+                e.ToTable("PA_UserRoles", "dbo");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.RoleId).HasColumnName("RoleId");
+               
 
             });
 
