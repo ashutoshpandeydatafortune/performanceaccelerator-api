@@ -24,10 +24,10 @@ namespace DF_PA_API.Services
 
             try
             {
-                var category = await _dbContext.Categories.FirstOrDefaultAsync(category => category.CategoryName == categoryModel.CategoryName && category.IsActive == 1);
+                var category = await _dbContext.Categories.FirstOrDefaultAsync(category => category.CategoryName == categoryModel.CategoryName && category.IsActive == (int)Status.IS_ACTIVE);
                 if (category == null)
                 {
-                    categoryModel.IsActive = 1;
+                    categoryModel.IsActive = (int)Status.IS_ACTIVE;
                     categoryModel.CreateDate = DateTime.UtcNow;
 
                     await _dbContext.AddAsync(categoryModel); // Async addition
@@ -55,7 +55,7 @@ namespace DF_PA_API.Services
             ResponseModel model = new ResponseModel();
             try
             {
-                var category = _dbContext.Categories.FirstOrDefault(category => category.CategoryName == categoryModel.CategoryName && category.Description == categoryModel.Description && category.IsActive == 1);
+                var category = _dbContext.Categories.FirstOrDefault(category => category.CategoryName == categoryModel.CategoryName && category.Description == categoryModel.Description && category.IsActive == (int)Status.IS_ACTIVE);
                 if (category != null)
                 {
                     model.IsSuccess = false;
@@ -70,7 +70,7 @@ namespace DF_PA_API.Services
                     {
                         updateCategory.CategoryName = categoryModel.CategoryName;
                         updateCategory.Description = categoryModel.Description;
-                        updateCategory.IsActive = 1;
+                        updateCategory.IsActive = (int)Status.IS_ACTIVE;
                         updateCategory.UpdateBy = categoryModel.UpdateBy;
                         updateCategory.UpdateDate = DateTime.Now;
 
@@ -97,7 +97,7 @@ namespace DF_PA_API.Services
 
         public async Task<List<Category>> GetAllCategories()
         {
-            return await _dbContext.Categories.Where(Category => Category.IsActive == 1).ToListAsync();
+            return await _dbContext.Categories.Where(Category => Category.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<ResponseModel> DeleteCategoryById(int id)
@@ -108,7 +108,7 @@ namespace DF_PA_API.Services
                 var deleteCategory = _dbContext.Categories.Find(id);
                 if (deleteCategory != null)
                 {
-                    deleteCategory.IsActive = 0;
+                    deleteCategory.IsActive = (int)Status.IN_ACTIVE;
                     deleteCategory.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();

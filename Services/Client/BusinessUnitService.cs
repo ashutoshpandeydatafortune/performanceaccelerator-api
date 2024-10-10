@@ -1,9 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -27,8 +28,8 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 businessUnits = await (
-                    from b in _dbcontext.BusinessUnits.Where(x => x.IsActive == 1)
-                    let clients = (_dbcontext.Clients.Where(c => (int?)c.BusinessUnitId == businessUnitId && c.IsActive == 1)).ToList()
+                    from b in _dbcontext.BusinessUnits.Where(x => x.IsActive == (int)Status.IS_ACTIVE)
+                    let clients = (_dbcontext.Clients.Where(c => (int?)c.BusinessUnitId == businessUnitId && c.IsActive == (int)Status.IS_ACTIVE)).ToList()
                     select new BusinessUnit
                     {
                         BusinessUnitId = b.BusinessUnitId,
@@ -56,7 +57,7 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                clients = await _dbcontext.Clients.Where(x => (x.IsActive == 1) && (x.BusinessUnitId == businessUnitId)).ToListAsync();
+                clients = await _dbcontext.Clients.Where(x => (x.IsActive == (int)Status.IS_ACTIVE) && (x.BusinessUnitId == businessUnitId)).ToListAsync();
             }
             catch(Exception)
             {
