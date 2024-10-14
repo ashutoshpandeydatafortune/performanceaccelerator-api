@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using DF_PA_API.Models;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -24,7 +25,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 notificationModel.IsRead = 0;
-                notificationModel.IsActive = 1;
+                notificationModel.IsActive = (int)Status.IS_ACTIVE;
                 notificationModel.CreateAt = DateTime.Now;
 
                 _dbContext.Add(notificationModel);
@@ -70,7 +71,7 @@ namespace DF_EvolutionAPI.Services
         {
             return  await _dbContext.Notifications
                 .Where(notification => notification.ResourceId == resourceId
-                    && notification.IsActive == 1 && notification.CreateAt > cutoffDate)
+                    && notification.IsActive == (int)Status.IS_ACTIVE && notification.CreateAt > cutoffDate)
                 .OrderByDescending(notification => notification.CreateAt)
                 .ToListAsync();
         }
@@ -90,7 +91,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<Notification> GetNotificationById(int Id)
         {
-            return await _dbContext.Notifications.Where(notification => notification.Id == Id && notification.IsActive == 1)
+            return await _dbContext.Notifications.Where(notification => notification.Id == Id && notification.IsActive == (int)Status.IS_ACTIVE)
                  .FirstOrDefaultAsync();
 
         }        

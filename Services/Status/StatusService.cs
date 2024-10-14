@@ -1,10 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
+﻿using System;
+using System.Linq;
+using DF_PA_API.Models;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -19,7 +20,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<StatusLibrary>> GetAllStatusList()
         {
-            return await _dbcontext.StatusLibrary.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.StatusLibrary.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<StatusLibrary> GetStatusById(int statusId)
@@ -52,7 +53,7 @@ namespace DF_EvolutionAPI.Services
                     statusLibrary.StatusName = statusModel.StatusName;
                     statusLibrary.StatusType = statusModel.StatusType;
                     statusLibrary.Description = statusModel.Description;
-                    statusLibrary.IsActive = 1;
+                    statusLibrary.IsActive = (int)Status.IS_ACTIVE;
                     statusLibrary.UpdateBy = 1;
                     statusLibrary.UpdateDate = DateTime.Now;
                     
@@ -62,7 +63,7 @@ namespace DF_EvolutionAPI.Services
                 }
                 else
                 {
-                    statusModel.IsActive = 1;
+                    statusModel.IsActive = (int)Status.IS_ACTIVE;
                     statusModel.CreateBy = 1;
                     statusModel.UpdateBy = 1;
                     statusModel.CreateDate = DateTime.Now;

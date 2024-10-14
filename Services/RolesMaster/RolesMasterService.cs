@@ -24,11 +24,11 @@ namespace DF_PA_API.Services.RolesMaster
 
             try
             {
-                var existingRole = _dbContext.RoleMasters.FirstOrDefault(role => role.RoleName == roleMaster.RoleName && role.IsActive == 1);
+                var existingRole = _dbContext.RoleMasters.FirstOrDefault(role => role.RoleName == roleMaster.RoleName && role.IsActive == (int)Status.IS_ACTIVE);
 
                 if (existingRole == null)
                 {
-                    roleMaster.IsActive = 1;
+                    roleMaster.IsActive = (int)Status.IS_ACTIVE;
                     roleMaster.CreateDate = DateTime.UtcNow;
 
                     await _dbContext.RoleMasters.AddAsync(roleMaster);
@@ -58,7 +58,7 @@ namespace DF_PA_API.Services.RolesMaster
 
             try
             {
-                var existingRole = _dbContext.RoleMasters.FirstOrDefault(role => role.RoleName == roleMaster.RoleName && role.IsActive == 1);
+                var existingRole = _dbContext.RoleMasters.FirstOrDefault(role => role.RoleName == roleMaster.RoleName && role.IsActive == (int)Status.IS_ACTIVE);
 
                 if (existingRole != null && existingRole.RoleId != roleMaster.RoleId)
                 {
@@ -72,9 +72,11 @@ namespace DF_PA_API.Services.RolesMaster
                 {
                     roleToUpdate.RoleName = roleMaster.RoleName;
                     roleToUpdate.Description = roleMaster.Description;
-                    roleToUpdate.IsActive = 1;
+                    roleToUpdate.IsActive = (int)Status.IS_ACTIVE;
                     roleToUpdate.UpdateBy = roleMaster.UpdateBy;
                     roleToUpdate.UpdateDate = DateTime.UtcNow;
+                    roleToUpdate.IsDefault = roleMaster.IsDefault;
+                    roleToUpdate.IsAdmin = roleMaster.IsAdmin;
 
                     await _dbContext.SaveChangesAsync();
 
@@ -99,7 +101,7 @@ namespace DF_PA_API.Services.RolesMaster
         public async Task<List<RoleMaster>> GetAllRolesMaster()
         {
             return await _dbContext.RoleMasters
-                .Where(role => role.IsActive == 1)
+                .Where(role => role.IsActive == (int)Status.IS_ACTIVE)
                 .OrderBy(role => role.CreateDate)
                 .ToListAsync();
         }
@@ -113,7 +115,7 @@ namespace DF_PA_API.Services.RolesMaster
                 var roleToDelete = await _dbContext.RoleMasters.FindAsync(id);
                 if (roleToDelete != null)
                 {
-                    roleToDelete.IsActive = 0;
+                    roleToDelete.IsActive = (int)Status.IN_ACTIVE;
                     roleToDelete.UpdateDate = DateTime.UtcNow;
 
                     await _dbContext.SaveChangesAsync();

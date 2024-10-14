@@ -1,10 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace DF_EvolutionAPI.Services.Designations
 {
@@ -181,7 +182,7 @@ namespace DF_EvolutionAPI.Services.Designations
                 try
                 {
                     return await (
-                        from pr in _dbcontext.Designations.Where(x => x.IsActive == 1)
+                        from pr in _dbcontext.Designations.Where(x => x.IsActive == (int)Status.IS_ACTIVE)
                         select new Designation
                         {
                             DesignationId = pr.DesignationId,
@@ -210,7 +211,7 @@ namespace DF_EvolutionAPI.Services.Designations
                 {
                     return await (  from designation in _dbcontext.Designations
                                     join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
-                                    where resource.FunctionId == functionId && resource.IsActive == 1
+                                    where resource.FunctionId == functionId && resource.IsActive == (int)Status.IS_ACTIVE
                                     group new { designation, resource } by new { designation.DesignationId, designation.ReferenceId, designation.DesignationName, designation.IsActive, designation.CreateBy, designation.UpdateBy, designation.CreateDate, designation.UpdateDate } into grouped
                                     select new Designation
                                     {

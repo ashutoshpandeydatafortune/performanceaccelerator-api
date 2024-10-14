@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 
@@ -26,11 +27,11 @@ namespace DF_EvolutionAPI.Services
                 var skill = await (from s in _dbContext.Skills
                                    join c in _dbContext.Categories
                                    on s.CategoryId equals c.CategoryId
-                                   where s.Name == skillModel.Name && s.IsActive == 1 && c.IsActive == 1
+                                   where s.Name == skillModel.Name && s.IsActive == (int)Status.IS_ACTIVE && c.IsActive == (int)Status.IS_ACTIVE
                                    select s).FirstOrDefaultAsync();
                 if (skill == null)
                 {
-                    skillModel.IsActive = 1;
+                    skillModel.IsActive = (int)Status.IS_ACTIVE;
                     skillModel.CreateDate = DateTime.UtcNow;
 
                     _dbContext.AddRange(skillModel);
@@ -61,7 +62,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.Description == skillModel.Description
-                 && skill.CategoryId == skillModel.CategoryId && skill.IsActive == 1);
+                 && skill.CategoryId == skillModel.CategoryId && skill.IsActive == (int)Status.IS_ACTIVE);
                 if (skill != null)
                 {
                     model.IsSuccess = false;
@@ -75,7 +76,7 @@ namespace DF_EvolutionAPI.Services
                     {
                         updateSkill.Name = skillModel.Name;
                         updateSkill.Description = skillModel.Description;
-                        updateSkill.IsActive = 1;
+                        updateSkill.IsActive = (int)Status.IS_ACTIVE;
                         updateSkill.UpdateBy = skillModel.UpdateBy;
                         updateSkill.UpdateDate = DateTime.Now;
                         updateSkill.CategoryId = skillModel.CategoryId;
@@ -107,7 +108,7 @@ namespace DF_EvolutionAPI.Services
             var skills = await (from skill in _dbContext.Skills
                                 join category in _dbContext.Categories
                                 on skill.CategoryId equals category.CategoryId
-                                where skill.IsActive == 1 && category.IsActive == 1
+                                where skill.IsActive == (int)Status.IS_ACTIVE && category.IsActive == (int)Status.IS_ACTIVE
                                 orderby skill.SkillId
                                 select new Skill
                                 {
@@ -121,7 +122,7 @@ namespace DF_EvolutionAPI.Services
                                     UpdateDate = skill.UpdateDate,
                                     CategoryId = skill.CategoryId,
                                     CategoryName = category.CategoryName,
-                                    SubSkills = skill.SubSkills.Where(sub => sub.IsActive == 1).ToList()
+                                    SubSkills = skill.SubSkills.Where(sub => sub.IsActive == (int)Status.IS_ACTIVE).ToList()
                                 }).ToListAsync();
 
             return skills;
@@ -132,10 +133,10 @@ namespace DF_EvolutionAPI.Services
             var result = await (
                 from skill in _dbContext.Skills
                 join category in _dbContext.Categories on skill.CategoryId equals category.CategoryId
-                join subskill in _dbContext.SubSkills.Where(s => s.IsActive == 1)
+                join subskill in _dbContext.SubSkills.Where(s => s.IsActive == (int)Status.IS_ACTIVE)
                 on skill.SkillId equals subskill.SkillId into subSkillsGroup
                 from subskill in subSkillsGroup.DefaultIfEmpty()
-                where skill.SkillId == id && skill.IsActive == 1
+                where skill.SkillId == id && skill.IsActive == (int)Status.IS_ACTIVE
                 select new SkillDetails // Create an instance of Skill
                 {
                     SkillId = skill.SkillId,
@@ -143,7 +144,7 @@ namespace DF_EvolutionAPI.Services
                     Description = skill.Description,
                     CategoryId = skill.CategoryId,
                     CategoryName = category.CategoryName,
-                    subSkills = _dbContext.SubSkills.Where(skill => skill.IsActive == 1 && skill.SkillId == id).Select(sub => new SubSkill // Create an instance of SubSkill for each related subskill
+                    subSkills = _dbContext.SubSkills.Where(skill => skill.IsActive == (int)Status.IS_ACTIVE && skill.SkillId == id).Select(sub => new SubSkill // Create an instance of SubSkill for each related subskill
                     {
                         SkillId = sub.SkillId,
                         SubSkillId = sub.SubSkillId,
@@ -162,7 +163,7 @@ namespace DF_EvolutionAPI.Services
             var categoryWiseSkills = await (
      from category in _dbContext.Categories
      join skill in _dbContext.Skills on category.CategoryId equals skill.CategoryId
-     where skill.IsActive == 1 && category.CategoryId == id
+     where skill.IsActive == (int)Status.IS_ACTIVE && category.CategoryId == id
      orderby category.CategoryName, skill.SkillId
      group skill by new
      {
@@ -185,7 +186,7 @@ namespace DF_EvolutionAPI.Services
              UpdateDate = skill.UpdateDate,
              CategoryId = skill.CategoryId,
              CategoryName = categoryGroup.Key.CategoryName,
-             SubSkills = skill.SubSkills.Where(sub => sub.IsActive == 1).ToList()
+             SubSkills = skill.SubSkills.Where(sub => sub.IsActive == (int)Status.IS_ACTIVE).ToList()
          }).ToList()
      }
  ).ToListAsync();
@@ -204,7 +205,7 @@ namespace DF_EvolutionAPI.Services
                 var deleteSkill = _dbContext.Skills.Find(id);
                 if (deleteSkill != null)
                 {
-                    deleteSkill.IsActive = 0;
+                    deleteSkill.IsActive = (int)Status.IN_ACTIVE;
                     deleteSkill.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();
