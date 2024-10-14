@@ -15,6 +15,9 @@ namespace DF_EvolutionAPI.Models
 
         public int IsActive { get; set; }
 
+        public bool? IsDefault { get; set; }
+        public bool? IsAdmin { get; set; }
+
         [NotMapped]
         public List<RoleMapping> RoleMappings { get; set; }
     }

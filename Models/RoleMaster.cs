@@ -14,7 +14,7 @@ namespace DF_PA_API.Models
         public int? UpdateBy { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-        public byte? IsDefault { get; set; }
-        public byte? IsAdmin { get; set; }
+        public bool? IsDefault { get; set; }
+        public bool? IsAdmin { get; set; }
     }
 }

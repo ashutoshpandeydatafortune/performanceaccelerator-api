@@ -75,6 +75,8 @@ namespace DF_PA_API.Services.RolesMaster
                     roleToUpdate.IsActive = (int)Status.IS_ACTIVE;
                     roleToUpdate.UpdateBy = roleMaster.UpdateBy;
                     roleToUpdate.UpdateDate = DateTime.UtcNow;
+                    roleToUpdate.IsDefault = roleMaster.IsDefault;
+                    roleToUpdate.IsAdmin = roleMaster.IsAdmin;
 
                     await _dbContext.SaveChangesAsync();
 
