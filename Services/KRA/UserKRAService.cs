@@ -163,7 +163,6 @@ namespace DF_EvolutionAPI.Services
                     {
                         return false;
                     }
-
                 }
 
                 await _dbcontext.SaveChangesAsync();
@@ -347,8 +346,7 @@ namespace DF_EvolutionAPI.Services
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
                         
-                       //if (userKRAModels.FinalComment != null && userKRAModels.FinalRating.HasValue && weightage != 0)
-                       if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
+                        if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
                         }
@@ -405,13 +403,11 @@ namespace DF_EvolutionAPI.Services
 
                 if (userKRA.isUpdated == true)
                 {
-                    //Fetching the manager details.
-                    
+                    //Fetching the manager details.                    
                     var reportingTos = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
                     var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == reportingTos.ReportingTo.Value).FirstOrDefault();
 
                     //Sending mail according to developer and manager action.
-
                     if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
                         && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0))
                     {
@@ -435,11 +431,7 @@ namespace DF_EvolutionAPI.Services
                     }
                     notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
                 }
-
-
-
             }
-
             return notificationMap;
         }
 
@@ -494,15 +486,6 @@ namespace DF_EvolutionAPI.Services
                     userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? userKra.DeveloperComment : userKRAModel.DeveloperComment;
                     userKra.ApprovedBy = userKRAModel.ApprovedBy == null ? userKra.ApprovedBy : userKRAModel.ApprovedBy;
                     userKra.RejectedBy = userKRAModel.RejectedBy == null ? userKra.RejectedBy : userKRAModel.RejectedBy;
-                    /*
-                    userKra.KRAId = userKRAModel.KRAId;
-                    userKra.Score = userKRAModel.Score;
-                    userKra.Status = userKRAModel.Status;
-                    userKra.UserId = userKRAModel.UserId;
-                    userKra.QuarterId = userKRAModel.QuarterId;
-                    */
-
-
                     userKra.IsActive = (int)Status.IS_ACTIVE;
                     userKra.UpdateBy = 1;
                     userKra.UpdateDate = DateTime.Now;

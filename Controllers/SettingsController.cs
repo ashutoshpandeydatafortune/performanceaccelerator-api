@@ -1,5 +1,6 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using DF_PA_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -99,13 +100,53 @@ namespace DF_EvolutionAPI.Controllers
         /// Create or update the role for user
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [Route("[Action]")]
-        public IActionResult CreateOrUpdateUserRole(string emailId, string roleName)
+        public IActionResult CreateOrUpdateUserRole(UserRoles userRoles)
         {
             try
             {
-                var result = _settings.CreateOrUpdateUserRole(emailId, roleName);
+                var result = _settings.CreateOrUpdateUserRole( userRoles);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// get all users role
+        /// </summary>
+        /// <returns></returns>
+        /// [HttpGet]
+        [HttpGet]
+        [Route("GetAllUsersRole")]
+        public async Task<IActionResult> GetAllUsersRole()
+        {
+            try
+            {
+                var result = await _settings.GetAllUsersRole();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// get admin email id
+        /// </summary>
+        /// <returns></returns>
+        /// [HttpGet]
+        [HttpGet]
+        [Route("GetAdminEmail")]
+        public async Task<IActionResult> GetAdminEmail()
+        {
+            try
+            {
+                var result = await _settings.GetAdminEmail();
                 return Ok(result);
             }
             catch (Exception ex)

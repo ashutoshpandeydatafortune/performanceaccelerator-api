@@ -10,9 +10,10 @@ namespace DF_EvolutionAPI.Services
     {
         public Task<List<RoleMapping>> GetPermissionsByRole( string roleId);
         public Task<ResponseModel> UpdatePermissionByRole(RoleMapping roleMapping);
-        public Task<ResponseModel> AddRoleMapping(List<RoleMapping> roleMappings);
-        //public Task<List<IdentityRole>> GetAllRoles();
+        public Task<ResponseModel> AddRoleMapping(List<RoleMapping> roleMappings);        
+        public Task<List<UserResourceRole>> GetAllUsersRole();
         public Task<List<RoleMaster>> GetAllRoles();
-        public ResponseModel CreateOrUpdateUserRole(string emailId, string roleName);
+        public Task<userEmail> GetAdminEmail();
+        public ResponseModel CreateOrUpdateUserRole(UserRoles userRoles);
     }
 }

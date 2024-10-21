@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Data;
 using DF_PA_API.Models;
-using System.Data.Entity;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+
 
 
 namespace DF_EvolutionAPI.Services
@@ -126,25 +126,57 @@ namespace DF_EvolutionAPI.Services
                     .ToListAsync();
         }
 
-        // This method inserts or updates user roles based on the provided email and role name.
-        public ResponseModel CreateOrUpdateUserRole(string emailId, string roleName)
+        //Retrieves a list of user resource roles where the resources and roles are active.
+        public async Task<List<UserResourceRole>> GetAllUsersRole()
+        {
+            var query = from userRole in _dbcontext.UserRoles // Adjust based on your DbSet names
+                        join user in _dbcontext.AspNetUsers on userRole.UserId equals user.Id
+                        join resource in _dbcontext.Resources on user.Email equals resource.EmailId
+                        where resource.IsActive == (int)Status.IS_ACTIVE
+                        join role in _dbcontext.RoleMasters on userRole.RoleId equals role.RoleId
+                        where role.IsActive == (int)Status.IS_ACTIVE
+                        orderby resource.ResourceName
+                        select new UserResourceRole
+                        {
+                            ResourceName = resource.ResourceName,
+                            Email = user.Email,
+                            RoleName = role.RoleName,
+                            RoleId = role.RoleId
+                        };
+
+            var result =  await query.ToListAsync();
+            return result;
+            
+        }
+
+        public async Task<userEmail> GetAdminEmail()
+        {
+            var email = await (from roles in _dbcontext.RoleMasters
+                               join userroles in _dbcontext.UserRoles on roles.RoleId equals userroles.RoleId
+                               join users in _dbcontext.AspNetUsers on userroles.UserId equals users.Id
+                               where roles.IsAdmin == true
+                               select users.Email).FirstOrDefaultAsync();
+
+            // Return an instance of userEmail with the retrieved email
+            return new userEmail { Email = email }; // Returns null if no email is found
+        }
+
+
+        // This private method creates a new user role entry in the UserRoles table.
+        public ResponseModel CreateOrUpdateUserRole(UserRoles userRoles)
         {
             ResponseModel model = new ResponseModel();
             try
             {
                 // Retrieve the user ID based on the provided email. 
                 // If the user does not exist, throw an exception.
-                var userId = _dbcontext.AspNetUsers.Where(user => user.Email == emailId).Select(user => user.Id)
+                var userId = _dbcontext.AspNetUsers.Where(user => user.Email == userRoles.Email).Select(user => user.Id)
                            .FirstOrDefault() ?? throw new Exception("The user does not exist");
 
-                // Retrieve the role ID based on the provided role name.
-                // If the role does not exist, throw an exception.
-                var roleId = _dbcontext.RoleMasters.Where(role => role.RoleName == roleName).Select(role => role.RoleId)
-                                            .FirstOrDefault() ?? throw new Exception("The role does not exist");
                
                 // Check if the user already has a role assigned.
                 var existingUserRole = _dbcontext.UserRoles
-                                    .Where(userRole => userRole.UserId == userId ).FirstOrDefault();
+                                    .Where(userRole => userRole.UserId == userId).FirstOrDefault();
 
                 // If a role exists, remove the existing user role from the database.
                 if (existingUserRole != null)
@@ -153,7 +185,7 @@ namespace DF_EvolutionAPI.Services
                 }
 
                 // Create a new user role with the specified user ID and role ID.
-                CreateNewUserRole(userId, roleId);
+                CreateNewUserRole(userId, userRoles.RoleId);
 
                 _dbcontext.SaveChanges();
 
@@ -169,7 +201,6 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        // This private method creates a new user role entry in the UserRoles table.
         private void CreateNewUserRole(string userId, string roleId)
         {
             var newUserRole = new UserRole
