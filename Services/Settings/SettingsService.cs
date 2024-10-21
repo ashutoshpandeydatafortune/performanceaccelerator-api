@@ -176,14 +176,11 @@ namespace DF_EvolutionAPI.Services
                
                 // Check if the user already has a role assigned.
                 var existingUserRole = _dbcontext.UserRoles
-                                    .Where(userRole => userRole.UserId == userId).FirstOrDefault();
+                                    .Where(userRole => userRole.UserId == userId).FirstOrDefault() ?? throw new Exception("User does not have an assigned role.");
 
                 // If a role exists, remove the existing user role from the database.
-                if (existingUserRole != null)
-                {
-                    _dbcontext.UserRoles.Remove(existingUserRole);
-                }
-
+                _dbcontext.UserRoles.Remove(existingUserRole);
+                
                 // Create a new user role with the specified user ID and role ID.
                 CreateNewUserRole(userId, userRoles.RoleId);
 
