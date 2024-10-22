@@ -1,14 +1,13 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Models.Response;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using Newtonsoft.Json;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
+using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
-using System.Resources;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.Data.Entity.Migrations.Infrastructure;
+
 
 namespace DF_EvolutionAPI.Services
 {
@@ -23,7 +22,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<Resource>> GetAllResources()
         {
-            return await _dbcontext.Resources.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.Resources.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<Resource> GetResourceByEmailId(string emailId)
@@ -62,8 +61,8 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 resources = await (
-                    from r in _dbcontext.Resources.Where(x => x.ResourceId == resourceId && x.IsActive == 1)
-                    let projectResources = (_dbcontext.ProjectResources.Where(pr => (int?)pr.ResourceId == r.ResourceId && pr.IsActive == 1)).ToList()
+                    from r in _dbcontext.Resources.Where(x => x.ResourceId == resourceId && x.IsActive == (int)Status.IS_ACTIVE)
+                    let projectResources = (_dbcontext.ProjectResources.Where(pr => (int?)pr.ResourceId == r.ResourceId && pr.IsActive == (int)Status.IS_ACTIVE)).ToList()
                     let reportingToResource = _dbcontext.Resources.FirstOrDefault(rt => rt.ResourceId == r.ReportingTo)
                     select new Resource
                     {
@@ -127,7 +126,7 @@ namespace DF_EvolutionAPI.Services
             foreach (var rp in resource.ResourceProjectList)
             {
                 var project = await (from p in _dbcontext.Projects
-                                     where p.ProjectId == rp.ProjectId && p.IsActive == 1
+                                     where p.ProjectId == rp.ProjectId && p.IsActive == (int)Status.IS_ACTIVE
                                      select p).FirstAsync();
 
                 projectList.Add(project);
@@ -143,7 +142,7 @@ namespace DF_EvolutionAPI.Services
             foreach (var projectResource in resource.ProjectList)
             {
                 var client = await (from c in _dbcontext.Clients
-                                    where c.ClientId == projectResource.ClientId && c.IsActive == 1
+                                    where c.ClientId == projectResource.ClientId && c.IsActive == (int)Status.IS_ACTIVE
                                     select c).FirstOrDefaultAsync();
                 if (client != null)// To restrict adding a null value in the case of an inactive client
                 {
@@ -161,7 +160,7 @@ namespace DF_EvolutionAPI.Services
             foreach (var c in resource.ClientList)
             {
                 var businessUnit = await (from b in _dbcontext.BusinessUnits
-                                          where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == 1
+                                          where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == (int)Status.IS_ACTIVE
                                           select b).FirstOrDefaultAsync();
                 if (businessUnit != null)
                 {
@@ -177,7 +176,7 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                    where resource.IsActive == 1 && resource.StatusId == 8    // Alllowing all active resources.
+                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == 8    // Alllowing all active resources.
                     //where resource.IsActive == 1
 
                     select new Team
@@ -231,7 +230,7 @@ namespace DF_EvolutionAPI.Services
                    join reportingName in _dbcontext.Resources on resource.ReportingTo equals reportingName.ResourceId
                    join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                    join resourcefunction in _dbcontext.TechFunctions on resource.FunctionId equals resourcefunction.FunctionId
-                   where resource.ResourceId == resourceId && resource.IsActive == 1
+                   where resource.ResourceId == resourceId && resource.IsActive == (int)Status.IS_ACTIVE
                    select new Resource
                    {
                        ResourceId = resource.ResourceId,
@@ -304,7 +303,7 @@ namespace DF_EvolutionAPI.Services
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.ManagerRating == null && userKras.IsActive == 1
+                where userKras.UserId == userId && userKras.ManagerRating == null && userKras.IsActive == (int)Status.IS_ACTIVE
                 && userKras.DeveloperRating != null
                 select resource
             ).Count();
@@ -324,7 +323,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == 1 && userKRA.IsActive == 1 && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
@@ -370,7 +369,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == 1 && userKRA.IsActive == 1 && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {

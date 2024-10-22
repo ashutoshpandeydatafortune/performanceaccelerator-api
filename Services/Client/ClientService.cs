@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
-using System.Linq;
-using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -18,7 +19,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<Client>> GetAllClients()
         {
-            return await _dbcontext.Clients.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.Clients.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<Client> GetClientByClientId(int clientId)

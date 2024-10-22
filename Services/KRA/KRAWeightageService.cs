@@ -1,9 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -50,7 +51,7 @@ namespace DF_EvolutionAPI.Services
                     kraWeightage.Name = weightageModel.Name;
                     kraWeightage.DisplayName = weightageModel.DisplayName;
                     kraWeightage.Description = weightageModel.Description;
-                    kraWeightage.IsActive = 1;
+                    kraWeightage.IsActive = (int)Status.IS_ACTIVE;
                     kraWeightage.UpdateBy = 1;
                     kraWeightage.UpdateDate = DateTime.Now;
 
@@ -60,7 +61,7 @@ namespace DF_EvolutionAPI.Services
                 }
                 else
                 {
-                    weightageModel.IsActive = 1;
+                    weightageModel.IsActive = (int)Status.IS_ACTIVE;
                     weightageModel.CreateBy = 1;
                     weightageModel.UpdateBy = 1;
                     weightageModel.CreateDate = DateTime.Now;

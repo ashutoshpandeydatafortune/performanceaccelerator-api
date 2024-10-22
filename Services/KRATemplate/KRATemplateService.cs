@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
@@ -24,11 +25,11 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             try
             {
-                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.IsActive == 1);
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.IsActive == (int)Status.IS_ACTIVE);
 
                 if (existingTemplate == null)
                 {
-                    paTemplates.IsActive = 1;                   
+                    paTemplates.IsActive = (int)Status.IS_ACTIVE;                   
                     paTemplates.CreateDate = DateTime.Now;
 
                     _dbContext.Add(paTemplates);
@@ -58,7 +59,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             ResponseModel model = new ResponseModel();
             try
             {
-                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.FunctionId == paTemplates.FunctionId && template.IsActive == 1);
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.FunctionId == paTemplates.FunctionId && template.IsActive == (int)Status.IS_ACTIVE);
                 if (existingTemplate != null)
                 {
                     model.IsSuccess = false;
@@ -72,7 +73,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     {
                         updatetemplate.Name = paTemplates.Name;
                         updatetemplate.Description = paTemplates.Description;
-                        updatetemplate.IsActive = 1;
+                        updatetemplate.IsActive = (int)Status.IS_ACTIVE;
                         updatetemplate.UpdateBy = paTemplates.UpdateBy;
                         updatetemplate.UpdateDate = DateTime.Now;
                         updatetemplate.FunctionId = paTemplates.FunctionId;
@@ -101,8 +102,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public async Task<PATemplate> GetKraTemplateByIdDetails(int templateId)
         {
             var template = await _dbContext.PATemplates
-                    .Include(template => template.AssignedKras.Where(kra => kra.IsActive == 1))
-                    .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == 1))
+                    .Include(template => template.AssignedKras.Where(kra => kra.IsActive == (int)Status.IS_ACTIVE))
+                    .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == (int)Status.IS_ACTIVE))
                     .FirstOrDefaultAsync(t => t.TemplateId == templateId);
 
             if (template == null)
@@ -173,7 +174,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             var query = from template in _dbContext.PATemplates
                         join function in _dbContext.TechFunctions
                         on template.FunctionId equals function.FunctionId
-                        where template.IsActive == 1
+                        where template.IsActive == (int)Status.IS_ACTIVE
                         select new PATemplate
                         {
                             TemplateId = template.TemplateId,
@@ -203,7 +204,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 {
 
                     deleteTemplate.UpdateBy = 1;
-                    deleteTemplate.IsActive = 0;
+                    deleteTemplate.IsActive = (int)Status.IN_ACTIVE;
                     deleteTemplate.UpdateDate = DateTime.Now;
 
                     await _dbContext.SaveChangesAsync();
@@ -237,7 +238,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 // Set IsActive to 0 for all existing record to mark them as inactive
                 foreach (var existingRecord in existingRecords)
                 {
-                    existingRecord.IsActive = 0;
+                    existingRecord.IsActive = (int)Status.IN_ACTIVE;
                     existingRecord.UpdateBy = paTemplateDesignation.CreateBy;
                     existingRecord.UpdateDate = DateTime.Now;
                     _dbContext.PA_TemplateDesignations.Update(existingRecord);
@@ -255,7 +256,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             {
                                 TemplateId = paTemplateDesignation.TemplateId,
                                 DesignationId = designationId,
-                                IsActive = 1,
+                                IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = paTemplateDesignation.CreateBy,
                                 CreateDate = DateTime.Now
                             };
@@ -288,7 +289,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 // Set IsActive to 0 for each existing record to mark them as inactive
                 foreach (var existingRecord in existingRecords)
                 {
-                    existingRecord.IsActive = 0;
+                    existingRecord.IsActive = (int)Status.IN_ACTIVE;
                     existingRecord.UpdateBy = paTemplateKras.CreateBy;
                     existingRecord.UpdateDate = DateTime.Now;
                     _dbContext.PA_TemplateKras.Update(existingRecord);
@@ -305,7 +306,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                                 TemplateId = paTemplateKras.TemplateId,
                                 KraId = kraid,
                                 CreateBy = paTemplateKras.CreateBy,
-                                IsActive = 1,
+                                IsActive = (int)Status.IS_ACTIVE,
                                 CreateDate = DateTime.Now
                             };
                             _dbContext.PA_TemplateKras.Add(newTemplateKras);
@@ -331,14 +332,14 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         {
             var assignedKRAs = await _dbContext.PA_TemplateDesignations
                 .Include(d => d.Designation)
-                .Where(d => d.DesignationId == designationId && d.IsActive == 1)
+                .Where(d => d.DesignationId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
                 .Join(_dbContext.PATemplates,
                 d => d.TemplateId,
                 t => t.TemplateId,
                 (d, t) => new { Designation = d, Template = t })
                 .SelectMany(dt => _dbContext.PA_TemplateKras
                 .Include(k => k.KraLibrary)
-                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.IsActive == 1 && dt.Template.IsActive == 1)
+                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
                 .Select(k => new
                 {
                     kraIds = k.KraLibrary.Id,

@@ -1,8 +1,9 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
+using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
+using DF_EvolutionAPI.ViewModels;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -47,7 +48,7 @@ namespace DF_EvolutionAPI.Services
                 if (role != null)
                 {
                     role.RoleName = rolesModel.RoleName;
-                    role.IsActive = 1;
+                    role.IsActive = (int)Status.IS_ACTIVE;
 
                     _dbcontext.Update(role);
                     
@@ -55,7 +56,7 @@ namespace DF_EvolutionAPI.Services
                 }
                 else
                 {
-                    rolesModel.IsActive = 1;
+                    rolesModel.IsActive = (int)Status.IS_ACTIVE;
 
                     _dbcontext.Add(rolesModel);
                     
@@ -85,7 +86,7 @@ namespace DF_EvolutionAPI.Services
 
                 if (role != null)
                 {
-                    role.IsActive = 0;
+                    role.IsActive = (int)Status.IN_ACTIVE;
 
                     _dbcontext.Update<Role>(role);
                     _dbcontext.SaveChanges();

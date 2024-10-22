@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Linq;
+using DF_PA_API.Models;
+using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-using System.Linq;
-using System.Threading.Tasks;
-using static DF_EvolutionAPI.Models.ResourceSkill;
-using NuGet.Protocol;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -31,7 +30,7 @@ namespace DF_EvolutionAPI.Services
 
                 // Delete existing resource skills
                 var existingResourceSkills = _dbContext.ResourceSkills
-                    .Where(rs => rs.ResourceId == resourceId && rs.IsActive == 1)
+                    .Where(rs => rs.ResourceId == resourceId && rs.IsActive == (int)Status.IS_ACTIVE)
                     .ToList();
 
                 if (existingResourceSkills.Any())
@@ -54,7 +53,7 @@ namespace DF_EvolutionAPI.Services
                                 ResourceId = resourceId,
                                 SkillExperience = skill.SkillExperience,
                                 SubSkillExperience = null,
-                                IsActive = resourceSkillRequestModel.IsActive,
+                                IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = resourceSkillRequestModel.CreateBy,
                                 CreateDate = DateTime.Now
                             };
@@ -71,7 +70,7 @@ namespace DF_EvolutionAPI.Services
                                     ResourceId = resourceId,
                                     SkillExperience = skill.SkillExperience,
                                     SubSkillExperience = subSkill.SubSkillExperience,
-                                    IsActive = resourceSkillRequestModel.IsActive,
+                                    IsActive = (int)Status.IS_ACTIVE,
                                     CreateBy = resourceSkillRequestModel.CreateBy,
                                     CreateDate = DateTime.Now
                                 };
@@ -103,7 +102,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == 1
+                where rs.IsActive == (int)Status.IS_ACTIVE
                 select new
                 {
                     r.ResourceId,
@@ -173,7 +172,7 @@ namespace DF_EvolutionAPI.Services
                 from subSkill in subSkillGroup.DefaultIfEmpty()
                 join c in _dbContext.Categories on skill.CategoryId equals c.CategoryId into categoryGroup
                 from category in categoryGroup.DefaultIfEmpty()
-                where rs.IsActive == 1 && r.ResourceId == resourceId
+                where rs.IsActive == (int)Status.IS_ACTIVE && r.ResourceId == resourceId
                 select new
                 {
                     r.ResourceId,

@@ -1,9 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
+using DF_EvolutionAPI.Models;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -18,7 +19,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<ProjectResource>> GetAllProjectResources()
         {
-            return await _dbcontext.ProjectResources.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.ProjectResources.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<List<ProjectResource>> GetAllProjectResourcesByResourceId(int? resourceId)
@@ -29,7 +30,7 @@ namespace DF_EvolutionAPI.Services
             {
                 projectResources = await (
                     from pr in _dbcontext.ProjectResources.Where(x => x.ResourceId == resourceId)
-                    let resources = (_dbcontext.Resources.Where(r => (int?)r.ResourceId == pr.ResourceId)).ToList()                                             //IsActive = pr.IsActive,
+                    let resources = (_dbcontext.Resources.Where(r => (int?)r.ResourceId == pr.ResourceId)).ToList()
                     select new ProjectResource
                     {
                         ProjectResourceId = pr.ProjectResourceId,

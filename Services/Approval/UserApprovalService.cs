@@ -1,10 +1,11 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -19,7 +20,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<UserApproval>> GetAllApprovalList()
         {
-            return await _dbcontext.UserApproval.Where(c => c.IsActive == 1).ToListAsync();
+            return await _dbcontext.UserApproval.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
         }
 
         public async Task<UserApproval> GetApprovalById(int userApprovalId)
@@ -53,8 +54,8 @@ namespace DF_EvolutionAPI.Services
                     userApproval.Reason = userApprovalModel.Reason;
                     userApproval.RejectedBy = userApprovalModel.RejectedBy;
                     userApproval.AppraisalRange = userApprovalModel.AppraisalRange;
-                    userApproval.IsActive = 1;
-                    userApproval.UpdateBy = 1;
+                    userApproval.IsActive = (int)Status.IS_ACTIVE;
+                    userApproval.UpdateBy = (int)Status.IS_ACTIVE;
                     userApproval.UpdateDate = DateTime.Now;
 
                     _dbcontext.Update(userApproval);
@@ -65,9 +66,9 @@ namespace DF_EvolutionAPI.Services
                 {
                     userApprovalModel.UserId = userApprovalModel.UserId;
                     userApprovalModel.KRAId=userApprovalModel.KRAId;
-                    userApprovalModel.IsActive = 1;
-                    userApprovalModel.CreateBy = 1;
-                    userApprovalModel.UpdateBy = 1;
+                    userApprovalModel.IsActive = (int)Status.IS_ACTIVE;
+                    userApprovalModel.CreateBy = (int)Status.IS_ACTIVE;
+                    userApprovalModel.UpdateBy = (int)Status.IS_ACTIVE;
                     userApprovalModel.CreateDate = DateTime.Now;
                     userApprovalModel.UpdateDate = DateTime.Now;
 

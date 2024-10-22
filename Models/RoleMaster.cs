@@ -1,5 +1,8 @@
-﻿using System;
+﻿using DF_EvolutionAPI.Models;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DF_PA_API.Models
 {
@@ -14,5 +17,23 @@ namespace DF_PA_API.Models
         public int? UpdateBy { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
+        public bool? IsDefault { get; set; }
+        public bool? IsAdmin { get; set; }
+
+        [NotMapped]
+        public List<RoleMapping> RoleMappings { get; set; }
+    }
+
+    public class UserRoles
+    {
+        public string RoleId { get; set; }
+        public string Email { get; set; }
+       public string RoleName { get; set; }
+
+    }
+
+    public class userEmail
+    {
+        public string Email { get; set; }
     }
 }
