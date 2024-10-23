@@ -53,7 +53,7 @@ namespace DF_EvolutionAPI.Services
                                 ResourceId = resourceId,
                                 SkillExperience = skill.SkillExperience,
                                 SubSkillExperience = null,
-                                IsActive = resourceSkillRequestModel.IsActive,
+                                IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = resourceSkillRequestModel.CreateBy,
                                 CreateDate = DateTime.Now
                             };
@@ -70,7 +70,7 @@ namespace DF_EvolutionAPI.Services
                                     ResourceId = resourceId,
                                     SkillExperience = skill.SkillExperience,
                                     SubSkillExperience = subSkill.SubSkillExperience,
-                                    IsActive = resourceSkillRequestModel.IsActive,
+                                    IsActive = (int)Status.IS_ACTIVE,
                                     CreateBy = resourceSkillRequestModel.CreateBy,
                                     CreateDate = DateTime.Now
                                 };

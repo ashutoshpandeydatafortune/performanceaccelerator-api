@@ -23,4 +23,17 @@ namespace DF_PA_API.Models
         [NotMapped]
         public List<RoleMapping> RoleMappings { get; set; }
     }
+
+    public class UserRoles
+    {
+        public string RoleId { get; set; }
+        public string Email { get; set; }
+       public string RoleName { get; set; }
+
+    }
+
+    public class userEmail
+    {
+        public string Email { get; set; }
+    }
 }
