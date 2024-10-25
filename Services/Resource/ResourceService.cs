@@ -7,6 +7,7 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
+//using System.Data.Entity;
 
 
 namespace DF_EvolutionAPI.Services
@@ -294,21 +295,25 @@ namespace DF_EvolutionAPI.Services
             return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
-        //Gets the count of not approved KRAs for a specified user.
+        // Gets the count of distinct quarters for KRAs that are not approved for a specified user.
         public int GetNotApprovedKras(int userId)
         {
-            var count = (
+            var quarterCount = (
                 from resource in _dbcontext.Resources
                 join designation in _dbcontext.Designations
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.ManagerRating == null && userKras.IsActive == (int)Status.IS_ACTIVE
-                && userKras.DeveloperRating != null
-                select resource
-            ).Count();
+                join quarters in _dbcontext.QuarterDetails // Join with QuarterDetails to associate user KRAs with their respective quarters.
+                on userKras.QuarterId equals quarters.Id
+                where userKras.UserId == userId // Filter by the specified user ID
+                && userKras.FinalRating == null // Only include KRAs that have not been approved (FinalRating is null)
+                && userKras.IsActive == (int)Status.IS_ACTIVE  // Ensure the KRA is active
+                && userKras.DeveloperRating != null // Include only those KRAs that have a DeveloperRating
+                select quarters.Id // Select the quarter ID to count distinct quarters
+            ).Distinct().Count(); // Count the distinct quarter IDs
 
-            return count;
+            return quarterCount;
         }
 
         //Gets average yearly KRA rating for a user within the specified quarter range.
