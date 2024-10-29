@@ -1,5 +1,6 @@
 ﻿using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
+using DF_PA_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -106,6 +107,45 @@ namespace DF_EvolutionAPI.Controllers
             {
                 string data = await _resourceService.GetMyTeamDetails(userId);
                 return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// get all designations of particular function.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetDesignationsByFunctionId(int functionId)
+        {
+            try
+            {
+                var resources = await _resourceService.GetDesignationsByFunctionId(functionId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// get all resources kras
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
+        {
+            try
+            {
+                var resources = await _resourceService.GetResourcesKrasStatus(searchKraStatus);
+                return Ok(resources);
             }
             catch (Exception ex)
             {
