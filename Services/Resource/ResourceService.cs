@@ -254,7 +254,6 @@ namespace DF_EvolutionAPI.Services
 
         }
 
-
         // Gets the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
@@ -310,6 +309,7 @@ namespace DF_EvolutionAPI.Services
                 && userKras.FinalRating == null // Only include KRAs that have not been approved (FinalRating is null)
                 && userKras.IsActive == (int)Status.IS_ACTIVE  // Ensure the KRA is active
                 && userKras.DeveloperRating != null // Include only those KRAs that have a DeveloperRating
+                && userKras.RejectedBy == null // Include only those kras which are not rejected.
                 select quarters.Id // Select the quarter ID to count distinct quarters
             ).Distinct().Count(); // Count the distinct quarter IDs
 
@@ -411,5 +411,65 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
+        //Retrieves a list of designations associated with a specific function
+            public async Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId)
+            {
+                var result = await (from des in _dbcontext.Designations
+                                    join res in _dbcontext.Resources on des.DesignationId equals res.DesignationId
+                                    join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
+                                    where tecfun.FunctionId == functionId
+                                         && tecfun.IsActive == (int)Status.IS_ACTIVE
+                                         && des.IsActive == (int)Status.IS_ACTIVE
+                                    group new {des, tecfun} by new {des.DesignationId,des.DesignationName } into grouped
+
+                                    select new FunctionsDesignations
+                                    {
+                                        FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
+                                        FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
+                                        DesignationId = grouped.Key.DesignationId,
+                                        DesignationName = grouped.Key.DesignationName
+                                    }).ToListAsync();
+            return result;
+            }
+
+        //Retrieves a list of Resources kras status
+
+        public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
+        {
+            var result = await (
+                from k in _dbcontext.KRALibrary
+                join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
+                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
+                join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
+                join des in _dbcontext.Designations on r.DesignationId equals des.DesignationId
+                where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
+                      && (searchKraStatus.DesignationId == 0 || r.DesignationId == searchKraStatus.DesignationId)
+                      && des.IsActive == 1 && qd.IsActive == 1 && k.IsActive == 1 
+                orderby r.ResourceName, qd.QuarterYear, qd.QuarterName
+                select new ResourceKrasSatus
+                {
+                    ResourceId = r.ResourceId,
+                    EmployeeId = r.EmployeeId,
+                    ResourceName = r.ResourceName,
+                    DesignationName = des.DesignationName,
+                    KRAId = uk.KRAId,
+                    KraName = k.Name,
+                    DeveloperRating = uk.DeveloperRating,
+                    ManagerRating = uk.ManagerRating,
+                    FinalRating = uk.FinalRating,
+                    Status = uk.Status,
+                    DeveloperComment = uk.DeveloperComment,
+                    ManagerComment = uk.ManagerComment,
+                    FinalComment = uk.FinalComment,
+                    RejectedBy = uk.RejectedBy,
+                    Reason = uk.Reason,
+                    Comment = uk.Comment,
+                    QuarterId = qd.Id,
+                    QuarterName = qd.QuarterName,
+                    IsActive = uk.IsActive,
+                }).ToListAsync();
+
+            return result;
+        }
     }
 }

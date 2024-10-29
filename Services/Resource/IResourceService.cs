@@ -13,7 +13,8 @@ namespace DF_EvolutionAPI.Services
         Task<Resource> GetProfileDetails(int? resourceId);
         Task<Resource> GetResourceByEmailId(string EmailId);
         Task<List<Resource>> GetAllResourceDetailsByResourceId(int? resourceId);
-       
+        Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus);
+        Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId);
 
 
     }
