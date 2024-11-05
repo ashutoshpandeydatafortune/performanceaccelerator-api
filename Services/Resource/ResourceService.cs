@@ -7,6 +7,7 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 //using System.Data.Entity;
 
 
@@ -444,32 +445,57 @@ namespace DF_EvolutionAPI.Services
                 join des in _dbcontext.Designations on r.DesignationId equals des.DesignationId
                 where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
                       && (searchKraStatus.DesignationId == 0 || r.DesignationId == searchKraStatus.DesignationId)
-                      && des.IsActive == 1 && qd.IsActive == 1 && k.IsActive == 1 
-                orderby r.ResourceName, qd.QuarterYear, qd.QuarterName
-                select new ResourceKrasSatus
+                        && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
+              && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
+                select new
                 {
-                    ResourceId = r.ResourceId,
-                    EmployeeId = r.EmployeeId,
-                    ResourceName = r.ResourceName,
-                    DesignationName = des.DesignationName,
-                    KRAId = uk.KRAId,
-                    KraName = k.Name,
-                    DeveloperRating = uk.DeveloperRating,
-                    ManagerRating = uk.ManagerRating,
-                    FinalRating = uk.FinalRating,
-                    Status = uk.Status,
-                    DeveloperComment = uk.DeveloperComment,
-                    ManagerComment = uk.ManagerComment,
-                    FinalComment = uk.FinalComment,
-                    RejectedBy = uk.RejectedBy,
-                    Reason = uk.Reason,
-                    Comment = uk.Comment,
-                    QuarterId = qd.Id,
-                    QuarterName = qd.QuarterName,
-                    IsActive = uk.IsActive,
-                }).ToListAsync();
+                    r.ResourceId,
+                    r.ResourceName,
+                    des.DesignationName,
+                    Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
+                    qd.QuarterName,
+                    k.Name,
+                    uk.DeveloperRating,
+                    uk.ManagerRating,
+                    uk.FinalRating,
+                    uk.RejectedBy,
+                    uk.FinalComment,
+                })
+                .ToListAsync();
 
-            return result;
+            var flattenedResult = result
+                .GroupBy(x => new
+                {
+                    x.ResourceId,
+                    x.ResourceName,
+                    x.DesignationName
+                })
+                .Select(g => new ResourceKrasSatus
+                {
+                    ResourceId = g.Key.ResourceId,
+                    ResourceName = g.Key.ResourceName,
+                    Designation = g.Key.DesignationName,
+                    Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.FinalComment != null)) ? 1 : 0, // 1 if at least one quarter has all comments not null
+                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.FinalComment == null)), // Count the quarters with at least one null comment
+                    Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
+                         .Select(q => new KraQuarter
+                         {
+                             Quarter = q.Key,
+                             QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(), // want 
+                             Ratings = q.Select(item => new KraRating
+                             {
+                                 KraName = item.Name,
+                                 DeveloperRating = item.DeveloperRating,
+                                 ManagerRating = item.ManagerRating,
+                                 FinalRating = item.FinalRating,
+                                 RejectedBy = item.RejectedBy,
+                                 FinalComment = item.FinalComment
+                             }).ToList(),
+                         }).ToList()
+                }).ToList();
+
+            return flattenedResult;
         }
+
     }
 }
