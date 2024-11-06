@@ -533,6 +533,11 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.SkillExperience).HasColumnName("SkillExperience");
                 e.Property(e => e.SubSkillExperience).HasColumnName("SubSkillExperience");
+                e.Property(e => e.SkillVersion).HasColumnName("SkillVersion");
+                e.Property(e => e.SkillDescription).HasColumnName("SkillDescription");
+                e.Property(e => e.SubSkillVersion).HasColumnName("SubSkillVersion");
+                e.Property(e => e.SubSkillDescription).HasColumnName("SubSkillDescription");
+
             });
 
             modelBuilder.Entity<Category>(e =>

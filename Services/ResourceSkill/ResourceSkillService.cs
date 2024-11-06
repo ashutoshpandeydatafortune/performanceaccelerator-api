@@ -52,6 +52,8 @@ namespace DF_EvolutionAPI.Services
                                 SubSkillId = null, // Assuming SubSkillId can be nullable, set to default/null
                                 ResourceId = resourceId,
                                 SkillExperience = skill.SkillExperience,
+                                SkillVersion = skill.SkillVersion,
+                                SkillDescription = skill.SkillDescription,
                                 SubSkillExperience = null,
                                 IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = resourceSkillRequestModel.CreateBy,
@@ -69,7 +71,11 @@ namespace DF_EvolutionAPI.Services
                                     SubSkillId = subSkill.SubSkillId,
                                     ResourceId = resourceId,
                                     SkillExperience = skill.SkillExperience,
+                                    SkillVersion = skill.SkillVersion,
+                                    SkillDescription = skill.SkillDescription,
                                     SubSkillExperience = subSkill.SubSkillExperience,
+                                    SubSkillVersion= subSkill.SubSkillVersion,
+                                    SubSkillDescription = subSkill.SubSkillDescription,
                                     IsActive = (int)Status.IS_ACTIVE,
                                     CreateBy = resourceSkillRequestModel.CreateBy,
                                     CreateDate = DateTime.Now
@@ -107,6 +113,12 @@ namespace DF_EvolutionAPI.Services
                 {
                     r.ResourceId,
                     r.ResourceName,
+                    rs.SkillExperience,
+                    rs.SkillVersion,
+                    rs.SkillDescription,
+                    rs.SubSkillExperience,
+                    rs.SubSkillVersion,
+                    rs.SubSkillDescription,
                     NewSkillId = skill.SkillId,
                     SkillName = skill.Name,
                     NewSubSkillId = subSkill.SubSkillId,
@@ -135,13 +147,21 @@ namespace DF_EvolutionAPI.Services
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
-                            SubSkillName = r.SubSkillName
+                            SubSkillName = r.SubSkillName,
+                            SubSkillExperience = r.SkillExperience,
+                            SubSkillVersion = r.SkillVersion,
+                            SubSkillDescription = r.SubSkillDescription,
+                            
+                            
                         }).ToList();
 
                     var skillModel = new SkillModel
                     {
                         SkillId = skillGroup.Key,
                         SkillName = skillGroup.First().SkillName,
+                        SkillExperience = skillGroup.First().SkillExperience,
+                        SkillVersion = skillGroup.First().SkillVersion,
+                        SkillDescription = skillGroup.First().SkillDescription,
                         SubSkills = subSkills
                     };
 
@@ -178,7 +198,11 @@ namespace DF_EvolutionAPI.Services
                     r.ResourceId,
                     r.ResourceName,
                     rs.SkillExperience,
+                    rs.SkillVersion,
+                    rs.SkillDescription,
                     rs.SubSkillExperience,
+                    rs.SubSkillVersion,
+                    rs.SubSkillDescription,
                     NewSkillId = (int?)skill.SkillId,
                     SkillName = skill.Name,
                     CategoryName = category.CategoryName,
@@ -208,6 +232,9 @@ namespace DF_EvolutionAPI.Services
                                 SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
                                 SkillName = skillGroup.First().SkillName,
                                 SkillExperience = skillGroup.First().SkillExperience,
+                                SkillVersion = skillGroup.First().SkillVersion,
+                                SkillDescription = skillGroup.First().SkillDescription,
+                                
                                 SubSkills = skillGroup
                                     .Where(r => r.NewSubSkillId != null)
                                     .Select(r => new SubSkillModel
@@ -215,7 +242,9 @@ namespace DF_EvolutionAPI.Services
                                         SkillId = r.NewSkillId,
                                         SubSkillId = r.NewSubSkillId,
                                         SubSkillName = r.SubSkillName,
-                                        SubSkillExperience = r.SubSkillExperience
+                                        SubSkillExperience = r.SubSkillExperience,
+                                        SubSkillVersion = r.SubSkillVersion,
+                                        SubSkillDescription = r.SubSkillDescription,
                                     }).ToList()
                             }).ToList()
                     }).ToList();
@@ -246,7 +275,11 @@ namespace DF_EvolutionAPI.Services
                             r.ResourceId,
                             r.ResourceName,
                             rs.SkillExperience,
+                            rs.SkillVersion,
+                            rs.SkillDescription,
                             rs.SubSkillExperience,
+                            rs.SubSkillVersion,
+                            rs.SubSkillDescription,
                             r.DateOfJoin,
                             r.TotalYears,
                             NewSkillId = skill.SkillId,
@@ -313,7 +346,10 @@ namespace DF_EvolutionAPI.Services
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
-                            SubSkillName = r.SubSkillName
+                            SubSkillName = r.SubSkillName,
+                            SubSkillExperience = r.SubSkillExperience,
+                            SubSkillVersion = r.SubSkillVersion,
+                            SubSkillDescription = r.SubSkillDescription,
                         }).ToList();
 
                     var skillModels = new SkillModel
@@ -321,6 +357,8 @@ namespace DF_EvolutionAPI.Services
                         SkillId = skillGroup.Key,
                         SkillName = skillGroup.First().SkillName,
                         SkillExperience = skillGroup.First().SkillExperience,
+                        SkillVersion = skillGroup.First().SkillVersion,
+                        SkillDescription = skillGroup.First().SkillDescription,
                         SubSkills = subSkills // Add the subskills for each skill
                     };
 

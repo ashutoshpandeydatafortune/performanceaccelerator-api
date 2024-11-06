@@ -13,6 +13,11 @@ namespace DF_EvolutionAPI.Models
         public double? Experience { get; set; }
         public double? SkillExperience { get; set; }
         public double? SubSkillExperience { get; set; }
+        public string SkillVersion {  get; set; }
+        public string SkillDescription {  get; set; }
+        public string SubSkillVersion {  get; set; }
+        public string SubSkillDescription {  get; set; }
+        
         public byte? IsActive { get; set; }
         public int? CreateBy { get; set; }
         public int? UpdateBy { get; set; }
@@ -62,6 +67,8 @@ namespace DF_EvolutionAPI.Models
         public int? SkillId { get; set; }        
         public string SubSkillName { get; set; }
         public double? SubSkillExperience { get; set; }
+        public string SubSkillVersion { get; set; }
+        public string SubSkillDescription { get; set; }
 
     }
 
@@ -71,6 +78,9 @@ namespace DF_EvolutionAPI.Models
         public string SkillName { get; set; }
       
         public double? SkillExperience { get; set; }
+        public string SkillVersion { get; set; }
+        public string SkillDescription { get; set; }
+
         public List<SubSkillModel> SubSkills { get; set; }
      
     }
