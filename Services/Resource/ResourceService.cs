@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-//using System.Data.Entity;
-
 
 namespace DF_EvolutionAPI.Services
 {
@@ -413,28 +411,28 @@ namespace DF_EvolutionAPI.Services
         }
 
         //Retrieves a list of designations associated with a specific function
-            public async Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId)
-            {
-                var result = await (from des in _dbcontext.Designations
-                                    join res in _dbcontext.Resources on des.DesignationId equals res.DesignationId
-                                    join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
-                                    where tecfun.FunctionId == functionId
-                                         && tecfun.IsActive == (int)Status.IS_ACTIVE
-                                         && des.IsActive == (int)Status.IS_ACTIVE
-                                    group new {des, tecfun} by new {des.DesignationId,des.DesignationName } into grouped
+        public async Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId)
+        {
+            var result = await (from des in _dbcontext.Designations
+                                join res in _dbcontext.Resources on des.DesignationId equals res.DesignationId
+                                join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
+                                where tecfun.FunctionId == functionId
+                                     && tecfun.IsActive == (int)Status.IS_ACTIVE
+                                     && des.IsActive == (int)Status.IS_ACTIVE
+                                group new { des, tecfun } by new { des.DesignationId, des.DesignationName } into grouped
 
-                                    select new FunctionsDesignations
-                                    {
-                                        FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
-                                        FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
-                                        DesignationId = grouped.Key.DesignationId,
-                                        DesignationName = grouped.Key.DesignationName
-                                    }).ToListAsync();
+                                select new FunctionsDesignations
+                                {
+                                    FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
+                                    FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
+                                    DesignationId = grouped.Key.DesignationId,
+                                    DesignationName = grouped.Key.DesignationName
+                                }).ToListAsync();
+
             return result;
-            }
+        }
 
-        //Retrieves a list of Resources kras status
-
+        // Retrieves a list of resources with KRA status for each quarter
         public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
         {
             var result = await (
@@ -481,7 +479,7 @@ namespace DF_EvolutionAPI.Services
                          .Select(q => new KraQuarter
                          {
                              Quarter = q.Key,
-                             QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(), // want 
+                             QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
                              Ratings = q.Select(item => new KraRating
                              {
                                  KraName = item.Name,
