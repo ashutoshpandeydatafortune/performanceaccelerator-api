@@ -7,7 +7,7 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
-
+using System.Globalization;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -253,7 +253,6 @@ namespace DF_EvolutionAPI.Services
 
         }
 
-
         // Gets the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
@@ -294,21 +293,26 @@ namespace DF_EvolutionAPI.Services
             return JsonConvert.SerializeObject(tree, Formatting.Indented);
         }
 
-        //Gets the count of not approved KRAs for a specified user.
+        // Gets the count of distinct quarters for KRAs that are not approved for a specified user.
         public int GetNotApprovedKras(int userId)
         {
-            var count = (
+            var quarterCount = (
                 from resource in _dbcontext.Resources
                 join designation in _dbcontext.Designations
                 on resource.DesignationId equals designation.DesignationId
                 join userKras in _dbcontext.UserKRA
                 on resource.ResourceId equals userKras.UserId
-                where userKras.UserId == userId && userKras.ManagerRating == null && userKras.IsActive == (int)Status.IS_ACTIVE
-                && userKras.DeveloperRating != null
-                select resource
-            ).Count();
+                join quarters in _dbcontext.QuarterDetails // Join with QuarterDetails to associate user KRAs with their respective quarters.
+                on userKras.QuarterId equals quarters.Id
+                where userKras.UserId == userId // Filter by the specified user ID
+                && userKras.FinalRating == null // Only include KRAs that have not been approved (FinalRating is null)
+                && userKras.IsActive == (int)Status.IS_ACTIVE  // Ensure the KRA is active
+                && userKras.DeveloperRating != null // Include only those KRAs that have a DeveloperRating
+                && userKras.RejectedBy == null // Include only those kras which are not rejected.
+                select quarters.Id // Select the quarter ID to count distinct quarters
+            ).Distinct().Count(); // Count the distinct quarter IDs
 
-            return count;
+            return quarterCount;
         }
 
         //Gets average yearly KRA rating for a user within the specified quarter range.
@@ -404,6 +408,91 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
+        }
+
+        //Retrieves a list of designations associated with a specific function
+        public async Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId)
+        {
+            var result = await (from des in _dbcontext.Designations
+                                join res in _dbcontext.Resources on des.DesignationId equals res.DesignationId
+                                join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
+                                where tecfun.FunctionId == functionId
+                                     && tecfun.IsActive == (int)Status.IS_ACTIVE
+                                     && des.IsActive == (int)Status.IS_ACTIVE
+                                group new { des, tecfun } by new { des.DesignationId, des.DesignationName } into grouped
+
+                                select new FunctionsDesignations
+                                {
+                                    FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
+                                    FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
+                                    DesignationId = grouped.Key.DesignationId,
+                                    DesignationName = grouped.Key.DesignationName
+                                }).ToListAsync();
+
+            return result;
+        }
+
+        // Retrieves a list of resources with KRA status for each quarter
+        public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
+        {
+            var result = await (
+                from k in _dbcontext.KRALibrary
+                join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
+                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
+                join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
+                join des in _dbcontext.Designations on r.DesignationId equals des.DesignationId
+                where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
+                      && (searchKraStatus.DesignationId == 0 || r.DesignationId == searchKraStatus.DesignationId)
+                        && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
+              && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
+                select new
+                {
+                    r.ResourceId,
+                    r.ResourceName,
+                    des.DesignationName,
+                    Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
+                    qd.QuarterName,
+                    k.Name,
+                    uk.DeveloperRating,
+                    uk.ManagerRating,
+                    uk.FinalRating,
+                    uk.RejectedBy,
+                    uk.FinalComment,
+                })
+                .ToListAsync();
+
+            var flattenedResult = result
+                .GroupBy(x => new
+                {
+                    x.ResourceId,
+                    x.ResourceName,
+                    x.DesignationName
+                })
+                .Select(g => new ResourceKrasSatus
+                {
+                    ResourceId = g.Key.ResourceId,
+                    ResourceName = g.Key.ResourceName,
+                    Designation = g.Key.DesignationName,
+                    Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.FinalComment != null)) ? 1 : 0, // 1 if at least one quarter has all comments not null
+                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.FinalComment == null)), // Count the quarters with at least one null comment
+                    Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
+                         .Select(q => new KraQuarter
+                         {
+                             Quarter = q.Key,
+                             QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
+                             Ratings = q.Select(item => new KraRating
+                             {
+                                 KraName = item.Name,
+                                 DeveloperRating = item.DeveloperRating,
+                                 ManagerRating = item.ManagerRating,
+                                 FinalRating = item.FinalRating,
+                                 RejectedBy = item.RejectedBy,
+                                 FinalComment = item.FinalComment
+                             }).ToList(),
+                         }).ToList()
+                }).ToList();
+
+            return flattenedResult;
         }
 
     }
