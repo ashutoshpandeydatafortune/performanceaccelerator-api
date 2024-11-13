@@ -74,7 +74,7 @@ namespace DF_EvolutionAPI.Services
                                     SkillVersion = skill.SkillVersion,
                                     SkillDescription = skill.SkillDescription,
                                     SubSkillExperience = subSkill.SubSkillExperience,
-                                    SubSkillVersion= subSkill.SubSkillVersion,
+                                    SubSkillVersion = subSkill.SubSkillVersion,
                                     SubSkillDescription = subSkill.SubSkillDescription,
                                     IsActive = (int)Status.IS_ACTIVE,
                                     CreateBy = resourceSkillRequestModel.CreateBy,
@@ -98,7 +98,7 @@ namespace DF_EvolutionAPI.Services
             }
             return model;
         }
-
+       
         public async Task<List<FetchResourceSkill>> GetAllResourceSkills()
         {
             var result = await (
@@ -149,7 +149,7 @@ namespace DF_EvolutionAPI.Services
                             SubSkillId = r.NewSubSkillId,
                             SubSkillName = r.SubSkillName,
                             SubSkillExperience = r.SkillExperience,
-                            SubSkillVersion = r.SkillVersion,
+                            SubSkillVersion = r.SubSkillVersion,
                             SubSkillDescription = r.SubSkillDescription,
                             
                             
@@ -203,6 +203,7 @@ namespace DF_EvolutionAPI.Services
                     rs.SubSkillExperience,
                     rs.SubSkillVersion,
                     rs.SubSkillDescription,
+                    category.CategoryId,
                     NewSkillId = (int?)skill.SkillId,
                     SkillName = skill.Name,
                     CategoryName = category.CategoryName,
@@ -221,10 +222,11 @@ namespace DF_EvolutionAPI.Services
             foreach (var group in groupedResults)
             {
                 var categoryWiseSkills = group
-                    .GroupBy(r => r.CategoryName)
+                     .GroupBy(r => r.CategoryId)
                     .Select(categoryGroup => new CategorySkillModel
                     {
-                        CategoryName = categoryGroup.Key,
+                        CategoryName = categoryGroup.First().CategoryName, // Take CategoryName from the first item in the group
+                        CategoryId = categoryGroup.Key,
                         Skills = categoryGroup
                             .GroupBy(r => r.NewSkillId)
                             .Select(skillGroup => new SkillModel
