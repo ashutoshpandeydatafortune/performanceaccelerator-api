@@ -597,7 +597,7 @@ namespace DF_EvolutionAPI.Services
                     from approver in approverJoin.DefaultIfEmpty()
                     join rejector in _dbcontext.Resources on userKra.RejectedBy equals rejector.ResourceId into rejectorJoin
                     from rejector in rejectorJoin.DefaultIfEmpty()
-                    where userKra.UserId == UserId
+                    where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE
                     select new UserKRADetails
                     {
                         Id = userKra.Id,
