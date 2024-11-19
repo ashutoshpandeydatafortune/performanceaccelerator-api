@@ -98,7 +98,7 @@ namespace DF_EvolutionAPI.Services.KRA
                                                       kra.FunctionId == kraLibraryModel.FunctionId &&
                                                       kra.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
                                                       kra.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
-                                                      kra.Description == kraLibraryModel.Description &&
+                                                     // kra.Description == kraLibraryModel.Description &&
                                                       kra.IsActive == (int)Status.IS_ACTIVE
                                                 select kra).FirstOrDefaultAsync();
                 if (existingKraLibrary != null)
