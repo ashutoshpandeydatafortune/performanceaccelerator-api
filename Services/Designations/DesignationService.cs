@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity.Migrations.Model;
-
 
 namespace DF_EvolutionAPI.Services.Designations
 {
