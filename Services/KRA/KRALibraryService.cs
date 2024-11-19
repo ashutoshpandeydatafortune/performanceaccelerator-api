@@ -93,25 +93,22 @@ namespace DF_EvolutionAPI.Services.KRA
 
             try
             {
-                var existingKraLibrary = await (from kra in _dbcontext.KRALibrary
-                                                where kra.Name == kraLibraryModel.Name &&
-                                                      kra.FunctionId == kraLibraryModel.FunctionId &&
-                                                      kra.IsDescriptionRequired == kraLibraryModel.IsDescriptionRequired &&
-                                                      kra.MinimumRatingForDescription == kraLibraryModel.MinimumRatingForDescription &&
-                                                     // kra.Description == kraLibraryModel.Description &&
-                                                      kra.IsActive == (int)Status.IS_ACTIVE
-                                                select kra).FirstOrDefaultAsync();
-                if (existingKraLibrary != null)
-                {
-                    model.IsSuccess = false;
-                    model.Messsage = "KRA Library with the same name already exists.";
-                    return model;
-                }
+                // Check if a KRA with the same Name and FunctionId already exists for Update (excluding the current KRA being updated)
+                var existingKRAUpdate = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name && k.FunctionId == kraLibraryModel.FunctionId && k.Id != kraLibraryModel.Id && k.IsActive == (int)Status.IS_ACTIVE);
+                // Check if a KRA with the same Name and FunctionId already exists for Create
+                var existingKRA = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name && k.FunctionId == kraLibraryModel.FunctionId && k.IsActive == (int)Status.IS_ACTIVE);
 
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
                 {
-                    kraLibrary.Name = kraLibraryModel.Name;                    
+                    if (existingKRAUpdate != null)
+                    {
+                        model.IsSuccess = false;
+                        model.Messsage = "KRA Library with the same name already exists.";
+                        return model;
+                    }
+
+                    kraLibrary.Name = kraLibraryModel.Name;
                     kraLibrary.DisplayName = kraLibraryModel.Name;
                     kraLibrary.Description = kraLibraryModel.Description;
                     kraLibrary.Entity = kraLibraryModel.Entity;
@@ -132,16 +129,22 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.FunctionId = kraLibraryModel.FunctionId;
 
                     _dbcontext.Update<KRALibrary>(kraLibrary);
-                    
+
                     model.Messsage = "KRA Library Update Successfully";
                 }
                 else
                 {
+                    if (existingKRA != null)
+                    {
+                        model.IsSuccess = false;
+                        model.Messsage = "KRA Library with the same name already exists.";
+                        return model;
+                    }
                     // Check if a KRALibrary record with the same name already exists
 
                     kraLibraryModel.Name = kraLibraryModel.Name;
                     kraLibraryModel.DisplayName = kraLibraryModel.Name;
-                    kraLibraryModel.Description=kraLibraryModel.Description;
+                    kraLibraryModel.Description = kraLibraryModel.Description;
                     kraLibraryModel.Entity = 1;
                     kraLibraryModel.Entity2 = 1;
                     kraLibraryModel.ApprovedBy = 23;
@@ -160,13 +163,13 @@ namespace DF_EvolutionAPI.Services.KRA
 
 
                     _dbcontext.Add(kraLibraryModel);
-                    
+
                     model.Messsage = "KRA Library Inserted Successfully";
                 }
-                 _dbcontext.SaveChanges();
+                _dbcontext.SaveChanges();
 
                 model.Id = kraLibraryModel.Id;
-                model.IsSuccess = true;               
+                model.IsSuccess = true;
             }
             catch (Exception ex)
             {
@@ -175,7 +178,7 @@ namespace DF_EvolutionAPI.Services.KRA
             }
 
             return model;
-        }
+        }       
 
         public async Task<ResponseModel> DeleteKRALibrary(int kraLibraryId)
         {
