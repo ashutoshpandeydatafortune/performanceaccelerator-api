@@ -123,7 +123,7 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.IsSpecial = kraLibraryModel.IsSpecial;
                     kraLibrary.IsDefault = kraLibraryModel.IsDefault;
                     kraLibrary.WeightageId = kraLibraryModel.WeightageId;
-                    kraLibrary.IsActive = kraLibraryModel.IsActive;
+                    kraLibrary.IsActive = (int)Status.IS_ACTIVE;
                     kraLibrary.UpdateBy = kraLibraryModel.UpdateBy; ;
                     kraLibrary.UpdateDate = DateTime.Now;
                     kraLibrary.Weightage = kraLibraryModel.Weightage;
