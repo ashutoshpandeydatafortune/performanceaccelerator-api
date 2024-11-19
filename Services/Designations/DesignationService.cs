@@ -6,7 +6,6 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace DF_EvolutionAPI.Services.Designations
 {
     public class DesignationService : IDesignationService
@@ -208,23 +207,42 @@ namespace DF_EvolutionAPI.Services.Designations
         {
             {
                 try
-                {
-                    return await (  from designation in _dbcontext.Designations
-                                    join resource in _dbcontext.Resources on designation.DesignationId equals resource.DesignationId
-                                    where resource.FunctionId == functionId && resource.IsActive == (int)Status.IS_ACTIVE
-                                    group new { designation, resource } by new { designation.DesignationId, designation.ReferenceId, designation.DesignationName, designation.IsActive, designation.CreateBy, designation.UpdateBy, designation.CreateDate, designation.UpdateDate } into grouped
-                                    select new Designation
-                                    {
-                                        DesignationId = grouped.Key.DesignationId,
-                                        ReferenceId = grouped.Key.ReferenceId,
-                                        DesignationName = grouped.Key.DesignationName,
-                                        IsActive = grouped.Key.IsActive,
-                                        CreateBy = grouped.Key.CreateBy,
-                                        UpdateBy = grouped.Key.UpdateBy,
-                                        CreateDate = grouped.Key.CreateDate,
-                                        UpdateDate = grouped.Key.UpdateDate
-                                    }).ToListAsync();
+                {                    
+                    return await (from designation in _dbcontext.Designations
+                                  join resource in _dbcontext.Resources
+                                      on designation.DesignationId equals resource.DesignationId
+                                  where resource.FunctionId == functionId
+                                        && resource.IsActive == (int)Status.IS_ACTIVE
+                                        // Exclude those Designations that are already assigned to an active template
+                                        && !_dbcontext.PA_TemplateDesignations
+                                            .Any(templateDesignation => templateDesignation.DesignationId == designation.DesignationId && templateDesignation.IsActive == 1
+                                             // Check if there exists any active template (PA_Templates)
+                                             && _dbcontext.PATemplates.Any(template => template.TemplateId == templateDesignation.TemplateId && template.FunctionId == functionId && template.IsActive == 1))
+                                  // Group by the relevant columns from the Designation table
+                                  group new { designation, resource } by new
+                                  {
+                                      designation.DesignationId,
+                                      designation.ReferenceId,
+                                      designation.DesignationName,
+                                      designation.IsActive,
+                                      designation.CreateBy,
+                                      designation.UpdateBy,
+                                      designation.CreateDate,
+                                      designation.UpdateDate
+                                  } into grouped
+                                  // Project the grouped data into a new Designation object
+                                  select new Designation
+                                  {
+                                      DesignationId = grouped.Key.DesignationId,
+                                      ReferenceId = grouped.Key.ReferenceId,
+                                      DesignationName = grouped.Key.DesignationName,
+                                      IsActive = grouped.Key.IsActive,
+                                      CreateBy = grouped.Key.CreateBy,
+                                      UpdateBy = grouped.Key.UpdateBy,
+                                      CreateDate = grouped.Key.CreateDate,
+                                      UpdateDate = grouped.Key.UpdateDate
 
+                                  }).ToListAsync();
                 }
                 catch (Exception)
                 {
