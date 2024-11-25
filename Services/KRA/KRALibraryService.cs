@@ -96,7 +96,11 @@ namespace DF_EvolutionAPI.Services.KRA
                 // Check if a KRA with the same Name and FunctionId already exists for Update (excluding the current KRA being updated)
                 var existingKRAUpdate = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name && k.FunctionId == kraLibraryModel.FunctionId && k.Id != kraLibraryModel.Id && k.IsActive == (int)Status.IS_ACTIVE);
                 // Check if a KRA with the same Name and FunctionId already exists for Create
-                var existingKRA = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name && k.FunctionId == kraLibraryModel.FunctionId && k.IsActive == (int)Status.IS_ACTIVE);
+                var existingKRA = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name
+                && k.FunctionId == kraLibraryModel.FunctionId && k.IsActive == (int)Status.IS_ACTIVE && k.IsSpecial != 1);
+                // Check if a  Special KRA with the same Name already exists for Create
+                var IsSpecialKra = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name
+                && k.FunctionId == kraLibraryModel.FunctionId && k.IsActive == (int)Status.IS_ACTIVE && k.IsSpecial == 1);
 
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
@@ -134,6 +138,13 @@ namespace DF_EvolutionAPI.Services.KRA
                 }
                 else
                 {
+                    if (IsSpecialKra != null)
+                    {
+                        model.IsSuccess = false;
+                        model.Messsage = " Special KRA Library with the same name already exists.";
+                        return model;
+                    }
+
                     if (existingKRA != null)
                     {
                         model.IsSuccess = false;

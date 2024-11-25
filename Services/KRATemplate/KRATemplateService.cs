@@ -59,7 +59,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             ResponseModel model = new ResponseModel();
             try
             {
-                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.FunctionId == paTemplates.FunctionId && template.IsActive == (int)Status.IS_ACTIVE);
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.FunctionId == paTemplates.FunctionId 
+                && template.TemplateId != paTemplates.TemplateId && template.IsActive == (int)Status.IS_ACTIVE);
                 if (existingTemplate != null)
                 {
                     model.IsSuccess = false;
