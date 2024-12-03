@@ -230,6 +230,8 @@ namespace DF_EvolutionAPI.Services.Designations
                                       designation.CreateDate,
                                       designation.UpdateDate
                                   } into grouped
+                                  // Order the grouped data by DesignationName in ascending order
+                                  orderby grouped.Key.DesignationName ascending
                                   // Project the grouped data into a new Designation object
                                   select new Designation
                                   {

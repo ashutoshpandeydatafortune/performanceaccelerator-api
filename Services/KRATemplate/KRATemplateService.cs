@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
+using static DF_EvolutionAPI.Models.Response.PATemplate;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -361,6 +362,22 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             }
             return assignedKRAs.Cast<object>().ToList();
 
+        }
+
+        public async Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId)
+        {
+            var result = await (from u in _dbContext.UserKRA
+                                join r in _dbContext.Resources on u.UserId equals r.ResourceId
+                                join d in _dbContext.PA_TemplateDesignations on r.DesignationId equals d.DesignationId
+                                where d.DesignationId == designationId && u.FinalComment == null
+                                group u by new { u.UserId, u.KRAId } into g
+                                select new UserKraResult
+                                {
+                                    UserId = g.Key.UserId,
+                                    KraId = g.Key.KRAId
+                                }).ToListAsync();
+
+            return result;
         }
     }
 }

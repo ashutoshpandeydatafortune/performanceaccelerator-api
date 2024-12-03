@@ -28,6 +28,12 @@ namespace DF_EvolutionAPI.Models.Response
         public  List<PATemplateKra> AssignedKras { get; set; }
         public List<PATemplateDesignation> AssignedDesignations { get; set; }
 
-       
+        public class UserKraResult
+        {
+            public int? UserId { get; set; }
+            public int? KraId { get; set; }
+        }
+
+
     }
 }
