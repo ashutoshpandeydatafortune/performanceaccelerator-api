@@ -320,6 +320,7 @@ namespace DF_EvolutionAPI.Services.KRA
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
                             where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.FunctionId == functionId
+                            orderby kraLibrary.Name // OrderBy KraName ascending.
                             select new KRAList
                             {
                                 Id = kraLibrary.Id,

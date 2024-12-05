@@ -2,6 +2,7 @@
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
+using static DF_EvolutionAPI.Models.Response.PATemplate;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -16,6 +17,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public Task<ResponseModel> AssignDesingations(PATtemplateDesignationList paTemplateDesignation);
         public Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras);
         public Task<List<object>> GetAssignedKRAsByDesignationId(int designationId);
+        public Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId);
 
     }
 }

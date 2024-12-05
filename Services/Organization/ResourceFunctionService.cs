@@ -20,7 +20,10 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<List<TechFunction>> GetAllFunctions()
         {
-            return await _dbcontext.TechFunctions.Where(c => c.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
+            return await _dbcontext.TechFunctions.Where(c => c.IsActive == (int)Status.IS_ACTIVE)
+                .OrderBy(c=> c.FunctionName) // Added orderby
+                .ToListAsync();
+
         }
 
         public async Task<TechFunction> GetFunctionById(int functionId)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,11 +22,14 @@ namespace DF_EvolutionAPI.Models.Response
         [NotMapped]
         public string FunctionName { get; set; }
 
-        
-
-        public  List<PATemplateKra> AssignedKras { get; set; }
+        public List<PATemplateKra> AssignedKras { get; set; }
         public List<PATemplateDesignation> AssignedDesignations { get; set; }
+    }
 
-       
+    public class UserKraResult
+    {
+        public int? UserId { get; set; }
+
+        public int? KraId { get; set; }
     }
 }
