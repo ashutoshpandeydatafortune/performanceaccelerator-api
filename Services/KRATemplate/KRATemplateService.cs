@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
-using static DF_EvolutionAPI.Models.Response.PATemplate;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -162,14 +161,14 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             }
         }
 
-        //Displaying the template details.
+        //Retrieves the template details.
         public async Task<PATemplate> GetKraTemplateById(int templateId)
         {
             return await _dbContext.PATemplates.Where(template => template.TemplateId == templateId)
                  .FirstOrDefaultAsync();
         }
 
-        //For displaying all templates
+        //Retrieves all templates
         public async Task<List<PATemplate>> GetAllTemplates()
         {
             //return await _dbContext.PATemplates.Where(c => c.IsActive == 1).ToListAsync();
@@ -195,7 +194,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
         }
 
-        //For deleting the template.
+        //Delete the template.
         public async Task<ResponseModel> DeleteKraTemplateById(int id)
         {
             ResponseModel model = new ResponseModel();
@@ -228,7 +227,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             return model;
         }
 
-        //Assiging designation for particular templates.
+        //Assign designation for particular templates.
         public async Task<ResponseModel> AssignDesingations(PATtemplateDesignationList paTemplateDesignation)
         {
             ResponseModel model = new ResponseModel();
@@ -280,7 +279,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             return model;
         }
 
-        //Assigning Kras for particular template.
+        //Assign Kras for particular template.
         public async Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras)
         {
             ResponseModel model = new ResponseModel();
@@ -329,7 +328,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             return model;
         }
 
-        //Diplaying the list of assigned kras for particular designation.
+        //Retrieves the list of assigned kras for particular designation.
         public async Task<List<object>> GetAssignedKRAsByDesignationId(int designationId)
         {
             var assignedKRAs = await _dbContext.PA_TemplateDesignations
@@ -364,6 +363,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
         }
 
+        //Retrieves a list of KRAs assigned to users of a specific designation
         public async Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId)
         {
             var result = await (from u in _dbContext.UserKRA
@@ -376,7 +376,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                                     UserId = g.Key.UserId,
                                     KraId = g.Key.KRAId
                                 }).ToListAsync();
-
             return result;
         }
     }
