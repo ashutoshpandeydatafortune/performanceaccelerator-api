@@ -103,7 +103,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public async Task<PATemplate> GetKraTemplateByIdDetails(int templateId)
         {
             var template = await _dbContext.PATemplates
-                    .Include(template => template.AssignedKras.Where(kra => kra.KraLibrary.IsActive == (int)Status.IS_ACTIVE))
+                    .Include(template => template.AssignedKras.Where(kra => kra.KraLibrary.IsActive == (int)Status.IS_ACTIVE && kra.IsActive == (int)Status.IS_ACTIVE))
                     .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == (int)Status.IS_ACTIVE))
                     .FirstOrDefaultAsync(t => t.TemplateId == templateId);
 
@@ -340,7 +340,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 (d, t) => new { Designation = d, Template = t })
                 .SelectMany(dt => _dbContext.PA_TemplateKras
                 .Include(k => k.KraLibrary)
-                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
+                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
                 .Select(k => new
                 {
                     kraIds = k.KraLibrary.Id,
