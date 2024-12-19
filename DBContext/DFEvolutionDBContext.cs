@@ -47,6 +47,7 @@ namespace DF_EvolutionAPI
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<RoleMaster> RoleMasters { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<DesignatedRole> DesignatedRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -107,6 +108,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.DesignatedRoleId).HasColumnName("DesignatedRoleId");
                 e.Ignore(e => e.ProjectList);
                 e.Ignore(e => e.ResourceProjectList);
                 e.Ignore(e => e.ClientList);
@@ -575,15 +577,22 @@ namespace DF_EvolutionAPI
                 e.ToTable("PA_UserRoles", "dbo");
                 e.Property(e => e.Id).HasColumnName("Id");
                 e.Property(e => e.UserId).HasColumnName("UserId");
-                e.Property(e => e.RoleId).HasColumnName("RoleId");
-               
+                e.Property(e => e.RoleId).HasColumnName("RoleId");              
 
             });
 
-
-
-
-
+            modelBuilder.Entity<DesignatedRole>(e =>
+            {
+                e.ToTable("DesignatedRole", "dbo");
+                e.Property(e => e.DesignatedRoleId).HasColumnName("DesignatedRoleId");
+                e.Property(e => e.DesignatedRoleName).HasColumnName("DesignatedRoleName");
+                e.Property(e => e.Description).HasColumnName("Description");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+            });
 
         }
     }

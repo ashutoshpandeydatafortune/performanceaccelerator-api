@@ -38,6 +38,8 @@ namespace DF_EvolutionAPI.Models
         public int? StatusId { get; set; }
         public int? ReportingTo { get; set; }
 
+        public int? DesignatedRoleId { get; set; }
+
         #endregion
 
         #region Skills and Experience
@@ -58,7 +60,7 @@ namespace DF_EvolutionAPI.Models
         [NotMapped]
         public string Function { get; set; }
         [NotMapped]
-        public string Designation { get; set; }
+        public string Designation { get; set; }       
 
         [NotMapped]
         public List<ProjectResource> ResourceProjectList { get; set; }
