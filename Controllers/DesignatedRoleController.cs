@@ -47,15 +47,53 @@ namespace DF_PA_API.Controllers
         public async Task<IActionResult> GetDesignatedRoleByFunctionId(int functionId)
         {
             try
-            {
-                var resource = await _designatedRoleService.GetDesignatedRoleByFunctionId(functionId);
-               return Ok(resource);
+            {               
+               return Ok(await _designatedRoleService.GetDesignatedRoleByFunctionId(functionId));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
 
+        }
+
+        /// <summary>
+        /// get resources by designation Name
+        /// </summary>
+        /// <param name="designatedRoleName"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetReportingDesignatedRoles/{userName}")]
+        public async Task<IActionResult> GetReportingDesignatedRoles(string userName)
+        {
+            try
+            {                
+                return Ok(await _designatedRoleService.GetReportingDesignatedRoles(userName));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// get resources by designation Name
+        /// </summary>
+        /// <param name="designationName"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetResourcesByDesignatedRoleReporter/{designationName}/{resourceId}")]
+        public async Task<IActionResult> GetResourcesByDesignatedRoleReporter(string designationName, int resourceId)
+        {
+            try
+            {
+                var resources = await _designatedRoleService.GetResourcesByDesignatedRoleReporter(designationName, resourceId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

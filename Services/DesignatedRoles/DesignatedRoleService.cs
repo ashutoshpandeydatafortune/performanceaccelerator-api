@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Models;
 
 namespace DF_PA_API.Services.DesignatedRoles
 {
@@ -17,7 +18,7 @@ namespace DF_PA_API.Services.DesignatedRoles
             _dbcontext = dbContext;
         }
 
-        
+
         public async Task<List<DesignatedRole>> GetAllDesignatedRoles()
         {
             try
@@ -92,6 +93,89 @@ namespace DF_PA_API.Services.DesignatedRoles
                 }
             }
         }
-        
+
+        public async Task<List<DesignatedRole>> GetReportingDesignatedRoles(string userName)
+        {
+            List<DesignatedRole> designations = new List<DesignatedRole>();
+
+            try
+            {
+                designations = await (
+                    from designation in _dbcontext.DesignatedRoles
+                    join resource in _dbcontext.Resources on designation.DesignatedRoleId equals resource.DesignatedRoleId
+                    join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId
+                    where reportingto.EmailId.Equals(userName)
+                    select new DesignatedRole
+                    {
+                        DesignatedRoleId = designation.DesignatedRoleId,
+                        DesignatedRoleName = designation.DesignatedRoleName
+                    }).Distinct().ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return designations;
+        }
+
+        public async Task<List<Resource>> GetResourcesByDesignatedRoleReporter(string designationName, int resourceId)
+        {
+            // We need to return all employees with passed designation who are reporting to resourceId
+            List<Resource> resources = new List<Resource>();
+
+            try
+            {
+                var designation = await (
+                    from pr in _dbcontext.DesignatedRoles.Where(x => x.DesignatedRoleName == designationName)
+                    select new Designation
+                    {
+                        DesignationId = pr.DesignatedRoleId,
+                        DesignationName = pr.DesignatedRoleName
+                    }).FirstOrDefaultAsync();
+
+                if (designation != null)
+                {
+                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId)
+                                .Select(x => new Resource
+                                {
+                                    ResourceId = x.ResourceId,
+                                    ResourceName = x.ResourceName,
+                                    EmailId = x.EmailId,
+                                    DesignationId = x.DesignationId
+                                }).ToListAsync();
+
+                    if (resources.Count > 0)
+                    {
+                        foreach (var resource in resources)
+                        {
+                            resource.SpecialKRAs = GetAssignedSpecialKRAs(resource.ResourceId);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return resources;
+        }
+
+        // GetAssignedSpecialKRAs is made for displaying the special kra for particular resource.
+        private List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
+        {
+            var specialKra = (from userKras in _dbcontext.UserKRA
+                              join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                              where kraLibrary.IsSpecial == 1 && userKras.UserId == resourceId
+                              select new AssignedSpecialKRA
+                              {
+                                  KRAId = kraLibrary.Id,
+                                  KraName = kraLibrary.Name,
+                              });
+
+            return specialKra.ToList();
+        }
+
     }
 }

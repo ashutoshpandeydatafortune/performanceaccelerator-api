@@ -350,15 +350,15 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public async Task<List<object>> GetAssignedKRAsByDesignationId(int designationId)
         {
             var assignedKRAs = await _dbContext.PA_TemplateDesignations
-                .Include(d => d.Designation)
-                .Where(d => d.DesignationId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
+                .Include(d => d.DesignatedRole)
+                .Where(d => d.DesignatedRoleId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
                 .Join(_dbContext.PATemplates,
                 d => d.TemplateId,
                 t => t.TemplateId,
-                (d, t) => new { Designation = d, Template = t })
+                (d, t) => new { DesignationRole = d, Template = t })
                 .SelectMany(dt => _dbContext.PA_TemplateKras
                 .Include(k => k.KraLibrary)
-                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
+                .Where(k => k.TemplateId == dt.DesignationRole.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
                 .Select(k => new
                 {
                     kraIds = k.KraLibrary.Id,
