@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DF_PA_API.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,6 +27,11 @@ namespace DF_EvolutionAPI.Models.Response
         [ForeignKey("Designation")]
         public int DesignationId { get; set; }
         public Designation Designation { get; set; }
+
+        [ForeignKey("DesignatedRole")]
+        public int DesignatedRoleId { get; set; }        
+        public DesignatedRole DesignatedRole { get; set; }  
+
     }
 
     public class PATtemplateDesignationList
@@ -33,8 +39,6 @@ namespace DF_EvolutionAPI.Models.Response
         public int TemplateId { get; set; }
         public int CreateBy { get; set; }
         public List<int> DesignationIds { get; set; }
-       
-
-
+        public List<int> DesignatedRoleIds { get; set; }
     }
 }

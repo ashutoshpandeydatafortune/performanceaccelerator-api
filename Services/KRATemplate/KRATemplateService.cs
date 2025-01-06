@@ -124,7 +124,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             {
                 foreach (var assignedDesignation in template.AssignedDesignations)
                 {
-                    assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
+                    //assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
+                    assignedDesignation.DesignatedRole = await GetDesignatedRoles(assignedDesignation.DesignatedRoleId);
 
                 }
             }
@@ -160,6 +161,22 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 throw;
             }
         }
+
+        
+        private async Task<DesignatedRole> GetDesignatedRoles(int designatedRoleId)
+        {
+            try
+            {
+                return await _dbContext.DesignatedRoles
+            .Where(x => x.DesignatedRoleId == designatedRoleId)           
+            .FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
 
         //Retrieves the template details.
         public async Task<PATemplate> GetKraTemplateById(int templateId)
@@ -246,17 +263,18 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 }
 
                 //Inserting the new reccord.
-                if (paTemplateDesignation.DesignationIds != null && paTemplateDesignation.DesignationIds.Any())
+                if (paTemplateDesignation.DesignatedRoleIds != null && paTemplateDesignation.DesignatedRoleIds.Any())
 
                 {
-                    foreach (var designationId in paTemplateDesignation.DesignationIds)
+                    foreach (var designatedRoleId in paTemplateDesignation.DesignatedRoleIds)
                     {
-                        if (designationId != 0)
+                        if (designatedRoleId != 0)
                         {
                             var newDesignation = new PATemplateDesignation
                             {
                                 TemplateId = paTemplateDesignation.TemplateId,
-                                DesignationId = designationId,
+                                DesignationId = designatedRoleId,// It is set 0 because we using designatedRoleId
+                                DesignatedRoleId = designatedRoleId,
                                 IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = paTemplateDesignation.CreateBy,
                                 CreateDate = DateTime.Now
@@ -332,15 +350,15 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public async Task<List<object>> GetAssignedKRAsByDesignationId(int designationId)
         {
             var assignedKRAs = await _dbContext.PA_TemplateDesignations
-                .Include(d => d.Designation)
-                .Where(d => d.DesignationId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
+                .Include(d => d.DesignatedRole)
+                .Where(d => d.DesignatedRoleId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
                 .Join(_dbContext.PATemplates,
                 d => d.TemplateId,
                 t => t.TemplateId,
-                (d, t) => new { Designation = d, Template = t })
+                (d, t) => new { DesignationRole = d, Template = t })
                 .SelectMany(dt => _dbContext.PA_TemplateKras
                 .Include(k => k.KraLibrary)
-                .Where(k => k.TemplateId == dt.Designation.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
+                .Where(k => k.TemplateId == dt.DesignationRole.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
                 .Select(k => new
                 {
                     kraIds = k.KraLibrary.Id,
@@ -363,13 +381,13 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
         }
 
-        //Retrieves a list of KRAs assigned to users of a specific designation
+        //Retrieves a list of KRAs assigned to users of a specific designatedRoleId
         public async Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId)
         {
             var result = await (from u in _dbContext.UserKRA
                                 join r in _dbContext.Resources on u.UserId equals r.ResourceId
-                                join d in _dbContext.PA_TemplateDesignations on r.DesignationId equals d.DesignationId
-                                where d.DesignationId == designationId && u.FinalComment == null
+                                join d in _dbContext.PA_TemplateDesignations on r.DesignatedRoleId equals d.DesignatedRoleId
+                                where d.DesignatedRoleId == designationId && u.FinalComment == null
                                 group u by new { u.UserId, u.KRAId } into g
                                 select new UserKraResult
                                 {

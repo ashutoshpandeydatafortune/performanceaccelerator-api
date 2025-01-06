@@ -37,6 +37,7 @@ namespace DF_EvolutionAPI.Models
         public int? TechCategoryId { get; set; }
         public int? StatusId { get; set; }
         public int? ReportingTo { get; set; }
+        public int? DesignatedRoleId { get; set; }
 
         #endregion
 
@@ -50,7 +51,6 @@ namespace DF_EvolutionAPI.Models
         public int? YearBucket { get; set; }
         public List<ResourceSkill> ResourceSkills { get; set; }
 
-
         #endregion
 
         public byte IsActive { get; set; }
@@ -58,11 +58,10 @@ namespace DF_EvolutionAPI.Models
         [NotMapped]
         public string Function { get; set; }
         [NotMapped]
-        public string Designation { get; set; }
+        public string Designation { get; set; }       
 
         [NotMapped]
         public List<ProjectResource> ResourceProjectList { get; set; }
-
 
         [NotMapped]
         public List<Project> ProjectList { get; set; }
@@ -78,7 +77,6 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public string DesignationName { get; set; }
-
 
         [NotMapped]
         public List<AssignedSpecialKRA> SpecialKRAs { get; set; }       

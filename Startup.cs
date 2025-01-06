@@ -20,6 +20,7 @@ using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
 using DF_PA_API.Services;
 using DF_PA_API.Services.RolesMaster;
+using DF_PA_API.Services.DesignatedRoles;
 
 namespace DF_EvolutionAPI
 {
@@ -93,6 +94,8 @@ namespace DF_EvolutionAPI
             services.AddScoped<IResourceSkillService, ResourceSkillService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IRolesMasterService, RolesMasterService>();
+            services.AddScoped<IDesignatedRoleService, DesignatedRoleService>();
+            
 
 
             services.AddIdentity<IdentityUser, IdentityRole>(
