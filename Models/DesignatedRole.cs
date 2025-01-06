@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-
 namespace DF_PA_API.Models
 {
     public class DesignatedRole
@@ -14,6 +13,5 @@ namespace DF_PA_API.Models
         public DateTime CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
         public byte? IsActive { get; set; }
-    }
-    
+    }    
 }

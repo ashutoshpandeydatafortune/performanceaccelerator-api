@@ -29,10 +29,8 @@ namespace DF_EvolutionAPI.Models.Response
         public Designation Designation { get; set; }
 
         [ForeignKey("DesignatedRole")]
-        public int DesignatedRoleId { get; set; }
-        
-        public DesignatedRole DesignatedRole { get; set; }
-        
+        public int DesignatedRoleId { get; set; }        
+        public DesignatedRole DesignatedRole { get; set; }  
 
     }
 
@@ -42,8 +40,5 @@ namespace DF_EvolutionAPI.Models.Response
         public int CreateBy { get; set; }
         public List<int> DesignationIds { get; set; }
         public List<int> DesignatedRoleIds { get; set; }
-
-
-
     }
 }

@@ -125,7 +125,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 foreach (var assignedDesignation in template.AssignedDesignations)
                 {
                     //assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
-                    assignedDesignation.DesignatedRole = await GetDesignationRoles(assignedDesignation.DesignatedRoleId);
+                    assignedDesignation.DesignatedRole = await GetDesignatedRoles(assignedDesignation.DesignatedRoleId);
 
                 }
             }
@@ -163,12 +163,12 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         }
 
         
-        private async Task<DesignatedRole> GetDesignationRoles(int designationRoleId)
+        private async Task<DesignatedRole> GetDesignatedRoles(int designatedRoleId)
         {
             try
             {
                 return await _dbContext.DesignatedRoles
-            .Where(x => x.DesignatedRoleId == designationRoleId)           
+            .Where(x => x.DesignatedRoleId == designatedRoleId)           
             .FirstOrDefaultAsync();
             }
             catch (Exception)
@@ -266,15 +266,15 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 if (paTemplateDesignation.DesignatedRoleIds != null && paTemplateDesignation.DesignatedRoleIds.Any())
 
                 {
-                    foreach (var designationRoleId in paTemplateDesignation.DesignatedRoleIds)
+                    foreach (var designatedRoleId in paTemplateDesignation.DesignatedRoleIds)
                     {
-                        if (designationRoleId != 0)
+                        if (designatedRoleId != 0)
                         {
                             var newDesignation = new PATemplateDesignation
                             {
                                 TemplateId = paTemplateDesignation.TemplateId,
-                                DesignationId = designationRoleId,// It is set 0 because we using designatedRoleId
-                                DesignatedRoleId = designationRoleId,
+                                DesignationId = designatedRoleId,// It is set 0 because we using designatedRoleId
+                                DesignatedRoleId = designatedRoleId,
                                 IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = paTemplateDesignation.CreateBy,
                                 CreateDate = DateTime.Now
@@ -381,7 +381,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
         }
 
-        //Retrieves a list of KRAs assigned to users of a specific designationRoleId
+        //Retrieves a list of KRAs assigned to users of a specific designatedRoleId
         public async Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId)
         {
             var result = await (from u in _dbContext.UserKRA

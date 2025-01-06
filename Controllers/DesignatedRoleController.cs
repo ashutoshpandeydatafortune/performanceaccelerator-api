@@ -18,7 +18,7 @@ namespace DF_PA_API.Controllers
         }
 
         /// <summary>
-        /// Get all the active desinations. 
+        /// Get all the active designated role. 
         /// </summary>
         /// <param name="designatedRoleName"></param>
         /// <returns></returns>
@@ -38,7 +38,7 @@ namespace DF_PA_API.Controllers
         }
 
         /// <summary>
-        /// Get all the active desinations by function id. 
+        /// Get all the active designated role by function id. 
         /// </summary>
         /// <param name="functionId"></param>
         /// <returns></returns>
@@ -58,7 +58,7 @@ namespace DF_PA_API.Controllers
         }
 
         /// <summary>
-        /// get resources by designation Name
+        /// Gets the reporting designated roles for a specified user
         /// </summary>
         /// <param name="designatedRoleName"></param>
         /// <returns></returns>
@@ -77,7 +77,7 @@ namespace DF_PA_API.Controllers
         }
 
         /// <summary>
-        /// get resources by designation Name
+        /// get resources by designated role Name
         /// </summary>
         /// <param name="designationName"></param>
         /// <returns></returns>
