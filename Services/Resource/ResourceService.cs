@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -327,20 +328,27 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
-                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
+                    // Removed the filter on QuarterYearRange because ratings should include scores from the last quarter,
+                    // which may include ratings from the previous year along with ratings for the new year.
+                    // where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId &&  quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
+                    group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName } into grouped
                     select new
                     {
                         grouped.Key.Id,
                         grouped.Key.QuarterName,
                         grouped.Key.QuarterYear,
-                        grouped.Key.QuarterYearRange,
+                        grouped.Key.QuarterYearRange,                       
                         Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
                         Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
                     }
-                    ).ToListAsync();
+                    )
+                    .OrderBy(r=>r.QuarterYear)                   
+                    .ToListAsync();
 
-                var results = rating.Select(r => new UserKRARatingList
+                var lastQuarterRatings = rating.TakeLast(4).ToList();// // Get the ratings for the last 4 quarters
+
+                var results = lastQuarterRatings.Select(r => new UserKRARatingList
                 {
                     QuarterYearRange = r.QuarterYearRange,
                     QuarterName = r.QuarterName,
@@ -348,7 +356,14 @@ namespace DF_EvolutionAPI.Services
                 })
                     .OrderBy(quarter => quarter.QuarterYearRange)
                     .ToList();
+
                 var averageRating = results?.Any() == true ? Math.Round((double)results.Average(average => average.Rating), 2) : 0.0;
+              
+                if (rating.Count == 1)//If there is only 1 rating, set the count to 0 for the 1st quarter
+                {
+                    averageRating = 0.0;
+                }
+
                 var resultList = new List<UserKRARatingLists>
                 {
                     new UserKRARatingLists { Rating = (double)averageRating }
