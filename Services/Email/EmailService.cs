@@ -43,8 +43,8 @@ namespace DF_EvolutionAPI.Services.Email
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to send email: {ex.Message}");
-                return false;
+                // Log the exception or handle it as necessary
+                throw new InvalidOperationException("An error occurred while sending email.", ex);
             }
         }
 

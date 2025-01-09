@@ -119,10 +119,12 @@ namespace DF_EvolutionAPI.Services
             if (created)
             {
                 Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
-                foreach (var entry in notificationMap)
-                {
-                    await SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME);
-                }
+
+                // Create a list of tasks for sending emails
+                var sendEmailTasks = notificationMap.Select(entry => SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME)).ToList();
+
+                // Wait for all email sending tasks to complete concurrently
+                await Task.WhenAll(sendEmailTasks);
 
                 model.IsSuccess = true;
             }
@@ -244,6 +246,13 @@ namespace DF_EvolutionAPI.Services
         }
         private async Task<bool> SendNotification(UserNotificationData userNotificationData, string templateName)
         {
+            if (string.IsNullOrEmpty(userNotificationData.Email))
+            {
+                // Log or handle the case where the email is blank
+                Console.WriteLine("Email is blank. Notification not sent.");
+                return false; // Return false if no email is sent
+            }
+
             var subject = "";
             var headerContent = "";
             string emailContent = string.Empty;
@@ -308,10 +317,12 @@ namespace DF_EvolutionAPI.Services
             if (created)
             {
                 Dictionary<int, UserNotificationData> notificationMap = await CreateUpdateNotifications(userKRAModel);
-                foreach (var entry in notificationMap)
-                {
-                    await SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME);
-                }
+
+                // Create a list of tasks for sending emails
+                var sendEmailTasks = notificationMap.Select(entry => SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME)).ToList();
+
+                // Wait for all email sending tasks to complete concurrently
+                await Task.WhenAll(sendEmailTasks);
 
                 model.IsSuccess = true;
             }
@@ -339,13 +350,13 @@ namespace DF_EvolutionAPI.Services
                         userKra.ApprovedBy = userKRAModels.ApprovedBy ?? null;
                         userKra.RejectedBy = userKRAModels.RejectedBy ?? null;
                         userKra.FinalComment = userKRAModels.FinalComment ?? null;
-                        userKra.ManagerComment = userKRAModels.ManagerComment ?? null;
+                        userKra.ManagerComment = userKRAModels.ManagerComment ?? null;                       
                         userKra.FinalRating = userKRAModels.FinalRating ?? null;
                         userKra.DeveloperComment = userKRAModels.DeveloperComment;
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                        
+
                         if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
                             userKra.Score = (double)userKRAModels.FinalRating * (double)weightage;
@@ -452,102 +463,6 @@ namespace DF_EvolutionAPI.Services
             {
                 throw;
             }
-        }
-
-        public ResponseModel CreateorUpdateUserKRA(UserKRA userKRAModel)
-        {
-            ResponseModel model = new ResponseModel();
-
-            try
-            {
-                UserKRA userKra;
-
-                if (userKRAModel.QuarterId != null)
-                {
-                    userKra = _dbcontext.UserKRA.Where(c =>
-                        c.UserId == userKRAModel.UserId &&
-                        c.KRAId == userKRAModel.KRAId &&
-                        c.QuarterId == userKRAModel.QuarterId
-                    ).FirstOrDefault();
-                }
-                else
-                {
-                    userKra = _dbcontext.UserKRA.Where(c =>
-                        c.Id == userKRAModel.Id
-                    ).FirstOrDefault();
-                }
-
-                if (userKra != null)
-                {
-                    userKra.Reason = string.IsNullOrEmpty(userKRAModel.Reason) ? userKra.Reason : userKRAModel.Reason;
-                    userKra.Comment = string.IsNullOrEmpty(userKRAModel.Comment) ? userKra.Comment : userKRAModel.Comment;
-                    userKra.FinalComment = string.IsNullOrEmpty(userKRAModel.FinalComment) ? " " : userKRAModel.FinalComment;
-                    userKra.ManagerComment = string.IsNullOrEmpty(userKRAModel.ManagerComment) ? userKra.ManagerComment : userKRAModel.ManagerComment;
-                    userKra.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? userKra.DeveloperComment : userKRAModel.DeveloperComment;
-                    userKra.ApprovedBy = userKRAModel.ApprovedBy == null ? userKra.ApprovedBy : userKRAModel.ApprovedBy;
-                    userKra.RejectedBy = userKRAModel.RejectedBy == null ? userKra.RejectedBy : userKRAModel.RejectedBy;
-                    userKra.IsActive = (int)Status.IS_ACTIVE;
-                    userKra.UpdateBy = 1;
-                    userKra.UpdateDate = DateTime.Now;
-
-                    if (userKRAModel.DeveloperRating != null)
-                        userKra.DeveloperRating = userKRAModel.DeveloperRating.Value;
-
-                    if (userKRAModel.ManagerRating != null)
-                        userKra.ManagerRating = userKRAModel.ManagerRating.Value;
-
-                    if (userKRAModel.FinalRating != null)
-                        userKra.FinalRating = userKRAModel.FinalRating.Value;
-
-                    if (userKRAModel.AppraisalRange != null)
-                        userKra.AppraisalRange = userKRAModel.AppraisalRange.Value;
-
-                    _dbcontext.SaveChanges();
-
-                    model.Messsage = "User KRA Update Successfully";
-                }
-                else
-                {
-                    userKRAModel.KRAId = userKRAModel.KRAId;
-                    userKRAModel.Score = userKRAModel.Score;
-                    userKRAModel.Status = userKRAModel.Status;
-                    userKRAModel.UserId = userKRAModel.UserId;
-                    userKRAModel.Reason = userKRAModel.Reason;
-                    userKRAModel.Comment = userKRAModel.Comment;
-                    userKRAModel.QuarterId = userKRAModel.QuarterId;
-                    userKRAModel.FinalRating = userKRAModel.FinalRating;
-                    userKRAModel.FinalComment = userKRAModel.FinalComment;
-                    userKRAModel.ManagerRating = userKRAModel.ManagerRating;
-                    userKRAModel.AppraisalRange = userKRAModel.AppraisalRange;
-                    userKRAModel.DeveloperRating = userKRAModel.DeveloperRating;
-                    userKRAModel.ManagerComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? "" : userKRAModel.DeveloperComment;
-                    userKRAModel.DeveloperComment = string.IsNullOrEmpty(userKRAModel.DeveloperComment) ? "" : userKRAModel.DeveloperComment;
-
-                    userKRAModel.ApprovedBy = userKRAModel.ApprovedBy;
-                    userKRAModel.RejectedBy = userKRAModel.RejectedBy;
-
-                    userKRAModel.IsActive = (int)Status.IS_ACTIVE;
-                    userKRAModel.CreateBy = 1;
-                    userKRAModel.UpdateBy = 1;
-                    userKRAModel.CreateDate = DateTime.Now;
-                    userKRAModel.UpdateDate = DateTime.Now;
-
-                    _dbcontext.Add(userKRAModel);
-
-                    model.Messsage = "User KRA Inserted Successfully";
-                }
-
-                _dbcontext.SaveChanges();
-
-                model.IsSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
-            }
-
-            return model;
         }
 
         public async Task<ResponseModel> DeleteUserKRA(int userKRAId)
@@ -712,7 +627,7 @@ namespace DF_EvolutionAPI.Services
                     model.IsSuccess = false;
                     model.Messsage = "User KRA does not exits";
                 }
-               
+
             }
             catch (Exception ex)
             {
