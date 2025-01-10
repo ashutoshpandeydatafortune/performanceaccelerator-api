@@ -6,7 +6,8 @@ namespace DF_PA_API.Models
     {
         public int ResourceId { get; set; }
         public string ResourceName { get; set; }
-        public string Designation { get; set; }
+        //public string Designation { get; set; }
+        public string DesignatedRole { get; set; }
         public int Completed { get; set; }  
         public int Pending { get; set; }  
         public List<KraQuarter> Kras { get; set; } 
@@ -35,7 +36,9 @@ namespace DF_PA_API.Models
     {
         public int FunctionId { get; set; }
         public int DesignationId { get; set; }
+        public int DesignatedRoleId { get; set; }
         public string FunctionName { get; set; }
         public string DesignationName { get; set; }
+        public string DesignatedRoleName { get; set; }
     }
 }
