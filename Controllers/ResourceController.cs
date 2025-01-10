@@ -133,6 +133,25 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// get all designated roles of particular function.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetDesignatedRolesByFunctionId(int functionId)
+        {
+            try
+            {
+                var resources = await _resourceService.GetDesignatedRolesByFunctionId(functionId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         /// <summary>
         /// get all resources kras
