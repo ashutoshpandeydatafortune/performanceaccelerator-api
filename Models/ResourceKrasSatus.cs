@@ -10,7 +10,8 @@ namespace DF_PA_API.Models
         public string DesignatedRole { get; set; }
         public int Completed { get; set; }  
         public int Pending { get; set; }  
-        public List<KraQuarter> Kras { get; set; } 
+        public List<KraQuarter> Kras { get; set; }
+        public byte? IsApproved { get; set; }
     }
 
     public class KraQuarter

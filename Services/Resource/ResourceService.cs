@@ -512,8 +512,8 @@ namespace DF_EvolutionAPI.Services
                     ResourceId = g.Key.ResourceId,
                     ResourceName = g.Key.ResourceName,
                     DesignatedRole = g.Key.DesignatedRoleName,
-                    Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.FinalComment != null)) ? 1 : 0, // 1 if at least one quarter has all comments not null
-                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.FinalComment == null)), // Count the quarters with at least one null comment
+                    Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.IsApproved != 0)) ? 1 : 0, // 1 if at least one quarter has all comments not null
+                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
                     Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
                          .Select(q => new KraQuarter
                          {
@@ -526,7 +526,8 @@ namespace DF_EvolutionAPI.Services
                                  ManagerRating = item.ManagerRating,
                                  FinalRating = item.FinalRating,
                                  RejectedBy = item.RejectedBy,
-                                 FinalComment = item.FinalComment
+                                 //FinalComment = item.FinalComment,
+                                 IsApproved = item.IsApproved,
                              }).ToList(),
                          }).ToList()
                 }).ToList();
