@@ -14,6 +14,8 @@ namespace DF_EvolutionAPI.Services
         Task<Resource> GetResourceByEmailId(string EmailId);
         Task<List<Resource>> GetAllResourceDetailsByResourceId(int? resourceId);
         Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId);
+        Task<List<FunctionsDesignations>> GetDesignatedRolesByFunctionId(int functionId);
         Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus);
+
     }
 }

@@ -331,7 +331,7 @@ namespace DF_EvolutionAPI.Services
                     // Removed the filter on QuarterYearRange because ratings should include scores from the last quarter,
                     // which may include ratings from the previous year along with ratings for the new year.
                     // where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
-                    where (resources.ResourceId == userId &&  quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId &&  quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.IsApproved != 0)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName } into grouped
                     select new
                     {
@@ -388,7 +388,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterRange && quarterDetail.Id == currentQuarter && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.IsApproved != 0)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {
@@ -447,7 +447,30 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
-        // Retrieves a list of resources with KRA status for each quarter
+        //Retrieves a list of designated roles associated with a specific function
+        public async Task<List<FunctionsDesignations>> GetDesignatedRolesByFunctionId(int functionId)
+        {
+            var result = await (from des in _dbcontext.DesignatedRoles
+                                join res in _dbcontext.Resources on des.DesignatedRoleId equals res.DesignatedRoleId
+                                join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
+                                where tecfun.FunctionId == functionId
+                                     && tecfun.IsActive == (int)Status.IS_ACTIVE
+                                     && des.IsActive == (int)Status.IS_ACTIVE
+                                group new { des, tecfun } by new { des.DesignatedRoleId, des.DesignatedRoleName } into grouped
+
+                                select new FunctionsDesignations
+                                {
+                                    FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
+                                    FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
+                                    DesignatedRoleId = grouped.Key.DesignatedRoleId,
+                                    DesignatedRoleName = grouped.Key.DesignatedRoleName,
+                                }).ToListAsync();
+
+            return result;
+        }
+
+        // Retrieves a list of resources with KRA status for each quarter      
+
         public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
         {
             var result = await (
@@ -455,16 +478,16 @@ namespace DF_EvolutionAPI.Services
                 join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
                 join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
                 join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
-                join des in _dbcontext.Designations on r.DesignationId equals des.DesignationId
+                join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
                 where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
-                      && (searchKraStatus.DesignationId == 0 || r.DesignationId == searchKraStatus.DesignationId)
+                      && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
                         && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
               && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
                 select new
                 {
                     r.ResourceId,
                     r.ResourceName,
-                    des.DesignationName,
+                    des.DesignatedRoleName,
                     Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
                     qd.QuarterName,
                     k.Name,
@@ -473,6 +496,7 @@ namespace DF_EvolutionAPI.Services
                     uk.FinalRating,
                     uk.RejectedBy,
                     uk.FinalComment,
+                    uk.IsApproved,
                 })
                 .ToListAsync();
 
@@ -481,15 +505,15 @@ namespace DF_EvolutionAPI.Services
                 {
                     x.ResourceId,
                     x.ResourceName,
-                    x.DesignationName
+                    x.DesignatedRoleName
                 })
                 .Select(g => new ResourceKrasSatus
                 {
                     ResourceId = g.Key.ResourceId,
                     ResourceName = g.Key.ResourceName,
-                    Designation = g.Key.DesignationName,
-                    Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.FinalComment != null)) ? 1 : 0, // 1 if at least one quarter has all comments not null
-                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.FinalComment == null)), // Count the quarters with at least one null comment
+                    DesignatedRole = g.Key.DesignatedRoleName,
+                    Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.IsApproved != 0)) ? 1 : 0, // 1 if at least one quarter has all comments not null
+                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
                     Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
                          .Select(q => new KraQuarter
                          {
@@ -502,7 +526,8 @@ namespace DF_EvolutionAPI.Services
                                  ManagerRating = item.ManagerRating,
                                  FinalRating = item.FinalRating,
                                  RejectedBy = item.RejectedBy,
-                                 FinalComment = item.FinalComment
+                                 //FinalComment = item.FinalComment,
+                                 IsApproved = item.IsApproved,
                              }).ToList(),
                          }).ToList()
                 }).ToList();

@@ -153,7 +153,7 @@ namespace DF_EvolutionAPI.Services
                         item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
                         item.ApprovedBy = item.ApprovedBy == null ? item.ApprovedBy : item.ApprovedBy;
                         item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
-                       
+                        item.IsApproved = 0;
                         item.IsActive = (int)Status.IS_ACTIVE;
                         item.CreateBy = item.CreateBy;                        
                         item.CreateDate = DateTime.Now;
@@ -356,6 +356,8 @@ namespace DF_EvolutionAPI.Services
                         userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
                         userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
                         userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
+                        userKra.IsApproved = userKRAModels.IsApproved ?? 0;
+
 
                         if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
@@ -542,7 +544,9 @@ namespace DF_EvolutionAPI.Services
                         QuarterName = quarter.QuarterName,
                         QuarterYear = quarter.QuarterYear,
                         IsActive = userKra.IsActive,
-                        Description = kraLibrary.Description
+                        Description = kraLibrary.Description,
+                        IsApproved = userKra.IsApproved,
+
 
                         //StatusName = S.StatusName,
                         //Reason = c.Reason
@@ -566,7 +570,7 @@ namespace DF_EvolutionAPI.Services
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                     join designation in _dbcontext.Designations on resources.DesignationId equals designation.DesignationId
-                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterYearRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.FinalComment != null)
+                    where (resources.ResourceId == userId && quarterDetail.QuarterYearRange == quarterYearRange && quarterDetail.IsActive == (int)Status.IS_ACTIVE && userKRA.IsActive == (int)Status.IS_ACTIVE && userKRA.IsApproved != 0)
                     group new { kraLibrary, userKRA, quarterDetail } by new { quarterDetail.QuarterYear, quarterDetail.QuarterYearRange, quarterDetail.Id, quarterDetail.QuarterName, } into grouped
                     select new
                     {

@@ -27,6 +27,7 @@ namespace DF_EvolutionAPI.Models
         public byte? IsDeleted { get; set; }
         [NotMapped]
         public bool? isUpdated { get; set; }
+        public byte? IsApproved { get; set; }
     }
 
     public class UserKRADetails : BaseEntity
@@ -63,6 +64,7 @@ namespace DF_EvolutionAPI.Models
         public bool? IsDescriptionRequired { get; set; }
         public int? MinimumRatingForDescription { get; set; }
         public double TotalScore { get; set; }
+        public byte? IsApproved { get; set; }
 
         public class UserKRADetailsWithScore
         {
