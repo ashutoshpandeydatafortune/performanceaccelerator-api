@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 
 namespace DF_PA_API.Models
 {
@@ -12,6 +14,10 @@ namespace DF_PA_API.Models
         public int Pending { get; set; }  
         public List<KraQuarter> Kras { get; set; }
         public byte? IsApproved { get; set; }
+        [NotMapped]
+        public string ReportingToName { get; set; }
+        [NotMapped]
+        public string ManagerReportingToName { get; set; }
     }
 
     public class KraQuarter

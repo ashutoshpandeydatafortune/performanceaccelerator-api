@@ -471,6 +471,70 @@ namespace DF_EvolutionAPI.Services
 
         // Retrieves a list of resources with KRA status for each quarter      
 
+        //public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
+        //{
+        //    var result = await (
+        //        from k in _dbcontext.KRALibrary
+        //        join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
+        //        join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
+        //        join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
+        //        join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
+        //        where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
+        //              && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
+        //                && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
+        //      && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
+        //        select new
+        //        {
+        //            r.ResourceId,
+        //            r.ResourceName,
+        //            des.DesignatedRoleName,
+        //            Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
+        //            qd.QuarterName,
+        //            k.Name,
+        //            uk.DeveloperRating,
+        //            uk.ManagerRating,
+        //            uk.FinalRating,
+        //            uk.RejectedBy,
+        //            uk.FinalComment,
+        //            uk.IsApproved,
+        //        })
+        //        .ToListAsync();
+
+        //    var flattenedResult = result
+        //        .GroupBy(x => new
+        //        {
+        //            x.ResourceId,
+        //            x.ResourceName,
+        //            x.DesignatedRoleName
+        //        })
+        //        .Select(g => new ResourceKrasSatus
+        //        {
+        //            ResourceId = g.Key.ResourceId,
+        //            ResourceName = g.Key.ResourceName,
+        //            DesignatedRole = g.Key.DesignatedRoleName,
+        //            Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.IsApproved != 0)) ? 1 : 0, // 1 if at least one quarter has all comments not null
+        //            Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
+        //            Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
+        //                 .Select(q => new KraQuarter
+        //                 {
+        //                     Quarter = q.Key,
+        //                     QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
+        //                     Ratings = q.Select(item => new KraRating
+        //                     {
+        //                         KraName = item.Name,
+        //                         DeveloperRating = item.DeveloperRating,
+        //                         ManagerRating = item.ManagerRating,
+        //                         FinalRating = item.FinalRating,
+        //                         RejectedBy = item.RejectedBy,
+        //                         //FinalComment = item.FinalComment,
+        //                         IsApproved = item.IsApproved,
+        //                     }).ToList(),
+        //                 }).ToList()
+        //        }).ToList();
+
+        //    return flattenedResult;
+        //}
+
         public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
         {
             var result = await (
@@ -479,10 +543,16 @@ namespace DF_EvolutionAPI.Services
                 join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
                 join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
                 join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
+                // Join to get the ReportingTo (Manager) name
+                join reportingToResource in _dbcontext.Resources on r.ReportingTo equals reportingToResource.ResourceId into rpt
+                from manager in rpt.DefaultIfEmpty() // Left join, if no manager, it will be null
+                                                     // Join to get the ReportingTo name of the Manager (second level)
+                join managerReportingTo in _dbcontext.Resources on manager.ReportingTo equals managerReportingTo.ResourceId into managerRpt
+                from manager2 in managerRpt.DefaultIfEmpty() // Left join, if no second level manager, it will be null
                 where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
                       && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
-                        && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
-              && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
+                      && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
+                      && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
                 select new
                 {
                     r.ResourceId,
@@ -497,6 +567,8 @@ namespace DF_EvolutionAPI.Services
                     uk.RejectedBy,
                     uk.FinalComment,
                     uk.IsApproved,
+                    ReportingToName = manager.ResourceName, // Manager's name
+                    ManagerReportingToName = manager2.ResourceName // Manager's manager name
                 })
                 .ToListAsync();
 
@@ -515,25 +587,27 @@ namespace DF_EvolutionAPI.Services
                     Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.IsApproved != 0)) ? 1 : 0, // 1 if at least one quarter has all comments not null
                     Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
                     Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
-                         .Select(q => new KraQuarter
-                         {
-                             Quarter = q.Key,
-                             QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
-                             Ratings = q.Select(item => new KraRating
-                             {
-                                 KraName = item.Name,
-                                 DeveloperRating = item.DeveloperRating,
-                                 ManagerRating = item.ManagerRating,
-                                 FinalRating = item.FinalRating,
-                                 RejectedBy = item.RejectedBy,
-                                 //FinalComment = item.FinalComment,
-                                 IsApproved = item.IsApproved,
-                             }).ToList(),
-                         }).ToList()
+                        .Select(q => new KraQuarter
+                        {
+                            Quarter = q.Key,
+                            QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
+                            Ratings = q.Select(item => new KraRating
+                            {
+                                KraName = item.Name,
+                                DeveloperRating = item.DeveloperRating,
+                                ManagerRating = item.ManagerRating,
+                                FinalRating = item.FinalRating,
+                                RejectedBy = item.RejectedBy,
+                                IsApproved = item.IsApproved,
+                            }).ToList(),
+                        }).ToList(),
+                    ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
+                    ManagerReportingToName = g.FirstOrDefault().ManagerReportingToName // Fetching the second-level manager's name
                 }).ToList();
 
             return flattenedResult;
         }
+
 
     }
 }
