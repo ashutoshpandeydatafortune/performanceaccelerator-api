@@ -61,8 +61,8 @@ namespace DF_EvolutionAPI.Services
 
             try
             {
-                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name && skill.Description == skillModel.Description
-                 && skill.CategoryId == skillModel.CategoryId && skill.IsActive == (int)Status.IS_ACTIVE);
+                var skill = await _dbContext.Skills.FirstOrDefaultAsync(skill => skill.Name == skillModel.Name
+                 && skill.CategoryId == skillModel.CategoryId && skill.SkillId != skillModel.SkillId && skill.IsActive == (int)Status.IS_ACTIVE);
                 if (skill != null)
                 {
                     model.IsSuccess = false;
