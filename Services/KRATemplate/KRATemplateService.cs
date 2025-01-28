@@ -387,7 +387,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             var result = await (from u in _dbContext.UserKRA
                                 join r in _dbContext.Resources on u.UserId equals r.ResourceId
                                 join d in _dbContext.PA_TemplateDesignations on r.DesignatedRoleId equals d.DesignatedRoleId
-                                where d.DesignatedRoleId == designationId && u.FinalComment == null
+                                where d.DesignatedRoleId == designationId && u.IsApproved == 0 //&& u.FinalComment == null
                                 group u by new { u.UserId, u.KRAId } into g
                                 select new UserKraResult
                                 {
