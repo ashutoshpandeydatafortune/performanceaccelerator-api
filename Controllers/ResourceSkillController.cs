@@ -119,5 +119,26 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// It is used to get the Resources who have not updated their skill for current quarter.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[Action]")]
+        public async Task<IActionResult> CheckResourceSkillsUpdated(int resourceId)
+        {
+            try
+            {
+                var response = await _resourceSkillService.CheckResourceSkillsUpdated(resourceId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

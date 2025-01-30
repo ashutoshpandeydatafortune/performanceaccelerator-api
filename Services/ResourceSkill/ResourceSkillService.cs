@@ -382,6 +382,56 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult;
         }
+
+        public async Task<List<FetchResourceSkill>> CheckResourceSkillsUpdated(int resourceId)
+        {
+            var currentDate = DateTime.Now;
+
+            // Calculate the current quarter (Q1, Q2, Q3, Q4)
+            var currentQuarter = (currentDate.Month - 1) / 3 + 1;
+            var currentYear = currentDate.Year;
+
+            // Calculate start and end dates for the current quarter
+            var startOfQuarter = new DateTime(currentYear, (currentQuarter - 1) * 3 + 1, 1);
+            var endOfQuarter = new DateTime(currentYear, currentQuarter * 3 + 1, 1).AddDays(-1); // End date of the current quarter
+
+            // Combine query to fetch resource skills and the resource name in a single query
+            var resourceWithSkills = _dbContext.ResourceSkills
+                .Where(r => r.ResourceId == resourceId
+                         && ((r.CreateDate >= startOfQuarter && r.CreateDate <= endOfQuarter)
+                              || (r.UpdateDate >= startOfQuarter && r.UpdateDate <= endOfQuarter))
+                         && r.IsActive == 1)
+                .Select(r => new { r.ResourceId })  // Selecting just ResourceId
+                .FirstOrDefault();  // Only active skills
+
+            // If no skills were updated in the current quarter, return an empty list
+            if (resourceWithSkills == null)
+            {
+                return new List<FetchResourceSkill>();
+            }
+
+            // Query to get the resource name
+            var resourceName = _dbContext.Resources
+                .Where(r => r.ResourceId == resourceId)
+                .Select(r => r.ResourceName)  // Only selecting the ResourceName
+                .FirstOrDefault();
+
+            // If resource not found, return an empty list
+            if (resourceName == null)
+            {
+                return new List<FetchResourceSkill>();
+            }
+
+            // Create the result with updated skills for the resource
+            var fetchResourceSkill = new FetchResourceSkill
+            {
+                ResourceId = (int)resourceWithSkills.ResourceId,
+                ResourceName = resourceName
+            };
+
+            return new List<FetchResourceSkill> { fetchResourceSkill };
+        }
+
     }
 
 }
