@@ -63,6 +63,26 @@ namespace DF_EvolutionAPI.Controllers
         /// <summary>
         /// It is used to update the Resourceskill.
         /// </summary>
+        /// <param name="resourceSkillModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> InsertResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
+        {
+            try
+            {
+                var response = await _resourceSkillService.InsertResourceSkill(resourceSkillRequestModel);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// It is used to update the Resourceskill.
+        /// </summary>
         /// <param SkillId="skillId"></param>
         /// <returns></returns>
         [HttpGet]
@@ -112,6 +132,26 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var response = await _resourceSkillService.GetResourcesBySkill(searchSkillModel);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// It is used to update the Resourceskill.
+        /// </summary>
+        /// <param name="updateApproval"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> UpdateApprovalStatus(UpdateApprovalStatusRequestModel updateApproval)
+        {
+            try
+            {
+                var response = await _resourceSkillService.UpdateApprovalStatus(updateApproval);
                 return Ok(response);
             }
             catch (Exception ex)
