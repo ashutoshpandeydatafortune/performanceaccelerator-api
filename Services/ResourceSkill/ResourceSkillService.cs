@@ -65,7 +65,12 @@ namespace DF_EvolutionAPI.Services
                                     SubSkillDescription = subSkill.SubSkillDescription,
                                     IsActive = (int)Status.IS_ACTIVE,
                                     CreateBy = resourceSkillRequestModel.CreateBy,
-                                    CreateDate = DateTime.Now
+                                    CreateDate = DateTime.Now,
+                                    RejectedBy = 0,
+                                    RejectedComment = null,
+                                    IsApproved=0,
+                                    ApprovedBy = 0
+                                    
                                 };
                                 _dbContext.ResourceSkills.Add(newResourceSkill);
                             }
@@ -115,6 +120,10 @@ namespace DF_EvolutionAPI.Services
                                     existingSkill.SubSkillDescription = subSkill.SubSkillDescription;
                                     existingSkill.UpdateBy = resourceSkillRequestModel.CreateBy;
                                     existingSkill.UpdateDate = DateTime.Now;
+                                    existingSkill.RejectedBy = 0;
+                                    existingSkill.RejectedComment = null;
+                                    existingSkill.IsApproved = 0;
+                                    existingSkill.ApprovedBy = 0;
 
                                     _dbContext.ResourceSkills.Update(existingSkill);
                                 }
@@ -138,6 +147,10 @@ namespace DF_EvolutionAPI.Services
                                         existingSubSkill.IsActive = (int)Status.IS_ACTIVE;
                                         existingSubSkill.UpdateBy = resourceSkillRequestModel.CreateBy;
                                         existingSubSkill.UpdateDate = DateTime.Now;
+                                        existingSubSkill.RejectedBy = 0;
+                                        existingSubSkill.RejectedComment = null;
+                                        existingSubSkill.IsApproved = 0;
+                                        existingSubSkill.ApprovedBy = 0;
 
                                         _dbContext.ResourceSkills.Update(existingSubSkill);
                                     }
@@ -157,7 +170,11 @@ namespace DF_EvolutionAPI.Services
                                             SubSkillDescription = subSkill.SubSkillDescription,
                                             IsActive = (int)Status.IS_ACTIVE,
                                             CreateBy = resourceSkillRequestModel.CreateBy,
-                                            CreateDate = DateTime.Now
+                                            CreateDate = DateTime.Now,                                            
+                                            RejectedBy = 0,
+                                            RejectedComment = null,
+                                            IsApproved = 0,
+                                            ApprovedBy = 0
                                         };
                                         _dbContext.ResourceSkills.Add(newSubSkill);
                                     }
@@ -195,7 +212,11 @@ namespace DF_EvolutionAPI.Services
                                     SkillDescription = skill.SkillDescription,
                                     IsActive = (int)Status.IS_ACTIVE,
                                     CreateBy = resourceSkillRequestModel.CreateBy,
-                                    CreateDate = DateTime.Now
+                                    CreateDate = DateTime.Now,
+                                    RejectedBy = 0,
+                                    RejectedComment = null,
+                                    IsApproved = 0,
+                                    ApprovedBy = 0
                                 };
                                 _dbContext.ResourceSkills.Add(newMainSkill);
                             }
@@ -226,7 +247,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE && rs.IsApproved == 0
+                where rs.IsActive == (int)Status.IS_ACTIVE
                 select new
                 {
                     r.ResourceId,
@@ -339,6 +360,10 @@ namespace DF_EvolutionAPI.Services
                     rs.SubSkillExperience,
                     rs.SubSkillVersion,
                     rs.SubSkillDescription,
+                    rs.IsApproved,
+                    rs.RejectedBy,
+                    rs.ApprovedBy,
+                    rs.RejectedComment,
                     category.CategoryId,
                     NewSkillId = (int?)skill.SkillId,
                     SkillName = skill.Name,
@@ -368,6 +393,10 @@ namespace DF_EvolutionAPI.Services
                             .Select(skillGroup => new SkillModel
                             {
                                 SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
+                                RejectedComment= skillGroup.First().RejectedComment,
+                                RejectedBy = skillGroup.First().RejectedBy,
+                                IsApproved = skillGroup.First().IsApproved,
+                                ApprovedBy = skillGroup.First().ApprovedBy,
                                 SkillName = skillGroup.First().SkillName,
                                 SkillExperience = skillGroup.First().SkillExperience,
                                 SkillVersion = skillGroup.First().SkillVersion,
@@ -391,6 +420,7 @@ namespace DF_EvolutionAPI.Services
                 {
                     ResourceId = group.Key,
                     ResourceName = group.First().ResourceName,
+                    
                     CategoryWiseSkills = categoryWiseSkills
                 };
 
