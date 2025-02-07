@@ -13,6 +13,9 @@ namespace DF_EvolutionAPI.Services
         public Task<List<FetchResourceCategorySkills>> GetResourceSkillsById(int resourceId);
         public Task<List<FetchResourceSkill>> GetResourcesBySkill(SearchSkill searchSkillModel);
         public Task<ResponseModel> UpdateApprovalStatus(UpdateApprovalStatusRequestModel updateApproval);
+        public Task<List<FetchResourceSkill>> CheckResourceSkillsUpdated(int resourceId);
+
+        public Task<ResponseModel> MarkResourceSkillAsInactive(ResourceSkillRequestModel resourceSkillRequestModel);
 
 
     }

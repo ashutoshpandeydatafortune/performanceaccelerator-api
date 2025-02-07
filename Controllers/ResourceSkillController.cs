@@ -61,7 +61,7 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// It is used to update the Resourceskill.
+        /// It is used to insert the Resourceskill.
         /// </summary>
         /// <param name="resourceSkillModel"></param>
         /// <returns></returns>
@@ -81,7 +81,7 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// It is used to update the Resourceskill.
+        /// It is used to get the resource skills.
         /// </summary>
         /// <param SkillId="skillId"></param>
         /// <returns></returns>
@@ -121,7 +121,7 @@ namespace DF_EvolutionAPI.Controllers
         }
 
         /// <summary>
-        /// It is used to update the Resourceskill.
+        /// It is used to search the skills resources.
         /// </summary>
         /// <param name="searchSkillModel"></param>
         /// <returns></returns>
@@ -159,5 +159,47 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// It is used to update the  skills approve and rejection.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[Action]")]
+        public async Task<IActionResult> CheckResourceSkillsUpdated(int resourceId)
+        {
+            try
+            {
+                var response = await _resourceSkillService.CheckResourceSkillsUpdated(resourceId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// It is used make inactive the skills and subskills.
+        /// </summary>
+        /// <param name="resourceSkillRequestModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> MarkResourceSkillAsInactive(ResourceSkillRequestModel resourceSkillRequestModel)
+        {
+            try
+            {
+                var response = await _resourceSkillService.MarkResourceSkillAsInactive(resourceSkillRequestModel);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

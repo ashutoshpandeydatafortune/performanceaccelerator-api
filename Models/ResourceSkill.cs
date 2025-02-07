@@ -84,6 +84,7 @@ namespace DF_EvolutionAPI.Models
     {
         public int SkillId { get; set; }
         public string SkillName { get; set; }
+        public byte? IsActive { get; set; }
 
         public double? SkillExperience { get; set; }
         public string SkillVersion { get; set; }
