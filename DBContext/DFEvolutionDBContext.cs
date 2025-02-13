@@ -544,6 +544,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.ApprovedBy).HasColumnName("ApprovedBy");
                 e.Property(e => e.RejectedBy).HasColumnName("RejectedBy");
                 e.Property(e => e.RejectedComment).HasColumnName("RejectedComment");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+
 
 
             });

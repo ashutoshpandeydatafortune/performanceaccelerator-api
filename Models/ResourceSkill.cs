@@ -28,6 +28,7 @@ namespace DF_EvolutionAPI.Models
         public int ApprovedBy { get; set; }
         public int RejectedBy { get; set; }
         public string RejectedComment { get; set; }
+        public byte? IsDeleted { get; set; }
 
     }
 
@@ -77,6 +78,7 @@ namespace DF_EvolutionAPI.Models
         public double? SubSkillExperience { get; set; }
         public string SubSkillVersion { get; set; }
         public string SubSkillDescription { get; set; }
+        public byte? IsDeleted { get; set; }
 
     }
 
@@ -85,6 +87,7 @@ namespace DF_EvolutionAPI.Models
         public int SkillId { get; set; }
         public string SkillName { get; set; }
         public byte? IsActive { get; set; }
+        public byte? IsDeleted { get; set; }
 
         public double? SkillExperience { get; set; }
         public string SkillVersion { get; set; }
@@ -127,7 +130,15 @@ namespace DF_EvolutionAPI.Models
         public List<UpdateApprovalStatus> ApprovalUpdates { get; set; }
     }
 
-    
+    public class SkillWithSubSkillsModel
+    {
+        public int SkillId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; }
+        public List<SubSkill> SubSkills { get; set; }
+    }
 
 }
 

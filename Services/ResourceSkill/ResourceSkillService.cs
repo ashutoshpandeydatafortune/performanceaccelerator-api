@@ -43,6 +43,7 @@ namespace DF_EvolutionAPI.Services
                                 SkillDescription = skill.SkillDescription,
                                 SubSkillExperience = null,
                                 IsActive = (int)Status.IS_ACTIVE,
+                                IsDeleted = 0,
                                 CreateBy = resourceSkillRequestModel.CreateBy,
                                 CreateDate = DateTime.Now
                             };
@@ -69,7 +70,8 @@ namespace DF_EvolutionAPI.Services
                                     RejectedBy = 0,
                                     RejectedComment = null,
                                     IsApproved=0,
-                                    ApprovedBy = 0
+                                    ApprovedBy = 0,
+                                    IsDeleted = 0
                                     
                                 };
                                 _dbContext.ResourceSkills.Add(newResourceSkill);
@@ -133,7 +135,7 @@ namespace DF_EvolutionAPI.Services
                                     var existingSubSkill = _dbContext.ResourceSkills
                                         .FirstOrDefault(rs => rs.ResourceId == resourceId
                                             && rs.SkillId == skill.SkillId
-                                            && rs.SubSkillId == subSkill.SubSkillId);
+                                            && rs.SubSkillId == subSkill.SubSkillId && rs.IsActive == 1 && rs.IsDeleted == 0);
 
                                     if (existingSubSkill != null)
                                     {
@@ -151,6 +153,7 @@ namespace DF_EvolutionAPI.Services
                                         existingSubSkill.RejectedComment = null;
                                         existingSubSkill.IsApproved = 0;
                                         existingSubSkill.ApprovedBy = 0;
+                                        existingSkill.IsDeleted = 0;
 
                                         _dbContext.ResourceSkills.Update(existingSubSkill);
                                     }
@@ -174,7 +177,8 @@ namespace DF_EvolutionAPI.Services
                                             RejectedBy = 0,
                                             RejectedComment = null,
                                             IsApproved = 0,
-                                            ApprovedBy = 0
+                                            ApprovedBy = 0,
+                                            IsDeleted = 0,
                                         };
                                         _dbContext.ResourceSkills.Add(newSubSkill);
                                     }
@@ -240,8 +244,7 @@ namespace DF_EvolutionAPI.Services
                 model.Messsage = "Error: " + ex.Message;
             }
             return model;
-        }
-
+        }   
 
         public async Task<List<FetchResourceSkill>> GetAllResourceSkills()
         {
@@ -270,7 +273,7 @@ namespace DF_EvolutionAPI.Services
                     rs.IsApproved,
                     rs.RejectedComment,
                     rs.ResourceSkillId,
-
+                    rs.IsDeleted,
                     NewSkillId = skill != null ? skill.SkillId : 0, // Ensure default value
                     SkillName = skill != null ? skill.Name : null, // Default name if null
                     NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0, // Default value
@@ -295,7 +298,7 @@ namespace DF_EvolutionAPI.Services
                 foreach (var skillGroup in skillGroups)
                 {
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != 0)
+                        .Where(r => r.NewSubSkillId != 0 && r.IsDeleted != 1)
                         .Select(r => new SubSkillModel
                         {
                             SkillId=skillGroup.Key,
@@ -368,6 +371,7 @@ namespace DF_EvolutionAPI.Services
                     rs.IsApproved,
                     rs.RejectedBy,
                     rs.ApprovedBy,
+                    rs.IsDeleted,
                     rs.RejectedComment,
                     category.CategoryId,
                     NewSkillId = (int?)skill.SkillId,
@@ -401,7 +405,7 @@ namespace DF_EvolutionAPI.Services
                                 RejectedComment= skillGroup.First().RejectedComment,
                                 RejectedBy = skillGroup.First().RejectedBy,
                                 IsApproved = skillGroup.First().IsApproved,
-                                ApprovedBy = skillGroup.First().ApprovedBy,
+                                ApprovedBy = skillGroup.First().ApprovedBy,                              
                                 SkillName = skillGroup.First().SkillName,
                                 SkillExperience = skillGroup.First().SkillExperience,
                                 SkillVersion = skillGroup.First().SkillVersion,
@@ -417,6 +421,7 @@ namespace DF_EvolutionAPI.Services
                                         SubSkillExperience = r.SubSkillExperience,
                                         SubSkillVersion = r.SubSkillVersion,
                                         SubSkillDescription = r.SubSkillDescription,
+                                        IsDeleted = r.IsDeleted
                                     }).ToList()
                             }).ToList()
                     }).ToList();
@@ -434,6 +439,7 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult;
         }
+
         public async Task<List<FetchResourceSkill>> GetResourcesBySkill(SearchSkill skillModel)
         {
             // Base query for resource, skills, and subskills
@@ -554,6 +560,7 @@ namespace DF_EvolutionAPI.Services
             return finalResult;
         }
 
+        //It checks if a resource has updated skills within the current quarter, fetching the resource name and returning the updated skills, or an empty list if no updates are found.
         public async Task<List<FetchResourceSkill>> CheckResourceSkillsUpdated(int resourceId)
         {
             var currentDate = DateTime.Now;
@@ -601,8 +608,9 @@ namespace DF_EvolutionAPI.Services
             };
 
             return new List<FetchResourceSkill> { fetchResourceSkill };
-        }        
+        }
 
+        //It updates the approval status for resources' skills based on the provided approval updates, saving changes to the database for each update.
         public async Task<ResponseModel> UpdateApprovalStatus(UpdateApprovalStatusRequestModel updateApproval)
         {
             ResponseModel model = new ResponseModel();
@@ -616,7 +624,7 @@ namespace DF_EvolutionAPI.Services
                     {
                         // Query using ResourceId and SkillId (and optionally SubSkillId if provided)
                         var resourceSkill = await _dbContext.ResourceSkills
-                            .FirstOrDefaultAsync(rs => rs.ResourceId == resource.ResourceId && rs.IsActive == 1 && rs.SkillId == approvalUpdate.SkillId && (rs.SubSkillId == approvalUpdate.subSkillId || rs.SubSkillId == null));
+                            .FirstOrDefaultAsync(rs => rs.ResourceId == resource.ResourceId && rs.IsActive == 1 && rs.SkillId == approvalUpdate.SkillId);
 
                         if (resourceSkill != null)
                         {
@@ -630,12 +638,7 @@ namespace DF_EvolutionAPI.Services
                             // Save changes for each update
                             await _dbContext.SaveChangesAsync();
                         }
-                        //else
-                        //{
-                        //    model.IsSuccess = false;
-                        //    model.Messsage = $"Resource skill not found for ResourceId: {resource.ResourceId} and SkillId: {approvalUpdate.SkillId}";
-                        //    return model;  // Early return if any resource skill is not found.
-                        //}
+                      
                     }
                 }
 
@@ -652,6 +655,7 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
+        //It marks a resource's skills and sub-skills as inactive, resets their approval/rejection status, and updates the database
         public async Task<ResponseModel> MarkResourceSkillAsInactive(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             ResponseModel model = new ResponseModel();
@@ -659,56 +663,79 @@ namespace DF_EvolutionAPI.Services
             {
                 int resourceId = resourceSkillRequestModel.ResourceId;
 
+                // Iterate through categories
                 foreach (var category in resourceSkillRequestModel.SkillCategories)
                 {
+                    // Iterate through skills in the category
                     foreach (var skill in category.Skills)
                     {
                         bool hasSubSkills = skill.SubSkills != null && skill.SubSkills.Any();
 
+                        // Mark sub-skills as inactive
                         if (hasSubSkills)
                         {
-                            // Mark subskills as inactive
                             foreach (var subSkill in skill.SubSkills)
                             {
                                 var existingSubSkill = _dbContext.ResourceSkills
                                     .FirstOrDefault(rs => rs.ResourceId == resourceId
-                                        && rs.SkillId == skill.SkillId
-                                        && rs.SubSkillId == subSkill.SubSkillId && rs.IsActive==1);
+                                                         && rs.SkillId == skill.SkillId
+                                                         && rs.SubSkillId == subSkill.SubSkillId
+                                                         && rs.IsActive == 1
+                                                         && (rs.IsDeleted == 0 || rs.IsDeleted == null));
 
                                 if (existingSubSkill != null)
                                 {
-                                    // Mark the subskill as inactive
-                                    existingSubSkill.IsActive = 0;  // Assuming 0 represents inactive status
+                                    // 1. Update approval/rejection fields for all entries of the skill (including those with no subskill)
+                                    var relatedSkills = _dbContext.ResourceSkills
+                                        .Where(rs => rs.ResourceId == resourceId && rs.SkillId == skill.SkillId && rs.IsActive == 1 && rs.IsDeleted == 0)
+                                        .ToList();
+
+                                    foreach (var relatedSkill in relatedSkills)
+                                    {
+                                        relatedSkill.ApprovedBy = 0;
+                                        relatedSkill.RejectedBy = 0;
+                                        relatedSkill.RejectedComment = null;
+                                        relatedSkill.IsApproved = 0;
+
+                                        _dbContext.ResourceSkills.Update(relatedSkill);  // Update related entries
+                                    }
+
+                                    // 2. Now delete the subskill itself (mark it as deleted)
+                                    existingSubSkill.IsDeleted = 1;  // Mark subskill as inactive
                                     existingSubSkill.UpdateBy = resourceSkillRequestModel.CreateBy;
                                     existingSubSkill.UpdateDate = DateTime.Now;
 
-                                    _dbContext.ResourceSkills.Update(existingSubSkill);
+                                    _dbContext.ResourceSkills.Update(existingSubSkill);  // Update subskill entry
                                 }
                             }
                         }
                         else
                         {
-                            // No subskills, mark the main skill as inactive
-                            var existingMainSkill = _dbContext.ResourceSkills
-                                .FirstOrDefault(rs => rs.ResourceId == resourceId && rs.SkillId == skill.SkillId && rs.SubSkillId == null && rs.IsActive == 1);
+                            // No sub-skills, mark the main skill as inactive
+                            var existingMainSkills = _dbContext.ResourceSkills
+                                .Where(rs => rs.ResourceId == resourceId && rs.SkillId == skill.SkillId && rs.IsActive == 1)
+                                .ToList();
 
-                            if (existingMainSkill != null)
+                            foreach (var existingMainSkill in existingMainSkills)
                             {
-                                // Mark the main skill as inactive
-                                existingMainSkill.IsActive = 0;  // Assuming 0 represents inactive status
-                                existingMainSkill.UpdateBy = resourceSkillRequestModel.CreateBy;
-                                existingMainSkill.UpdateDate = DateTime.Now;
+                                // Reset approval/rejection status for the main skill
                                 existingMainSkill.ApprovedBy = 0;
                                 existingMainSkill.RejectedBy = 0;
                                 existingMainSkill.RejectedComment = null;
                                 existingMainSkill.IsApproved = 0;
 
-                                _dbContext.ResourceSkills.Update(existingMainSkill);
+                                // Mark as inactive
+                                existingMainSkill.IsActive = 0;
+                                existingMainSkill.UpdateBy = resourceSkillRequestModel.CreateBy;
+                                existingMainSkill.UpdateDate = DateTime.Now;
+
+                                _dbContext.ResourceSkills.Update(existingMainSkill);  // Update main skill entry
                             }
                         }
                     }
                 }
 
+                // Save changes once after all updates
                 await _dbContext.SaveChangesAsync(); // Commit changes
 
                 model.IsSuccess = true;
@@ -721,8 +748,6 @@ namespace DF_EvolutionAPI.Services
             }
             return model;
         }
-
-
 
     }
 }
