@@ -17,26 +17,22 @@ namespace DF_EvolutionAPI.Models
         public string SkillDescription { get; set; }
         public string SubSkillVersion { get; set; }
         public string SubSkillDescription { get; set; }
-
         public byte? IsActive { get; set; }
         public int? CreateBy { get; set; }
         public int? UpdateBy { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-
         public byte IsApproved { get; set; }
         public int ApprovedBy { get; set; }
         public int RejectedBy { get; set; }
         public string RejectedComment { get; set; }
         public byte? IsDeleted { get; set; }
-
     }
 
     public class ResourceSkillRequestModel
     {
         //public int ResourceSkillId { get; set; }
-        public int ResourceId { get; set; }
-        public byte? IsActive { get; set; }
+        public int ResourceId { get; set; }       
         public int CreateBy { get; set; }
         public List<SkillCategory> SkillCategories { get; set; }
     }
@@ -79,16 +75,12 @@ namespace DF_EvolutionAPI.Models
         public string SubSkillVersion { get; set; }
         public string SubSkillDescription { get; set; }
         public byte? IsDeleted { get; set; }
-
     }
 
     public class SkillModel
     {
         public int SkillId { get; set; }
-        public string SkillName { get; set; }
-        public byte? IsActive { get; set; }
-        public byte? IsDeleted { get; set; }
-
+        public string SkillName { get; set; }  
         public double? SkillExperience { get; set; }
         public string SkillVersion { get; set; }
         public string SkillDescription { get; set; }
@@ -96,28 +88,19 @@ namespace DF_EvolutionAPI.Models
         public int ApprovedBy { get; set; }
         public int RejectedBy { get; set; }
         public string RejectedComment { get; set; }
-
         public List<SubSkillModel> SubSkills { get; set; }
 
     }
 
     public class UpdateApprovalStatus
-    {
-        
+    {        
         public int SkillId { get; set; }
         public int subSkillId {  get; set; }
         public byte IsApproved { get; set; }
         public int ApprovedBy { get; set; }
         public int RejectedBy { get; set; }
-        public string RejectedComment { get; set; }
-       
+        public string RejectedComment { get; set; }       
     }
-
-    //public class UpdateApprovalStatusRequestModel
-    //{
-    //    public int ResourceId { get; set; }
-    //    public List<UpdateApprovalStatus> ApprovalUpdates { get; set; }
-    //}
 
     public class UpdateApprovalStatusRequestModel
     {
@@ -128,16 +111,6 @@ namespace DF_EvolutionAPI.Models
     {
         public int ResourceId { get; set; }
         public List<UpdateApprovalStatus> ApprovalUpdates { get; set; }
-    }
-
-    public class SkillWithSubSkillsModel
-    {
-        public int SkillId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; }
-        public List<SubSkill> SubSkills { get; set; }
     }
 
 }
