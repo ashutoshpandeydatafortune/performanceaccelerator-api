@@ -540,6 +540,13 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.SkillDescription).HasColumnName("SkillDescription");
                 e.Property(e => e.SubSkillVersion).HasColumnName("SubSkillVersion");
                 e.Property(e => e.SubSkillDescription).HasColumnName("SubSkillDescription");
+                e.Property(e => e.IsApproved).HasColumnName("IsApproved");
+                e.Property(e => e.ApprovedBy).HasColumnName("ApprovedBy");
+                e.Property(e => e.RejectedBy).HasColumnName("RejectedBy");
+                e.Property(e => e.RejectedComment).HasColumnName("RejectedComment");
+                e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
+
+
 
             });
 
