@@ -1,0 +1,33 @@
+﻿name: Deploy to Performance Accelerator Prod Lightsail
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Publish .NET Core App
+        run: dotnet publish -c Release -o release
+
+      - name: Deploy to AWS Lightsail
+        uses: appleboy/ssh-action@master
+        with:
+          host: YOUR_LIGHTSAIL_PUBLIC_IP
+          username: Administrator
+          key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p C:\inetpub\wwwroot\MyAspNetApp
+            del /F /Q C:\inetpub\wwwroot\MyAspNetApp\*
+            xcopy /E /I release\* C:\inetpub\wwwroot\MyAspNetApp\
+            iisreset
