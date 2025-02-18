@@ -27,7 +27,7 @@ jobs:
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p C:\inetpub\wwwroot\MyAspNetApp
-            del /F /Q C:\inetpub\wwwroot\MyAspNetApp\*
-            xcopy /E /I release\* C:\inetpub\wwwroot\MyAspNetApp\
+            mkdir -p C:\inetpub\wwwroot\performance-accelerator\
+            del /F /Q C:\inetpub\wwwroot\performance-accelerator\*
+            xcopy /E /I release\* C:\inetpub\wwwroot\performance-accelerator\
             iisreset
