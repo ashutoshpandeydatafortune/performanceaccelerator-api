@@ -23,7 +23,7 @@ jobs:
       - name: Deploy to AWS Lightsail
         uses: appleboy/ssh-action@master
         with:
-          host: YOUR_LIGHTSAIL_PUBLIC_IP
+          host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
