@@ -36,7 +36,9 @@ jobs:
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
-            if (!(Test-Path "C:\inetpub\wwwroot\performance-accelerator")) { New-Item -ItemType Directory -Path "C:\inetpub\wwwroot\performance-accelerator" }
-            Remove-Item -Recurse -Force "C:\inetpub\wwwroot\performance-accelerator\*"
-            Copy-Item -Path "C:\temp\performance-accelerator\*" -Destination "C:\inetpub\wwwroot\performance-accelerator\" -Recurse
-            iisreset
+            powershell -Command "& {
+              if (!(Test-Path 'C:\inetpub\wwwroot\performance-accelerator')) { New-Item -ItemType Directory -Path 'C:\inetpub\wwwroot\performance-accelerator' }
+              Remove-Item -Recurse -Force 'C:\inetpub\wwwroot\performance-accelerator\*'
+              Copy-Item -Path 'C:\temp\performance-accelerator\*' -Destination 'C:\inetpub\wwwroot\performance-accelerator\' -Recurse
+              iisreset
+            }"
