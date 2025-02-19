@@ -39,5 +39,5 @@ jobs:
             powershell -Command "Get-ChildItem -Path 'C:\temp\performance-accelerator\' -Recurse"
             powershell -Command "if (!(Test-Path 'C:\inetpub\wwwroot\performance-accelerator')) { New-Item -ItemType Directory -Path 'C:\inetpub\wwwroot\performance-accelerator' }"
             powershell -Command "Remove-Item -Recurse -Force 'C:\inetpub\wwwroot\performance-accelerator\*'"
-            powershell -Command "Copy-Item -Path 'C:\temp\performance-accelerator\*' -Destination 'C:\inetpub\wwwroot\performance-accelerator\' -Recurse"
+            powershell -Command "Copy-Item -Path 'C:\temp\performance-accelerator\*' -Destination 'C:\inetpub\wwwroot\performance-accelerator\' -Recurse -Force -Verbose"
             powershell -Command "iisreset"
