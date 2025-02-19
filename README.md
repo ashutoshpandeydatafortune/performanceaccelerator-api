@@ -23,10 +23,21 @@ This README would normally document whatever steps are necessary to get your app
 * Code review
 * Other guidelines
 
-### Who do I talk to? ###
+### How to deploy on AWS ###
 
-* Repo owner or admin
-* Other community or team contact
+* API is running on AWS Lightsail
+* Generate a new rsa private/public key pair on local
+* Copy public key to c:\programdata\ssh\administrators_authorized_keys
+* Set permissions for file:
+  Right click on file => Properties window => Security tab
+  Click Advanced (at the bottom).
+  Click Disable inheritance (if it is enabled).
+  When prompted, choose "Convert inherited permissions into explicit permissions".
+  Administrator to have Read, Read and Execute, Write permissions.
+  Click Apply and OK.
+
+* Copy private key to Github repository => Settings => Security => Secrets and Variables => Actions
+  => New repository secret => LIGHTSAIL_SSH_PRIVATE_KEY
 
 
 ### How to deploy on Azure ###
