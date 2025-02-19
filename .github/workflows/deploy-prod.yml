@@ -37,6 +37,6 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
             powershell -Command "if (!(Test-Path 'C:\deployment\performance-accelerator')) { New-Item -ItemType Directory -Path 'C:\deployment\performance-accelerator' }"
-            powershell -Command "Remove-Item -Recurse -Force 'C:\deployment\performance-accelerator\*'"
+            powershell -Command "Remove-Item -Path 'C:\deployment\performance-accelerator\*' -Recurse -Force -Verbose"
             powershell -Command "Copy-Item -Path 'C:\temp\performance-accelerator\release\*' -Destination 'C:\deployment\performance-accelerator\' -Recurse -Force -Verbose"
             powershell -Command "iisreset"
