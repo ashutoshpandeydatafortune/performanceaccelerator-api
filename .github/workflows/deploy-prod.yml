@@ -36,7 +36,17 @@ jobs:
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
-            powershell -Command "if (!(Test-Path 'C:\deployment\performance-accelerator')) { New-Item -ItemType Directory -Path 'C:\deployment\performance-accelerator' }"
-            powershell -Command "Remove-Item -Path 'C:\deployment\performance-accelerator\*' -Recurse -Force -Verbose"
-            powershell -Command "Copy-Item -Path 'C:\temp\performance-accelerator\release\*' -Destination 'C:\deployment\performance-accelerator\' -Recurse -Force -Verbose"
-            powershell -Command "iisreset"
+            cmd /c "echo Checking source directory..."
+            cmd /c "dir C:\temp\performance-accelerator\release\ /s"
+
+            cmd /c "echo Ensuring deployment directory exists..."
+            cmd /c "if not exist C:\inetpub\wwwroot\performance-accelerator mkdir C:\inetpub\wwwroot\performance-accelerator"
+
+            cmd /c "echo Removing old files..."
+            cmd /c "del /s /q C:\inetpub\wwwroot\performance-accelerator\*"
+
+            cmd /c "echo Copying new files..."
+            cmd /c "xcopy /E /I /Y C:\temp\performance-accelerator\release\* C:\inetpub\wwwroot\performance-accelerator\"
+
+            cmd /c "echo Restarting IIS..."
+            cmd /c "iisreset"
