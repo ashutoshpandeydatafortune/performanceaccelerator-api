@@ -42,4 +42,5 @@ jobs:
               }
               Remove-Item -Recurse -Force 'C:\inetpub\wwwroot\performance-accelerator\*'
               Copy-Item -Path 'C:\temp\performance-accelerator\*' -Destination 'C:\inetpub\wwwroot\performance-accelerator\' -Recurse
-              iisreset }"
+              iisreset
+            }"
