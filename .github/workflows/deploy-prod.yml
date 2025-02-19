@@ -20,14 +20,23 @@ jobs:
       - name: Publish .NET Core App
         run: dotnet publish -c Release -o release
 
-      - name: Deploy to AWS Lightsail
+      - name: Upload files to Lightsail
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
+          username: Administrator
+          key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
+          source: "release/*"
+          target: "C:\\temp\\performance-accelerator"
+
+      - name: Deploy to IIS on Lightsail
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p C:\inetpub\wwwroot\performance-accelerator\
-            del /F /Q C:\inetpub\wwwroot\performance-accelerator\*
-            xcopy /E /I release\* C:\inetpub\wwwroot\performance-accelerator\
+            if (!(Test-Path "C:\inetpub\wwwroot\performance-accelerator")) { New-Item -ItemType Directory -Path "C:\inetpub\wwwroot\performance-accelerator" }
+            Remove-Item -Recurse -Force "C:\inetpub\wwwroot\performance-accelerator\*"
+            Copy-Item -Path "C:\temp\performance-accelerator\*" -Destination "C:\inetpub\wwwroot\performance-accelerator\" -Recurse
             iisreset
