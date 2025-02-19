@@ -20,33 +20,21 @@ jobs:
       - name: Publish .NET Core App
         run: dotnet publish -c Release -o release
 
-      - name: Upload files to Lightsail
+      - name: Upload files directly to IIS path
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           source: "release/*"
-          target: "C:\\temp\\performance-accelerator"
+          target: "C:\\inetpub\\wwwroot\\performance-accelerator"
 
-      - name: Deploy to IIS on Lightsail
+      - name: Restart IIS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
           username: Administrator
           key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
           script: |
-            cmd /c "echo Checking source directory..."
-            cmd /c "dir C:\temp\performance-accelerator\release\ /s"
-
-            cmd /c "echo Ensuring deployment directory exists..."
-            cmd /c "if not exist C:\inetpub\wwwroot\performance-accelerator mkdir C:\inetpub\wwwroot\performance-accelerator"
-
-            cmd /c "echo Removing old files..."
-            cmd /c "del /s /q C:\inetpub\wwwroot\performance-accelerator\*"
-
-            cmd /c "echo Copying new files..."
-            cmd /c "xcopy /E /I /Y C:\temp\performance-accelerator\release\* C:\inetpub\wwwroot\performance-accelerator\"
-
             cmd /c "echo Restarting IIS..."
             cmd /c "iisreset"
