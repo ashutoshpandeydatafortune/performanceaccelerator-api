@@ -25,7 +25,7 @@ This README would normally document whatever steps are necessary to get your app
 
 ### How to deploy on AWS ###
 
-* API is running on AWS Lightsail
+* Production API is running on AWS Lightsail
 * Generate a new rsa private/public key pair on local
 * Copy public key to c:\programdata\ssh\administrators_authorized_keys
 * Set permissions for file:
@@ -39,9 +39,12 @@ This README would normally document whatever steps are necessary to get your app
 * Copy private key to Github repository => Settings => Security => Secrets and Variables => Actions
   => New repository secret => LIGHTSAIL_SSH_PRIVATE_KEY
 
+* Code will automatically deploy when main is merged to production
+
 
 ### How to deploy on Azure ###
 
+* Stage API is running on Azure App Services
 * Create an application under AppServices in Azure
 * Under Settings => Environment variables, add following keys:
   
@@ -63,7 +66,5 @@ SMTP_PORT=587
 SMTP_USERNAME=?
 SMTP_PASSWORD=?
 
-* Right click on project => Publish
-  (For first time)
-  New Profile => Azure => Azure App Services => Select your subscription => API Management
+* Code will automatically deploy when main is merged to stage
 
