@@ -578,7 +578,7 @@ namespace DF_EvolutionAPI.Services
                 .Where(r => r.ResourceId == resourceId
                          && ((r.CreateDate >= startOfQuarter && r.CreateDate <= endOfQuarter)
                               || (r.UpdateDate >= startOfQuarter && r.UpdateDate <= endOfQuarter))
-                         && r.IsActive == 1 &&  r.RejectedBy == 0)
+                         && r.IsActive == 1)
                 .Select(r => new { r.ResourceId })  // Selecting just ResourceId
                 .FirstOrDefaultAsync();  // Only active skills
 
