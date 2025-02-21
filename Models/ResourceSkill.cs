@@ -22,9 +22,9 @@ namespace DF_EvolutionAPI.Models
         public int? UpdateBy { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-        public byte IsApproved { get; set; }
-        public int ApprovedBy { get; set; }
-        public int RejectedBy { get; set; }
+        public byte? IsApproved { get; set; }
+        public int? ApprovedBy { get; set; }
+        public int? RejectedBy { get; set; }
         public string RejectedComment { get; set; }
         public byte? IsDeleted { get; set; }
     }
