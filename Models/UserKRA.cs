@@ -28,6 +28,7 @@ namespace DF_EvolutionAPI.Models
         [NotMapped]
         public bool? isUpdated { get; set; }
         public byte? IsApproved { get; set; }
+       
     }
 
     public class UserKRADetails : BaseEntity
@@ -64,15 +65,13 @@ namespace DF_EvolutionAPI.Models
         public bool? IsDescriptionRequired { get; set; }
         public int? MinimumRatingForDescription { get; set; }
         public double TotalScore { get; set; }
-        public byte? IsApproved { get; set; }
-
-        public class UserKRADetailsWithScore
-        {
-            public List<UserKRADetails> UserKRADetails { get; set; }
-            public double TotalScore { get; set; }
-            public double TotalWeightage { get; set; }
-        }
-
-
+        public byte? IsApproved { get; set; }       
+    
+    }
+    public class UpdateUserKRARequest
+    {
+        public List<UserKRA> UserKRAModel { get; set; }
+        public string UserAchievement { get; set; }
+        public string ManagerQuartelyComment { get; set; }
     }
 }

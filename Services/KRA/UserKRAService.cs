@@ -140,11 +140,11 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
-               
+
                 foreach (var item in userKRAModel)
                 {
                     //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
-                    var kralist = _dbcontext.UserKRA.Where(kra => 
+                    var kralist = _dbcontext.UserKRA.Where(kra =>
                      kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
 
                     if (kralist.Count == 0)
@@ -155,7 +155,7 @@ namespace DF_EvolutionAPI.Services
                         item.RejectedBy = item.RejectedBy == null ? item.RejectedBy : item.RejectedBy;
                         item.IsApproved = 0;
                         item.IsActive = (int)Status.IS_ACTIVE;
-                        item.CreateBy = item.CreateBy;                        
+                        item.CreateBy = item.CreateBy;
                         item.CreateDate = DateTime.Now;
                         item.UpdateDate = DateTime.Now;
 
@@ -176,6 +176,81 @@ namespace DF_EvolutionAPI.Services
 
             return true;
         }
+
+        //public async Task<bool> CreateKraEntries(List<UserKRA> userKRAModel, string userAchievement, string managerQuartelyComment)
+        //{
+        //    try
+        //    {
+        //        if (userKRAModel == null || !userKRAModel.Any())
+        //            return false; // No data to process
+
+        //        var firstItem = userKRAModel.First(); // Get user and quarter details
+        //        int userId = firstItem.UserId.Value;
+        //        int quarterId = firstItem.QuarterId.Value;
+        //        int createdBy = firstItem.CreateBy.Value;
+
+        //        foreach (var item in userKRAModel)
+        //        {
+        //            // Check for existing KRA entries for the same quarter and user
+        //            var kralist = _dbcontext.UserKRA.Where(kra =>
+        //                kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
+
+        //            if (!kralist.Any())
+        //            {
+        //                item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
+        //                item.DeveloperComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
+        //                item.ApprovedBy = item.ApprovedBy ?? null;
+        //                item.RejectedBy = item.RejectedBy ?? null;
+        //                item.IsApproved = 0;
+        //                item.IsActive = (int)Status.IS_ACTIVE;
+        //                item.CreateBy = item.CreateBy;
+        //                item.CreateDate = DateTime.Now;
+        //                item.UpdateDate = DateTime.Now;
+
+        //                await _dbcontext.AddAsync(item);
+        //            }
+        //            else
+        //            {
+        //                return false; // Prevent duplicate KRA entries
+        //            }
+        //        }
+
+        //        // Check if the user already has a comment entry for this quarter
+        //        var existingComment = _dbcontext.UserQuarterlyAchievements
+        //            .FirstOrDefault(c => c.UserId == userId && c.QuarterId == quarterId);
+
+        //        if (existingComment == null)
+        //        {
+        //            if (!string.IsNullOrEmpty(userAchievement) && !string.IsNullOrEmpty(managerQuartelyComment))
+        //            {
+        //                var newAchievementComment = new UserQuarterlyAchievement
+        //                {
+        //                    UserId = userId,
+        //                    QuarterId = quarterId,
+        //                    UserAchievement = userAchievement,
+        //                    ManagerQuartelyComment = managerQuartelyComment,
+        //                    CreateBy = createdBy,
+        //                    CreateDate = DateTime.Now
+        //                };
+        //                await _dbcontext.UserQuarterlyAchievements.AddAsync(newAchievementComment);
+        //            }
+
+
+        //        }
+
+
+        //        await _dbcontext.SaveChangesAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        throw;
+        //    }
+
+        //    return true;
+        //}
+
+
 
         public async Task<Dictionary<int, UserNotificationData>> CreateNotifications(List<UserKRA> userKRAModel)
         {
@@ -303,7 +378,7 @@ namespace DF_EvolutionAPI.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModel)
+        public async Task<ResponseModel> UpdateUserKra(UpdateUserKRARequest request)
         {
             /**
              * This method performs following actions:
@@ -313,10 +388,10 @@ namespace DF_EvolutionAPI.Services
              */
             ResponseModel model = new ResponseModel();
 
-            bool created = await UpdateKraEntries(userKRAModel);
+            bool created = await UpdateKraEntries(request.UserKRAModel, request.UserAchievement, request.ManagerQuartelyComment);
             if (created)
             {
-                Dictionary<int, UserNotificationData> notificationMap = await CreateUpdateNotifications(userKRAModel);
+                Dictionary<int, UserNotificationData> notificationMap = await CreateUpdateNotifications(request.UserKRAModel);
 
                 // Create a list of tasks for sending emails
                 var sendEmailTasks = notificationMap.Select(entry => SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME)).ToList();
@@ -333,31 +408,43 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-        public async Task<bool> UpdateKraEntries(List<UserKRA> userKRAModel)
+        public async Task<bool> UpdateKraEntries(List<UserKRA> userKRAModel, string userAchievement, string managerQuartelyComment)
         {
             try
             {
+                if (userKRAModel == null || !userKRAModel.Any())
+                    return false; // No data to process
+
+                var firstItem = userKRAModel.First(); // Get user and quarter details
+                int userId = firstItem.UserId.Value;
+                int quarterId = firstItem.QuarterId.Value;
+                int createdBy = firstItem.UserId.Value;
+
                 foreach (var userKRAModels in userKRAModel)
                 {
                     var userKra = await _dbcontext.UserKRA.FindAsync(userKRAModels.Id);
-                    var weightage =  (from kraLibrary in _dbcontext.KRALibrary
-                                           where kraLibrary.Id == userKra.KRAId
-                                           select kraLibrary.Weightage).FirstOrDefault();
                     if (userKra != null)
                     {
-                        userKra.Reason = userKRAModels.Reason ?? null;
-                        userKra.Comment = userKRAModels.Comment ?? null;
-                        userKra.ApprovedBy = userKRAModels.ApprovedBy ?? null;
-                        userKra.RejectedBy = userKRAModels.RejectedBy ?? null;
-                        userKra.FinalComment = userKRAModels.FinalComment ?? null;
-                        userKra.ManagerComment = userKRAModels.ManagerComment ?? null;                       
-                        userKra.FinalRating = userKRAModels.FinalRating ?? null;
-                        userKra.DeveloperComment = userKRAModels.DeveloperComment;
-                        userKra.ManagerRating = userKRAModels.ManagerRating ?? null;
-                        userKra.AppraisalRange = userKRAModels.AppraisalRange ?? null;
-                        userKra.DeveloperRating = userKRAModels.DeveloperRating ?? null;
-                        userKra.IsApproved = userKRAModels.IsApproved ?? 0;
+                        var weightage = _dbcontext.KRALibrary
+                            .Where(k => k.Id == userKra.KRAId)
+                            .Select(k => k.Weightage)
+                            .FirstOrDefault();
 
+                        userKra.Reason = userKRAModels.Reason;
+                        userKra.Comment = userKRAModels.Comment;
+                        userKra.ApprovedBy = userKRAModels.ApprovedBy;
+                        userKra.RejectedBy = userKRAModels.RejectedBy;
+                        userKra.FinalComment = userKRAModels.FinalComment;
+                        userKra.ManagerComment = userKRAModels.ManagerComment;
+                        userKra.FinalRating = userKRAModels.FinalRating;
+                        userKra.DeveloperComment = userKRAModels.DeveloperComment;
+                        userKra.ManagerRating = userKRAModels.ManagerRating;
+                        userKra.AppraisalRange = userKRAModels.AppraisalRange;
+                        userKra.DeveloperRating = userKRAModels.DeveloperRating;
+                        userKra.IsApproved = userKRAModels.IsApproved ?? 0;
+                        userKra.IsActive = userKRAModels.IsActive;
+                        userKra.UpdateBy = userKRAModels.UpdateBy;
+                        userKra.UpdateDate = DateTime.Now;
 
                         if (userKRAModels.ManagerRating != null && userKRAModels.FinalRating.HasValue && weightage != 0)
                         {
@@ -368,21 +455,68 @@ namespace DF_EvolutionAPI.Services
                             userKra.Score = 0;
                         }
 
-                        userKra.IsActive = userKRAModels.IsActive;
-                        userKra.UpdateBy = userKRAModels.UpdateBy;
-                        userKra.UpdateDate = DateTime.Now;
+                        _dbcontext.UserKRA.Update(userKra);
+                    }
+                }
 
-                        await _dbcontext.SaveChangesAsync();
+                // Check if there is at least one non-empty comment before proceeding
+                    if (!string.IsNullOrEmpty(userAchievement) || !string.IsNullOrEmpty(managerQuartelyComment))
+                {
+                    var existingComment =  _dbcontext.UserQuarterlyAchievements
+                        .FirstOrDefault(c => c.UserId == userId && c.QuarterId == quarterId);
+
+                    if (existingComment == null)
+                    {
+                        // Insert new record if no existing comment is found
+                        var newAchievementComment = new UserQuarterlyAchievement
+                        {
+                            UserId = userId,
+                            QuarterId = quarterId,
+                            UserAchievement = userAchievement,
+                            ManagerQuartelyComment = managerQuartelyComment,
+                            CreateBy = createdBy,
+                            CreateDate = DateTime.Now,
+                            IsActive = 1
+                        };
+                        _dbcontext.UserQuarterlyAchievements.Add(newAchievementComment);
+                    }
+                    else
+                    {
+                        // Update only if an existing record is found
+                        bool isUpdated = false;
+
+                        if (!string.IsNullOrEmpty(userAchievement))
+                        {
+                            existingComment.UserAchievement = userAchievement;                   
+                            
+                            isUpdated = true;
+                        }
+                        if (!string.IsNullOrEmpty(managerQuartelyComment))
+                        {
+                            existingComment.ManagerQuartelyComment = managerQuartelyComment;                           
+                            isUpdated = true;
+                        }
+
+                        if (isUpdated)
+                        {
+                            existingComment.UpdateBy = userId;
+                            existingComment.UpdateDate = DateTime.Now;
+                            _dbcontext.UserQuarterlyAchievements.Update(existingComment);
+                        }
                     }
 
+                    await _dbcontext.SaveChangesAsync(); // Ensure data is saved
                 }
+
+                return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Log the exception properly (you can add logging here)
                 throw;
             }
-            return true;
         }
+
 
         private async Task<Dictionary<int, UserNotificationData>> PrepareUpdateNotifications(List<UserKRA> userKRAModel)
         {
@@ -559,6 +693,7 @@ namespace DF_EvolutionAPI.Services
 
             return userKRADetails;
         }
+
 
         public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange)
         {

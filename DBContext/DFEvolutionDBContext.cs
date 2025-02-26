@@ -48,6 +48,8 @@ namespace DF_EvolutionAPI
         public virtual DbSet<RoleMaster> RoleMasters { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<DesignatedRole> DesignatedRoles { get; set; }
+        public virtual DbSet<UserQuarterlyAchievement> UserQuarterlyAchievements { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -601,6 +603,22 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
             });
+
+            modelBuilder.Entity<UserQuarterlyAchievement>(e =>
+            {
+                e.ToTable("PA_UserQuarterlyAchievements", "dbo");
+                e.Property(e => e.Id).HasColumnName("Id");
+                e.Property(e => e.UserId).HasColumnName("UserId");
+                e.Property(e => e.QuarterId).HasColumnName("QuarterId");
+                e.Property(e => e.UserAchievement).HasColumnName("UserAchievement");
+                e.Property(e => e.ManagerQuartelyComment).HasColumnName("ManagerComment");
+                e.Property(e => e.CreateBy).HasColumnName("CreateBy");
+                e.Property(e => e.CreateDate).HasColumnName("CreateDate");
+                e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
+                e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.IsActive).HasColumnName("IsActive");
+            });
+
 
         }
     }
