@@ -648,6 +648,14 @@ namespace DF_EvolutionAPI.Services
                     from approver in approverJoin.DefaultIfEmpty()
                     join rejector in _dbcontext.Resources on userKra.RejectedBy equals rejector.ResourceId into rejectorJoin
                     from rejector in rejectorJoin.DefaultIfEmpty()
+                    join userAchievement in _dbcontext.UserQuarterlyAchievements
+                        on new { userKra.UserId, userKra.QuarterId } equals new { userAchievement.UserId, userAchievement.QuarterId }
+                        into achievementJoin
+                    from userAchievement in achievementJoin.DefaultIfEmpty()
+                    join managerComment in _dbcontext.UserQuarterlyAchievements
+                        on new { userKra.UserId, userKra.QuarterId } equals new { managerComment.UserId, managerComment.QuarterId }
+                        into managerCommentJoin
+                    from managerComment in managerCommentJoin.DefaultIfEmpty()
                     where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE
                     select new UserKRADetails
                     {
@@ -668,7 +676,7 @@ namespace DF_EvolutionAPI.Services
                         DeveloperComment = userKra.DeveloperComment,
                         DeveloperRating = userKra.DeveloperRating,
                         RejectedByName = rejector.ResourceName,
-
+                        ApprovedByName = approver.ResourceName,
                         KRAName = kraLibrary.Name,
                         Weightage = kraLibrary.Weightage,
                         WeightageId = kraLibrary.WeightageId,
@@ -680,19 +688,113 @@ namespace DF_EvolutionAPI.Services
                         IsActive = userKra.IsActive,
                         Description = kraLibrary.Description,
                         IsApproved = userKra.IsApproved,
-
-
-                        //StatusName = S.StatusName,
-                        //Reason = c.Reason
+                        UserAchievement = userAchievement != null ? userAchievement.UserAchievement : null,
+                        ManagerQuartelyComment = managerComment != null ? managerComment.ManagerQuartelyComment : null
                     }).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception("Error fetching KRAs by UserId", ex);
             }
 
             return userKRADetails;
         }
+
+
+
+        //public List<QuarterlyKRAResponse> GetKRAsByUserId(int? userId)
+        //{
+        //    try
+        //    {
+        //        var quarters = _dbcontext.QuarterDetails
+        //            .Where(q => q.IsActive == 1 && q.IsDeleted != 1)
+        //            .Select(q => new
+        //            {
+        //                QuarterId = q.Id,
+        //                QuarterName = q.QuarterName,
+        //                QuarterYear = q.QuarterYear
+        //            }).ToList();
+
+        //        var userKRAs = (
+        //            from kraLibrary in _dbcontext.KRALibrary
+        //            join userKra in _dbcontext.UserKRA on kraLibrary.Id equals userKra.KRAId
+        //            join quarter in _dbcontext.QuarterDetails on userKra.QuarterId equals quarter.Id
+        //            join approver in _dbcontext.Resources on userKra.ApprovedBy equals approver.ResourceId into approverJoin
+        //            from approver in approverJoin.DefaultIfEmpty()
+        //            join rejector in _dbcontext.Resources on userKra.RejectedBy equals rejector.ResourceId into rejectorJoin
+        //            from rejector in rejectorJoin.DefaultIfEmpty()
+        //            where userKra.UserId == userId && kraLibrary.IsActive == (int)Status.IS_ACTIVE
+        //            select new UserKRADetails
+        //            {
+        //                Id = userKra.Id,
+        //                KRAId = userKra.KRAId,
+        //                Score = userKra.Score,
+        //                Reason = userKra.Reason,
+        //                UserId = userKra.UserId,
+        //                Status = userKra.Status,
+        //                IsSpecial = kraLibrary.IsSpecial,
+        //                ApprovedBy = userKra.ApprovedBy,
+        //                ApprovedByName = approver.ResourceName,
+        //                RejectedBy = userKra.RejectedBy,
+        //                RejectedByName = rejector.ResourceName,
+        //                QuarterId = userKra.QuarterId,
+        //                QuarterName = quarter.QuarterName,
+        //                QuarterYear = quarter.QuarterYear,
+        //                FinalComment = userKra.FinalComment,
+        //                FinalRating = userKra.FinalRating,
+        //                ManagerComment = userKra.ManagerComment,
+        //                ManagerRating = userKra.ManagerRating,
+        //                DeveloperComment = userKra.DeveloperComment,
+        //                DeveloperRating = userKra.DeveloperRating,
+        //                KRAName = kraLibrary.Name,
+        //                KRADisplayName = kraLibrary.DisplayName,
+        //                Description = kraLibrary.Description,
+        //                Weightage = kraLibrary.Weightage,
+        //                WeightageId = kraLibrary.WeightageId,
+        //                IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+        //                MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+        //                IsActive = userKra.IsActive,
+        //                IsApproved = userKra.IsApproved
+        //            }).ToList();
+
+        //        var quarterlyAchievements = (
+        //            from achievement in _dbcontext.UserQuarterlyAchievements
+        //            where achievement.UserId == userId && achievement.IsActive == 1
+        //            select new
+        //            {
+        //                QuarterId = achievement.QuarterId,
+        //                UserAchievement = achievement.UserAchievement,
+        //                ManagerQuarterlyComment = achievement.ManagerQuartelyComment
+        //            }).ToList();
+
+        //        // Format the response
+        //        List<QuarterlyKRAResponse> response = new List<QuarterlyKRAResponse>();
+
+        //        foreach (var quarter in quarters)
+        //        {
+        //            response.Add(new QuarterlyKRAResponse
+        //            {
+        //                QuarterId = quarter.QuarterId,
+        //                QuarterName = quarter.QuarterName,
+        //                QuarterYear = quarter.QuarterYear,
+        //                QuarterlyKRAs = userKRAs.Where(k => k.QuarterId == quarter.QuarterId).ToList(),
+        //                UserAchievement = quarterlyAchievements.FirstOrDefault(a => a.QuarterId == quarter.QuarterId)?.UserAchievement ?? "No achievement recorded",
+        //                ManagerQuarterlyComment = quarterlyAchievements.FirstOrDefault(a => a.QuarterId == quarter.QuarterId)?.ManagerQuarterlyComment ?? "No comment recorded"
+        //            });
+        //        }
+
+        //        return response;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+
+
+
+
 
 
         public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange)
