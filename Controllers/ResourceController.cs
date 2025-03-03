@@ -171,5 +171,24 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// get the reportingtTo name
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetUserManagerName(int userId)
+        {
+            try
+            {
+                var resources = await _resourceService.GetUserManagerName(userId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -48,4 +48,10 @@ namespace DF_PA_API.Models
         public string DesignationName { get; set; }
         public string DesignatedRoleName { get; set; }
     }
+
+    public class ReportingToName
+    {
+        [NotMapped]
+        public string ManagerName { get; set; }
+    }
 }
