@@ -43,7 +43,7 @@ namespace DF_EvolutionAPI.Services.KRA
                                 IsSpecial = kraLibrary.IsSpecial,                                
                             };
 
-                return await query.ToListAsync();
+                return await query.OrderBy(kra => kra.Name).ToListAsync();
             }
             else
             {
@@ -66,7 +66,7 @@ namespace DF_EvolutionAPI.Services.KRA
                                 IsSpecial = kraLibrary.IsSpecial,
                             };
 
-                return await query.ToListAsync();
+                return await query.OrderBy(kra => kra.Name).ToListAsync();
             }
 
         }
