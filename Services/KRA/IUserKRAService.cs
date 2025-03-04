@@ -3,6 +3,7 @@ using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static DF_EvolutionAPI.Models.UserKRADetails;
 
 
 namespace DF_EvolutionAPI.Services.KRA
@@ -13,7 +14,7 @@ namespace DF_EvolutionAPI.Services.KRA
         public Task<UserKRA> GetUserKRAById(int userKRAId);
         public Task<ResponseModel> DeleteUserKRA(int userKRAId);
         public List<UserKRADetails> GetKRAsByUserId(int? UserId);
-        Task<ResponseModel> UpdateUserKra(List<UserKRA> userKRAModels);
+        Task<ResponseModel> UpdateUserKra(UpdateUserKRARequest request);
         public Task<ResponseModel> CreateUserKRA(List<UserKRA> userKRAModel);
         public List<UserAssignedKRA> GetAssignedKRAsByDesignation(string designation);
         public List<UserAssignedKRA> GetAssignedKRAsByDesignationId(int designationId);

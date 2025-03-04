@@ -6,6 +6,7 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using DF_EvolutionAPI.Services.KRA;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static DF_EvolutionAPI.Models.UserKRADetails;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -141,11 +142,11 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> UpdateUserKra(List<UserKRA> userKRAModels)
+        public async Task<IActionResult> UpdateUserKra(UpdateUserKRARequest request)
         {
             try
             {
-                ResponseModel model = await _userKRAService.UpdateUserKra(userKRAModels);
+                ResponseModel model = await _userKRAService.UpdateUserKra(request);
 
                 return Ok(model);
             }
