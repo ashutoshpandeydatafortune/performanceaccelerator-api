@@ -12,8 +12,7 @@ namespace DF_PA_API.Models
         public string DesignatedRole { get; set; }
         public int Completed { get; set; }  
         public int Pending { get; set; }  
-        public List<KraQuarter> Kras { get; set; }
-        public byte? IsApproved { get; set; }
+        public List<KraQuarter> Kras { get; set; }        
         [NotMapped]
         public string ReportingToName { get; set; }
         [NotMapped]
@@ -30,8 +29,7 @@ namespace DF_PA_API.Models
 
     public class KraRating
     {
-        public string KraName { get; set; }
-        public string FinalComment { get; set; }
+        public string KraName { get; set; }       
         public double? DeveloperRating { get; set; }
         public double? ManagerRating { get; set; }
         public double? FinalRating { get; set; }
@@ -47,5 +45,10 @@ namespace DF_PA_API.Models
         public string FunctionName { get; set; }
         public string DesignationName { get; set; }
         public string DesignatedRoleName { get; set; }
+    }
+    public class ReportingToName
+    {
+        [NotMapped]
+        public string ManagerName { get; set; }
     }
 }
