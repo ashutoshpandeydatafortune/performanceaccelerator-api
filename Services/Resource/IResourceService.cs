@@ -16,6 +16,7 @@ namespace DF_EvolutionAPI.Services
         Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId);
         Task<List<FunctionsDesignations>> GetDesignatedRolesByFunctionId(int functionId);
         Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus);
+        Task<ReportingToName> GetUserManagerName(int userId);
 
     }
 }

@@ -608,6 +608,22 @@ namespace DF_EvolutionAPI.Services
             return flattenedResult;
         }
 
+        public async Task<ReportingToName> GetUserManagerName(int userId)
+        {
+            var result = await (from r in _dbcontext.Resources
+                                join manager in _dbcontext.Resources
+                                on r.ReportingTo equals manager.ResourceId into mgr
+                                from manager in mgr.DefaultIfEmpty() // Left Join to handle null
+                                where r.ResourceId == userId // Ensure we're filtering correctly
+                                select new ReportingToName
+                                {
+                                    ManagerName = manager != null ? manager.ResourceName : "No Manager"
+                                })
+                                .FirstOrDefaultAsync(); // Avoid exceptions if no result
+
+            return result;
+        }
+
 
     }
 }
