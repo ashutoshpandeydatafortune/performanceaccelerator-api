@@ -50,7 +50,6 @@ namespace DF_EvolutionAPI
         public virtual DbSet<DesignatedRole> DesignatedRoles { get; set; }
         public virtual DbSet<UserQuarterlyAchievement> UserQuarterlyAchievements { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -618,8 +617,6 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
             });
-
-
         }
     }
 }

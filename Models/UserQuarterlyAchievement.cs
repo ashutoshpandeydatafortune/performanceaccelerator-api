@@ -1,5 +1,4 @@
 ﻿using System;
-
 namespace DF_PA_API.Models
 {
     public class UserQuarterlyAchievement
