@@ -343,7 +343,7 @@ namespace DF_EvolutionAPI.Services
                 finalResult.Add(fetchResourceSkill);
             }
 
-            return finalResult;
+            return finalResult.OrderBy(r => r.ResourceName).ToList();
         }
 
         public async Task<List<FetchResourceCategorySkills>> GetResourceSkillsById(int resourceId)
