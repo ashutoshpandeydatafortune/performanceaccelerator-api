@@ -443,11 +443,11 @@ namespace DF_EvolutionAPI.Services
         public async Task<List<FetchResourceSkill>> GetResourcesBySkill(SearchSkill skillModel)
         {
             // Base query for resource, skills, and subskills
-            var query = from rs in _dbContext.ResourceSkills
+            var query = from rs in _dbContext.ResourceSkills.Where(rs => rs.IsActive == 1)
                         join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
-                        join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
+                        join s in _dbContext.Skills.Where(s=> s.IsActive == 1) on rs.SkillId equals s.SkillId into skillGroup
                         from skill in skillGroup.DefaultIfEmpty()
-                        join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+                        join sub in _dbContext.SubSkills.Where(subskill => subskill.IsActive == 1) on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                         from subSkill in subSkillGroup.DefaultIfEmpty()
                         select new
                         {
@@ -461,6 +461,8 @@ namespace DF_EvolutionAPI.Services
                             rs.SubSkillDescription,
                             r.DateOfJoin,
                             r.TotalYears,
+                            rs.IsActive,
+                            rs.IsDeleted,
                             NewSkillId = skill.SkillId,
                             SkillName = skill.Name,
                             NewSubSkillId = subSkill != null ? subSkill.SubSkillId : (int?)null, // Allow null SubSkillId
@@ -521,7 +523,7 @@ namespace DF_EvolutionAPI.Services
                 {
                     // Get all subskills for each skill
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != 0) // Ensure no invalid subskills
+                        .Where(r => r.NewSubSkillId != 0 & r.IsDeleted ==0) // Ensure no invalid subskills
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
