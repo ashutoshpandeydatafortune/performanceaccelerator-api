@@ -48,4 +48,9 @@
     <Folder Include="Templates\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include=".github\workflows\deploy-prod-aws.yml" />
+    <None Include=".github\workflows\deploy-stage-azure.yml" />
+  </ItemGroup>
+
 </Project>

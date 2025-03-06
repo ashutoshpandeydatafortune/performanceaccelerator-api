@@ -20,6 +20,16 @@ jobs:
       - name: Publish .NET Core App
         run: dotnet publish -c Release -o release
 
+      - name: Stop IIS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
+          username: Administrator
+          key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
+          script: |
+            cmd /c "echo Stopping IIS..."
+            cmd /c "iisreset /stop"
+
       - name: Clean old files from IIS folder
         uses: appleboy/ssh-action@master
         with:
@@ -39,6 +49,15 @@ jobs:
           source: "release/*"
           target: "C:\\inetpub\\wwwroot\\performance-accelerator"
           strip_components: 1
+
+      - name: Restore .env file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.LIGHTSAIL_PUBLIC_IP }}
+          username: Administrator
+          key: ${{ secrets.LIGHTSAIL_SSH_PRIVATE_KEY }}
+          script: |
+            cmd /c "copy C:\inetpub\wwwroot\.env C:\inetpub\wwwroot\performance-accelerator\.env"
 
       - name: Restart IIS
         uses: appleboy/ssh-action@master
