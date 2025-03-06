@@ -28,6 +28,7 @@ namespace DF_EvolutionAPI.Models
         [NotMapped]
         public bool? isUpdated { get; set; }
         public byte? IsApproved { get; set; }
+       
     }
 
     public class UserKRADetails : BaseEntity
@@ -39,8 +40,7 @@ namespace DF_EvolutionAPI.Models
         public double? FinalRating { get; set; }
         public string FinalComment { get; set; }
         public double? Score { get; set; }
-        public int? Status { get; set; }
-        public string StatusName { get; set; }
+        public int? Status { get; set; }        
         public string Reason { get; set; }
         public int? UserId { get; set; }
         public int? KRAId { get; set; }
@@ -51,10 +51,7 @@ namespace DF_EvolutionAPI.Models
         public string RejectedByName { get; set; }
         public string QuarterName { get; set; }
         public int? QuarterYear { get; set; }
-
         public byte? IsActive { get; set; }
-        public byte? IsDeleted { get; set; }
-
         public string KRAName { get; set; }
         public string KRADisplayName { get; set; }
         public string Description { get; set; }
@@ -62,17 +59,26 @@ namespace DF_EvolutionAPI.Models
         public int? Weightage { get; set; }
         public int? IsSpecial { get; set; }
         public bool? IsDescriptionRequired { get; set; }
-        public int? MinimumRatingForDescription { get; set; }
-        public double TotalScore { get; set; }
+        public int? MinimumRatingForDescription { get; set; }        
         public byte? IsApproved { get; set; }
-
-        public class UserKRADetailsWithScore
-        {
-            public List<UserKRADetails> UserKRADetails { get; set; }
-            public double TotalScore { get; set; }
-            public double TotalWeightage { get; set; }
-        }
-
-
+        public string UserAchievement { get; set; }
+        public string ManagerQuartelyComment { get; set; }
     }
+    public class UpdateUserKRARequest
+    {
+        public List<UserKRA> UserKRAModel { get; set; }
+        public string UserAchievement { get; set; }
+        public string ManagerQuartelyComment { get; set; }
+    }
+
+    public class QuarterlyKRAResponse
+    {
+        public int? QuarterId { get; set; }
+        public string QuarterName { get; set; }
+        public int? QuarterYear { get; set; }
+        public List<UserKRADetails> QuarterlyKRAs { get; set; } = new List<UserKRADetails>();
+        public string UserAchievement { get; set; }
+        public string ManagerQuarterlyComment { get; set; }
+    }
+
 }

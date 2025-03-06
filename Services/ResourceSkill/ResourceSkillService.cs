@@ -255,7 +255,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE
+                where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0
                 select new
                 {
                     r.ResourceId,
@@ -319,9 +319,9 @@ namespace DF_EvolutionAPI.Services
                         SkillExperience = skillGroup.First().SkillExperience,
                         SkillVersion = skillGroup.First().SkillVersion,
                         SkillDescription = skillGroup.First().SkillDescription,
-                        IsApproved = skillGroup.First().IsApproved,
-                        ApprovedBy = skillGroup.First().ApprovedBy,
-                        RejectedBy = skillGroup.First().RejectedBy,
+                        IsApproved = skillGroup.First().IsApproved ?? 0,
+                        ApprovedBy = skillGroup.First().ApprovedBy ?? 0,
+                        RejectedBy = skillGroup.First().RejectedBy ?? 0,
                         RejectedComment = skillGroup.First().RejectedComment,
                         SubSkills = subSkills
                     };
@@ -403,9 +403,9 @@ namespace DF_EvolutionAPI.Services
                             {
                                 SkillId = skillGroup.Key.HasValue ? skillGroup.Key.Value : 0,
                                 RejectedComment= skillGroup.First().RejectedComment,
-                                RejectedBy = skillGroup.First().RejectedBy,
-                                IsApproved = skillGroup.First().IsApproved,
-                                ApprovedBy = skillGroup.First().ApprovedBy,                              
+                                RejectedBy = skillGroup.First().RejectedBy ?? 0,
+                                IsApproved = skillGroup.First().IsApproved ?? 0,
+                                ApprovedBy = skillGroup.First().ApprovedBy ?? 0,                              
                                 SkillName = skillGroup.First().SkillName,
                                 SkillExperience = skillGroup.First().SkillExperience,
                                 SkillVersion = skillGroup.First().SkillVersion,
@@ -578,7 +578,7 @@ namespace DF_EvolutionAPI.Services
                 .Where(r => r.ResourceId == resourceId
                          && ((r.CreateDate >= startOfQuarter && r.CreateDate <= endOfQuarter)
                               || (r.UpdateDate >= startOfQuarter && r.UpdateDate <= endOfQuarter))
-                         && r.IsActive == 1 &&  r.RejectedBy == 0)
+                         && r.IsActive == 1)
                 .Select(r => new { r.ResourceId })  // Selecting just ResourceId
                 .FirstOrDefaultAsync();  // Only active skills
 
