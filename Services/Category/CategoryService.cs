@@ -97,7 +97,7 @@ namespace DF_PA_API.Services
 
         public async Task<List<Category>> GetAllCategories()
         {
-            return await _dbContext.Categories.Where(Category => Category.IsActive == (int)Status.IS_ACTIVE).ToListAsync();
+            return await _dbContext.Categories.Where(Category => Category.IsActive == (int)Status.IS_ACTIVE).OrderBy(category => category.CategoryName).ToListAsync();
         }
 
         public async Task<ResponseModel> DeleteCategoryById(int id)
