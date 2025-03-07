@@ -207,7 +207,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             FunctionName = function.FunctionName
                         };
 
-            return await query.ToListAsync();
+            return await query.OrderBy(templateName => templateName.Name).ToListAsync();
 
         }
 

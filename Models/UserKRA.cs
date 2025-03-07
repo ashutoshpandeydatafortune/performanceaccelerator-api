@@ -70,15 +70,5 @@ namespace DF_EvolutionAPI.Models
         public string UserAchievement { get; set; }
         public string ManagerQuartelyComment { get; set; }
     }
-
-    public class QuarterlyKRAResponse
-    {
-        public int? QuarterId { get; set; }
-        public string QuarterName { get; set; }
-        public int? QuarterYear { get; set; }
-        public List<UserKRADetails> QuarterlyKRAs { get; set; } = new List<UserKRADetails>();
-        public string UserAchievement { get; set; }
-        public string ManagerQuarterlyComment { get; set; }
-    }
-
+  
 }
