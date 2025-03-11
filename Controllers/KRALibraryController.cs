@@ -160,5 +160,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// <summary>
+        /// Gets the KRAs assigned to resources based on KRA ID and Function ID.
+        /// </summary>
+        /// <param name="kraId">The ID of the KRA.</param>
+        /// <param name="functionId">The ID of the Function.</param>
+        /// <returns>A list of assigned KRAs for the specified function.</returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetAssignedUserKras(int kraId, int functionId)
+        {
+            try
+            {
+                var kras = await _kraLibraryService.GetAssignedUserKras(kraId, functionId);
+                return Ok(kras);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
