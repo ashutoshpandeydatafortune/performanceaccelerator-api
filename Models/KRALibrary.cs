@@ -39,4 +39,13 @@ namespace DF_EvolutionAPI.Models
         public string FunctionName { get; set; }
         public bool? IsDescriptionRequired { get; set; }
     }
+
+    public class AssignedUserKraDetail
+    {
+        public int Id { get; set; }
+        public string KraName { get; set; }
+        public int? QuarterId { get; set; }
+        public string ResourceName { get; set; }
+        public int? FunctionId { get; set; }
+    }
 }
