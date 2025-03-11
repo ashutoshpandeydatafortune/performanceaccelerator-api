@@ -360,7 +360,6 @@ namespace DF_EvolutionAPI.Services.KRA
 
                                 }).ToListAsync();
 
-
             return result;
         }
 
