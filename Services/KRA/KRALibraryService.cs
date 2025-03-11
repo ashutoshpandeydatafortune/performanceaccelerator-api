@@ -336,7 +336,34 @@ namespace DF_EvolutionAPI.Services.KRA
 
                 return await query.ToListAsync();
         }
-        
+
+        // Gets the KRAs assigned to resources based on KRA ID and Function ID.
+        public async Task<List<AssignedUserKraDetail>> GetAssignedUserKras(int kraId, int functionId)
+        {
+            var result = await (from uk in _dbcontext.UserKRA
+                                join k in _dbcontext.KRALibrary on uk.KRAId equals k.Id
+                                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
+                                join f in _dbcontext.TechFunctions on r.FunctionId equals f.FunctionId
+                                where uk.IsApproved == 0
+                                      && uk.IsActive == 1
+                                      && r.IsActive == 1
+                                      && k.IsActive == 1
+                                      && k.Id == kraId
+                                      && r.FunctionId == functionId
+                                select new AssignedUserKraDetail
+                                {
+                                    Id = k.Id,
+                                    KraName = k.Name,
+                                    QuarterId = uk.QuarterId,
+                                    ResourceName = r.ResourceName,
+                                    FunctionId = r.FunctionId
+
+                                }).ToListAsync();
+
+
+            return result;
+        }
+
     }
 }
 
