@@ -132,7 +132,7 @@ namespace DF_EvolutionAPI.Services
             var query = from userRole in _dbcontext.UserRoles // Adjust based on your DbSet names
                         join user in _dbcontext.AspNetUsers on userRole.UserId equals user.Id
                         join resource in _dbcontext.Resources on user.Email equals resource.EmailId
-                        where resource.IsActive == (int)Status.IS_ACTIVE
+                        where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == 8 //fecth the only active record by checking the statusid.
                         join role in _dbcontext.RoleMasters on userRole.RoleId equals role.RoleId
                         where role.IsActive == (int)Status.IS_ACTIVE
                         orderby resource.ResourceName
