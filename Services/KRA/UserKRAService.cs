@@ -13,6 +13,7 @@ using DF_EvolutionAPI.Services.KRA;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Models.Response;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 
 namespace DF_EvolutionAPI.Services
@@ -226,7 +227,7 @@ namespace DF_EvolutionAPI.Services
                 };
 
                 notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
+                notificationMap[userKRA.UserId.Value].ManagerName = user.ResourceName;
                 notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
             }
 
@@ -253,6 +254,9 @@ namespace DF_EvolutionAPI.Services
                 return false; // Return false if no email is sent
             }
 
+            //bool finalApproval = false;
+            //var isApproved = userKRAModel.Count(kra => kra.IsApproved == 1);
+
             var subject = "";
             var headerContent = "";
             string emailContent = string.Empty;
@@ -262,7 +266,8 @@ namespace DF_EvolutionAPI.Services
                 if (notification.Title == Constant.SUBJECT_KRA_UPDATED)
                 {
                     subject = Constant.SUBJECT_KRA_UPDATED;
-                    headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
+                  //  headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
+                    headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME);
                 }
                 else
                 {
@@ -270,8 +275,10 @@ namespace DF_EvolutionAPI.Services
                     headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
                 }
             }
+            
 
-            headerContent = headerContent.Replace("{NAME}", userNotificationData.Name);
+            headerContent = headerContent.Replace("{NAME}", userNotificationData.ManagerName)
+                                          .Replace("{UserName}", userNotificationData.UserName);
 
             emailContent += headerContent;
 
@@ -286,12 +293,12 @@ namespace DF_EvolutionAPI.Services
 
             var KRAName = bodyContent.Replace("{KRA_NAMES}", builder.ToString());
 
-            emailContent += KRAName;
+            //emailContent += KRAName;
 
             var footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME);
             footerContent = footerContent.Replace("{CREATE_DATE}", DateTime.Now.ToString());
 
-            emailContent += footerContent;
+           emailContent += footerContent;
 
             await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
 
@@ -447,6 +454,20 @@ namespace DF_EvolutionAPI.Services
         {
             Dictionary<int, UserNotificationData> notificationMap = new Dictionary<int, UserNotificationData>();
 
+            // **Check if any KRA has FinalRating == 0**
+            bool hasPendingFinalRating = false;            
+                var finalrating = userKRAModel.Count(kra => kra.FinalRating == null || kra.FinalRating == 0);
+            if( finalrating == 0 )
+            {    
+                        hasPendingFinalRating = true;  
+            }
+
+            //if(isApproved != 0  )
+            //{
+            //    finalApproval = true;
+            //}
+
+
             foreach (UserKRA userKRA in userKRAModel)
             {
                 if (!notificationMap.ContainsKey(userKRA.UserId.Value))
@@ -475,32 +496,38 @@ namespace DF_EvolutionAPI.Services
 
                 if (userKRA.isUpdated == true)
                 {
+
                     //Fetching the manager details.                    
                     var reportingTos = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
                     var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == reportingTos.ReportingTo.Value).FirstOrDefault();
+                    var srManagerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == managerDetails.ReportingTo.Value).FirstOrDefault();
 
-                    //Sending mail according to developer and manager action.
+                    //Sending mail according to manager after user has submitted their rating.
                     if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
                         && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0))
                     {
                         notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
-                        notificationMap[userKRA.UserId.Value].Name = managerDetails.ResourceName;
+                        notificationMap[userKRA.UserId.Value].ManagerName = managerDetails.ResourceName;
+                        notificationMap[userKRA.UserId.Value].UserName = reportingTos.ResourceName;
+                    }
+                   
+                   // For Rejection mail to user.
+                    //else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
+                    //         && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
+                    //{
+                    //    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                    //    notificationMap[userKRA.UserId.Value].ManagerName = reportingTos.ResourceName;
+                    //    notificationMap[userKRA.UserId.Value].UserName = managerDetails.ResourceName;
+                    //}
+                   
+                    else if (hasPendingFinalRating == true)
+                    {
+                        notificationMap[userKRA.UserId.Value].Email = srManagerDetails.EmailId;
+                        notificationMap[userKRA.UserId.Value].ManagerName = srManagerDetails.ResourceName;
+                        notificationMap[userKRA.UserId.Value].UserName = managerDetails.ResourceName;
                     }
 
-                    else if (((userKRA.ManagerRating != null && userKRA.ManagerRating != 0) || (userKRA.FinalRating != 0))
-                             && userKRA.DeveloperRating != null && userKRA.DeveloperRating != 0
-                             && (userKRA.RejectedBy != 0) || userKRA.RejectedBy == 0)
-                    {
-                        notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                        notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
-                    }
 
-                    else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
-                             && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
-                    {
-                        notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                        notificationMap[userKRA.UserId.Value].Name = user.ResourceName;
-                    }
                     notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
                 }
             }

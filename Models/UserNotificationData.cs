@@ -4,7 +4,8 @@ namespace DF_EvolutionAPI.Models
 {
     public class UserNotificationData
     {
-        public string Name { get; set; }
+        public string UserName { get; set; }
+        public string ManagerName { get; set; }
         public string Email { get; set; }
        
 
