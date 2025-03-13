@@ -13,7 +13,7 @@
 
         public static string EMAIL_FROM = "";
         public static string SUBJECT_KRA_UPDATED = "KRA Updated";
-        public static string SUBJECT_KRA_CREATED = "New KRA Assigned";
+        public static string SUBJECT_KRA_CREATED = "KRA Assigned";
 
         public static string KRA_UPDATE_ADMIN_APPROVED = "Admin approved KRA";
         public static string KRA_UPDATE_ADMIN_REJECTED = "Admin rejected KRA";
@@ -29,6 +29,8 @@
         public static string KRA_HEADER_TEMPLATE_NAME = "kra-header.html";
         public static string KRA_CREATED_TEMPLATE_NAME = "kra-created.html";
         public static string KRA_HEADER_REJECT_TEMPLATE_NAME = "kra-header-reject.html";
+        public static string KRA_HEADER_APPROVED_TEMPLATE_NAME = "kra-header-approved.html";
+        public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-header-sr-approval.html";
 
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";
