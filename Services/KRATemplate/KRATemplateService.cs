@@ -264,7 +264,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
                 //Inserting the new reccord.
                 if (paTemplateDesignation.DesignatedRoleIds != null && paTemplateDesignation.DesignatedRoleIds.Any())
-
                 {
                     foreach (var designatedRoleId in paTemplateDesignation.DesignatedRoleIds)
                     {
@@ -273,7 +272,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             var newDesignation = new PATemplateDesignation
                             {
                                 TemplateId = paTemplateDesignation.TemplateId,
-                                DesignationId = designatedRoleId,// It is set 0 because we using designatedRoleId
+                                DesignationId = null,// It is set 0 because we using designatedRoleId
                                 DesignatedRoleId = designatedRoleId,
                                 IsActive = (int)Status.IS_ACTIVE,
                                 CreateBy = paTemplateDesignation.CreateBy,
@@ -284,6 +283,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         }
                     }
                 }
+               
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
                 model.Messsage = "Template designation assigned successfully.";
@@ -293,6 +293,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             {
                 model.IsSuccess = false;
                 model.Messsage = ex.Message;
+                model.InnerException = ex.InnerException != null ? ex.InnerException.ToString() : ex.ToString();
+                model.StackTrace = ex.ToString();
             }
             return model;
         }
