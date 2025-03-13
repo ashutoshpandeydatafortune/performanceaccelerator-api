@@ -30,6 +30,7 @@
         public static string KRA_CREATED_TEMPLATE_NAME = "kra-created.html";
         public static string KRA_HEADER_REJECT_TEMPLATE_NAME = "kra-header-reject.html";
         public static string KRA_HEADER_APPROVED_TEMPLATE_NAME = "kra-header-approved.html";
+        public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-header-sr-approval.html";
 
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";
