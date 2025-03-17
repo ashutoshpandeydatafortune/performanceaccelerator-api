@@ -650,8 +650,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                
                 throw new Exception("Error fetching KRAs by UserId", ex);
             }
 
