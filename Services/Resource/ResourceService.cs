@@ -123,14 +123,17 @@ namespace DF_EvolutionAPI.Services
         private async Task<List<Project>> GetProjects(Resource resource)
         {
             var projectList = new List<Project>();
-
+           
             foreach (var rp in resource.ResourceProjectList)
             {
                 var project = await (from p in _dbcontext.Projects
                                      where p.ProjectId == rp.ProjectId && p.IsActive == (int)Status.IS_ACTIVE
-                                     select p).FirstAsync();
+                                     select p).FirstOrDefaultAsync();
 
-                projectList.Add(project);
+                if (project != null)// To restrict adding a null value in the case of an inactive project
+                {
+                    projectList.Add(project);
+                }
             }
 
             return projectList;
