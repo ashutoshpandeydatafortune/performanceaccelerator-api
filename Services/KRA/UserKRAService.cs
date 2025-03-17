@@ -58,7 +58,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var query = from resource in _dbcontext.Resources
-                            join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId  
+                            join userKRA in _dbcontext.UserKRA on resource.ResourceId equals userKRA.UserId
                             join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
                             select new UserAssignedKRA()
                             {
@@ -146,7 +146,7 @@ namespace DF_EvolutionAPI.Services
                 {
                     //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
                     var kralist = _dbcontext.UserKRA.Where(kra =>
-                     kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId).ToList();
+                     kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
 
                     if (kralist.Count == 0)
                     {
@@ -273,8 +273,8 @@ namespace DF_EvolutionAPI.Services
                     else {
                         headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME);
                     }
-                  //  headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
-                   
+                    //  headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
+
                 }
                 else
                 {
@@ -306,7 +306,7 @@ namespace DF_EvolutionAPI.Services
             var footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME);
             footerContent = footerContent.Replace("{CREATE_DATE}", DateTime.Now.ToString());
 
-           emailContent += footerContent;
+            emailContent += footerContent;
 
             await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
 
@@ -400,10 +400,10 @@ namespace DF_EvolutionAPI.Services
                 }
 
                 // Check if there is at least one non-empty comment before proceeding
-                    if (!string.IsNullOrEmpty(userAchievement) || !string.IsNullOrEmpty(managerQuartelyComment))
+                if (!string.IsNullOrEmpty(userAchievement) || !string.IsNullOrEmpty(managerQuartelyComment))
                 {
-                    var existingComment =  _dbcontext.UserQuarterlyAchievements
-                        .FirstOrDefault(c => c.UserId == userId && c.QuarterId == quarterId);
+                    var existingComment =_dbcontext.UserQuarterlyAchievements
+                        .FirstOrDefault(c => c.UserId == userId && c.QuarterId == quarterId && c.IsActive == (int)Status.IS_ACTIVE);
 
                     if (existingComment == null)
                     {
@@ -427,13 +427,13 @@ namespace DF_EvolutionAPI.Services
 
                         if (!string.IsNullOrEmpty(userAchievement))
                         {
-                            existingComment.UserAchievement = userAchievement;                   
-                            
+                            existingComment.UserAchievement = userAchievement;
+
                             isUpdated = true;
                         }
                         if (!string.IsNullOrEmpty(managerQuartelyComment))
                         {
-                            existingComment.ManagerQuartelyComment = managerQuartelyComment;                           
+                            existingComment.ManagerQuartelyComment = managerQuartelyComment;
                             isUpdated = true;
                         }
 
@@ -463,11 +463,11 @@ namespace DF_EvolutionAPI.Services
             Dictionary<int, UserNotificationData> notificationMap = new Dictionary<int, UserNotificationData>();
 
             // **Check if any KRA has FinalRating == 0**
-            bool hasPendingFinalRating = false;            
-                var finalrating = userKRAModel.Count(kra => kra.FinalRating == null || kra.FinalRating == 0);
+            bool hasPendingFinalRating = false;
+            var finalrating = userKRAModel.Count(kra => kra.FinalRating == null || kra.FinalRating == 0);
             if( finalrating == 0 )
-            {    
-                        hasPendingFinalRating = true;  
+            {
+                hasPendingFinalRating = true;
             }
 
             foreach (UserKRA userKRA in userKRAModel)
@@ -512,8 +512,8 @@ namespace DF_EvolutionAPI.Services
                         notificationMap[userKRA.UserId.Value].ManagerName = managerDetails.ResourceName;
                         notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
                     }
-                   
-                   // For Rejection mail to user.
+
+                    // For Rejection mail to user.
                     //else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
                     //         && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
                     //{
@@ -521,7 +521,7 @@ namespace DF_EvolutionAPI.Services
                     //    notificationMap[userKRA.UserId.Value].ManagerName = reportingTos.ResourceName;
                     //    notificationMap[userKRA.UserId.Value].UserName = managerDetails.ResourceName;
                     //}
-                   
+
                     else if (hasPendingFinalRating == true && (userKRA.IsApproved == null || userKRA.IsApproved == 0))
                     {
                         notificationMap[userKRA.UserId.Value].Email = srManagerDetails.EmailId;
@@ -597,59 +597,61 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 userKRADetails = (
-                    from kraLibrary in _dbcontext.KRALibrary
-                    join userKra in _dbcontext.UserKRA on kraLibrary.Id equals userKra.KRAId
-                    join quarter in _dbcontext.QuarterDetails on userKra.QuarterId equals quarter.Id
-                    join approver in _dbcontext.Resources on userKra.ApprovedBy equals approver.ResourceId into approverJoin
-                    from approver in approverJoin.DefaultIfEmpty()
-                    join rejector in _dbcontext.Resources on userKra.RejectedBy equals rejector.ResourceId into rejectorJoin
-                    from rejector in rejectorJoin.DefaultIfEmpty()
-                    join userAchievement in _dbcontext.UserQuarterlyAchievements
-                        on new { userKra.UserId, userKra.QuarterId } equals new { userAchievement.UserId, userAchievement.QuarterId }
-                        into achievementJoin
-                    from userAchievement in achievementJoin.DefaultIfEmpty()
-                    join managerComment in _dbcontext.UserQuarterlyAchievements
-                        on new { userKra.UserId, userKra.QuarterId } equals new { managerComment.UserId, managerComment.QuarterId }
-                        into managerCommentJoin
-                    from managerComment in managerCommentJoin.DefaultIfEmpty()
-                    where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE
-                    select new UserKRADetails
-                    {
-                        Id = userKra.Id,
-                        KRAId = userKra.KRAId,
-                        Score = userKra.Score,
-                        Reason = userKra.Reason,
-                        UserId = userKra.UserId,
-                        Status = userKra.Status.Value,
-                        IsSpecial = kraLibrary.IsSpecial,
-                        ApprovedBy = userKra.ApprovedBy,
-                        RejectedBy = userKra.RejectedBy,
-                        QuarterId = (int)userKra.QuarterId,
-                        FinalComment = userKra.FinalComment,
-                        FinalRating = userKra.FinalRating,
-                        ManagerComment = userKra.ManagerComment,
-                        ManagerRating = userKra.ManagerRating,
-                        DeveloperComment = userKra.DeveloperComment,
-                        DeveloperRating = userKra.DeveloperRating,
-                        RejectedByName = rejector.ResourceName,
-                        ApprovedByName = approver.ResourceName,
-                        KRAName = kraLibrary.Name,
-                        Weightage = kraLibrary.Weightage,
-                        WeightageId = kraLibrary.WeightageId,
-                        KRADisplayName = kraLibrary.DisplayName,
-                        IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
-                        MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
-                        QuarterName = quarter.QuarterName,
-                        QuarterYear = quarter.QuarterYear,
-                        IsActive = userKra.IsActive,
-                        Description = kraLibrary.Description,
-                        IsApproved = userKra.IsApproved,
-                        UserAchievement = userAchievement != null ? userAchievement.UserAchievement : null,
-                        ManagerQuartelyComment = managerComment != null ? managerComment.ManagerQuartelyComment : null
-                    }).ToList();
+                from kraLibrary in _dbcontext.KRALibrary
+                join userKra in _dbcontext.UserKRA on kraLibrary.Id equals userKra.KRAId
+                join quarter in _dbcontext.QuarterDetails on userKra.QuarterId equals quarter.Id
+                join approver in _dbcontext.Resources on userKra.ApprovedBy equals approver.ResourceId into approverJoin
+                from approver in approverJoin.DefaultIfEmpty()
+                join rejector in _dbcontext.Resources on userKra.RejectedBy equals rejector.ResourceId into rejectorJoin
+                from rejector in rejectorJoin.DefaultIfEmpty()
+                join userAchievement in _dbcontext.UserQuarterlyAchievements
+                    on new { userKra.UserId, userKra.QuarterId } equals new { userAchievement.UserId, userAchievement.QuarterId }
+                    into achievementJoin
+                from userAchievement in achievementJoin.Where(a => a.IsActive == (int)Status.IS_ACTIVE).DefaultIfEmpty()
+                join managerComment in _dbcontext.UserQuarterlyAchievements
+                    on new { userKra.UserId, userKra.QuarterId } equals new { managerComment.UserId, managerComment.QuarterId }
+                    into managerCommentJoin
+                from managerComment in managerCommentJoin.Where(m => m.IsActive == (int)Status.IS_ACTIVE).DefaultIfEmpty()
+                where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE && userKra.IsActive == (int)Status.IS_ACTIVE
+                select new UserKRADetails
+                {
+                    Id = userKra.Id,
+                    KRAId = userKra.KRAId,
+                    Score = userKra.Score,
+                    Reason = userKra.Reason,
+                    UserId = userKra.UserId,
+                    Status = userKra.Status.Value,
+                    IsSpecial = kraLibrary.IsSpecial,
+                    ApprovedBy = userKra.ApprovedBy,
+                    RejectedBy = userKra.RejectedBy,
+                    QuarterId = (int)userKra.QuarterId,
+                    FinalComment = userKra.FinalComment,
+                    FinalRating = userKra.FinalRating,
+                    ManagerComment = userKra.ManagerComment,
+                    ManagerRating = userKra.ManagerRating,
+                    DeveloperComment = userKra.DeveloperComment,
+                    DeveloperRating = userKra.DeveloperRating,
+                    RejectedByName = rejector.ResourceName,
+                    ApprovedByName = approver.ResourceName,
+                    KRAName = kraLibrary.Name,
+                    Weightage = kraLibrary.Weightage,
+                    WeightageId = kraLibrary.WeightageId,
+                    KRADisplayName = kraLibrary.DisplayName,
+                    IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                    MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                    QuarterName = quarter.QuarterName,
+                    QuarterYear = quarter.QuarterYear,
+                    IsActive = userKra.IsActive,
+                    Description = kraLibrary.Description,
+                    IsApproved = userKra.IsApproved,
+                    UserAchievement = userAchievement != null ? userAchievement.UserAchievement : null,
+                    ManagerQuartelyComment = managerComment != null ? managerComment.ManagerQuartelyComment : null
+                }).ToList();
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                 throw new Exception("Error fetching KRAs by UserId", ex);
             }
 
@@ -661,7 +663,7 @@ namespace DF_EvolutionAPI.Services
             try
             {
                 var rating = (
-                    from resources in _dbcontext.Resources 
+                    from resources in _dbcontext.Resources
                     join userKRA in _dbcontext.UserKRA on resources.ResourceId equals userKRA.UserId
                     join quarterDetail in _dbcontext.QuarterDetails on userKRA.QuarterId equals quarterDetail.Id
                     join kraLibrary in _dbcontext.KRALibrary on userKRA.KRAId equals kraLibrary.Id
@@ -687,7 +689,7 @@ namespace DF_EvolutionAPI.Services
                 })
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
-                
+
 
                 return result;
             }
@@ -698,13 +700,13 @@ namespace DF_EvolutionAPI.Services
         }
 
         //UnassignKra is used to removed the assigned kras from resources.
-        public async Task<ResponseModel>AssignUnassignKra(int userKraId, byte IsActive)
+        public async Task<ResponseModel> AssignUnassignKra(int userKraId, byte IsActive)
         {
             ResponseModel model = new ResponseModel();
             UserKRA userKra = null;
             try
             {
-                userKra =  _dbcontext.UserKRA.Where(c=>c.Id == userKraId).FirstOrDefault();
+                userKra = _dbcontext.UserKRA.Where(c => c.Id == userKraId).FirstOrDefault();
                 if (userKra != null)
                 {
                     userKra.IsActive = IsActive;
