@@ -35,7 +35,7 @@ namespace DF_EvolutionAPI.Services
                 resource = await (
                     from r in _dbcontext.Resources
                     join designation in _dbcontext.Designations on r.DesignationId equals designation.DesignationId
-                    where r.EmailId == emailId
+                    where r.EmailId == emailId && r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                     select new Resource
                     {
                         FunctionId = r.FunctionId,
@@ -44,6 +44,8 @@ namespace DF_EvolutionAPI.Services
                         ResourceName = r.ResourceName,
                         DesignationId = designation.DesignationId,
                         DesignationName = designation.DesignationName,
+                        IsActive = r.IsActive,
+                        StatusId = r.StatusId,
                     }
                 ).FirstOrDefaultAsync();
             }
