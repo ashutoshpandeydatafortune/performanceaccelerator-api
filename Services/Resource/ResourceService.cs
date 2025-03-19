@@ -265,6 +265,7 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
+                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                     select new TeamDetails
                     {
 

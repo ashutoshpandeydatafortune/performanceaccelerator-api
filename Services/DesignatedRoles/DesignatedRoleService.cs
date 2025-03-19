@@ -136,7 +136,7 @@ namespace DF_PA_API.Services.DesignatedRoles
 
                 if (designation != null)
                 {
-                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId)
+                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId && a.IsActive == (int)Status.IS_ACTIVE && a.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID)
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
