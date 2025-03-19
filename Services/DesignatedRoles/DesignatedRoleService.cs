@@ -104,7 +104,7 @@ namespace DF_PA_API.Services.DesignatedRoles
                     from designation in _dbcontext.DesignatedRoles
                     join resource in _dbcontext.Resources on designation.DesignatedRoleId equals resource.DesignatedRoleId
                     join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId
-                    where reportingto.EmailId.Equals(userName)
+                    where reportingto.EmailId.Equals(userName) && resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                     select new DesignatedRole
                     {
                         DesignatedRoleId = designation.DesignatedRoleId,
