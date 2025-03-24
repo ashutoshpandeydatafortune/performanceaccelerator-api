@@ -12,8 +12,9 @@
         public static string AZURE_STORAGE_CONNECTION_STRING = "";
 
         public static string EMAIL_FROM = "";
-        public static string SUBJECT_KRA_UPDATED = "KRA Updated";
-        public static string SUBJECT_KRA_CREATED = "KRA Assigned";
+        public static string SUBJECT_KRA_UPDATED_MANAGER = "Evaluation Completed";
+        public static string SUBJECT_KRA_UPDATED_SRMANAGER = "Final Approval for Evaluation ";
+        public static string SUBJECT_KRA_CREATED = "Self-Evaluation Released";
 
         public static string KRA_UPDATE_ADMIN_APPROVED = "Admin approved KRA";
         public static string KRA_UPDATE_ADMIN_REJECTED = "Admin rejected KRA";
