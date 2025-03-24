@@ -263,9 +263,9 @@ namespace DF_EvolutionAPI.Services
             }
 
             bool isKraUpdated = userNotificationData.Notifications
-                .Any(n => n.Title == Constant.SUBJECT_KRA_UPDATED);
+                .Any(n => n.Title == (userNotificationData.IsForSrManager? Constant.SUBJECT_KRA_UPDATED_SRMANAGER: Constant.SUBJECT_KRA_UPDATED_MANAGER));
 
-            string subject = isKraUpdated ? Constant.SUBJECT_KRA_UPDATED : Constant.SUBJECT_KRA_CREATED;
+            string subject = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER : Constant.SUBJECT_KRA_UPDATED_MANAGER) : Constant.SUBJECT_KRA_CREATED;
             string headerTemplate = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME : Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME) : Constant.KRA_HEADER_TEMPLATE_NAME;
 
             // Fetch and format header content
@@ -458,7 +458,7 @@ namespace DF_EvolutionAPI.Services
                 Notification notification = new Notification
                 {
                     ResourceId = userKRA.UserId.Value,
-                    Title = Constant.SUBJECT_KRA_UPDATED,
+                  // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
                     Description = userKRA.KRAName,     // store kra name
                     IsRead = 0,
                     IsActive = (int)Status.IS_ACTIVE,
@@ -499,6 +499,10 @@ namespace DF_EvolutionAPI.Services
                         notificationMap[userKRA.UserId.Value].SrManagerName = managerDetails.ResourceName;
                         notificationMap[userKRA.UserId.Value].IsForSrManager = true;
                     }
+
+                    notification.Title = notificationMap[userKRA.UserId.Value].IsForSrManager
+                                         ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER
+                                         : Constant.SUBJECT_KRA_UPDATED_MANAGER;
 
 
                     notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
