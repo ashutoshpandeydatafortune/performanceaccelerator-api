@@ -1,4 +1,6 @@
-﻿namespace DF_EvolutionAPI.Utils
+﻿using System.Collections.Generic;
+
+namespace DF_EvolutionAPI.Utils
 {
     public class Constant
     {
@@ -34,7 +36,8 @@
         public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-header-sr-approval.html";
 
         public static string APPLICATION_NAME = "Performance Accelerator";
-        public static string ROLE_NAME = "Developer";
+        public static string ROLE_NAME = "Developer";        
+        public static List<string> NO_MAIL_DESIGNATION = new List<string>();
 
         public static int DAYS_TO_LOOK_BACK = -7;
     }
