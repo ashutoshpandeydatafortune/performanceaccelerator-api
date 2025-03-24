@@ -121,11 +121,7 @@ namespace DF_EvolutionAPI.Services
             {
                 Dictionary<int, UserNotificationData> notificationMap = await CreateNotifications(userKRAModel);
 
-                // Create a list of tasks for sending emails
-                var sendEmailTasks = notificationMap.Select(entry => SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME)).ToList();
-
-                // Wait for all email sending tasks to complete concurrently
-                await Task.WhenAll(sendEmailTasks);
+                SendNotificationsAsync(notificationMap);
 
                 model.IsSuccess = true;
             }
@@ -135,6 +131,18 @@ namespace DF_EvolutionAPI.Services
             }
 
             return model;
+        }
+
+        //Asynchronously sends notifications to users in a fire-and-forget manner.
+        private void SendNotificationsAsync(Dictionary<int, UserNotificationData> notificationMap)
+        {
+            _ = Task.Run(async () =>
+            {
+                foreach (var entry in notificationMap)
+                {
+                    await SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME);
+                }
+            });
         }
 
         public async Task<bool> CreateKraEntries(List<UserKRA> userKRAModel)
@@ -254,60 +262,26 @@ namespace DF_EvolutionAPI.Services
                 return false; // Return false if no email is sent
             }
 
-            //bool finalApproval = false;
-            //var isApproved = userKRAModel.Count(kra => kra.IsApproved == 1);
+            bool isKraUpdated = userNotificationData.Notifications
+                .Any(n => n.Title == (userNotificationData.IsForSrManager? Constant.SUBJECT_KRA_UPDATED_SRMANAGER: Constant.SUBJECT_KRA_UPDATED_MANAGER));
 
-            var subject = "";
-            var headerContent = "";
-            string emailContent = string.Empty;
-            //Here mail is send on the basis of Kra updated and created.
-            foreach (Notification notification in userNotificationData.Notifications)
-            {
-                if (notification.Title == Constant.SUBJECT_KRA_UPDATED)
-                {
-                    subject = Constant.SUBJECT_KRA_UPDATED;
-                    if(userNotificationData.IsForSrManager == true)
-                    {
-                        headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME);
-                    }
-                    else {
-                        headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME);
-                    }
-                    //  headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_REJECT_TEMPLATE_NAME);
+            string subject = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER : Constant.SUBJECT_KRA_UPDATED_MANAGER) : Constant.SUBJECT_KRA_CREATED;
+            string headerTemplate = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME : Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME) : Constant.KRA_HEADER_TEMPLATE_NAME;
 
-                }
-                else
-                {
-                    subject = Constant.SUBJECT_KRA_CREATED;
-                    headerContent = _fileUtil.GetTemplateContent(Constant.KRA_HEADER_TEMPLATE_NAME);
-                }
-            }
+            // Fetch and format header content
+            string headerContent = _fileUtil.GetTemplateContent(headerTemplate)
+                .Replace("{NAME}", userNotificationData.ManagerName)
+                .Replace("{UserName}", userNotificationData.UserName)
+                .Replace("{ManagerName}", userNotificationData.SrManagerName);
 
+            // Fetch and format footer content
+            string footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME)
+                .Replace("{CREATE_DATE}", DateTime.Now.ToString());
 
-            headerContent = headerContent.Replace("{NAME}", userNotificationData.ManagerName)
-                                          .Replace("{UserName}", userNotificationData.UserName)
-                                           .Replace("{ManagerName}", userNotificationData.SrManagerName);
+            // Combine email content
+            string emailContent = $"{headerContent}{footerContent}";
 
-            emailContent += headerContent;
-
-            var bodyContent = _fileUtil.GetTemplateContent(templateName);
-
-            StringBuilder builder = new StringBuilder();
-
-            foreach (var notification in userNotificationData.Notifications)
-            {
-                builder.Append("<li>" + notification.Description + "</li>");
-            }
-
-            var KRAName = bodyContent.Replace("{KRA_NAMES}", builder.ToString());
-
-            //emailContent += KRAName;
-
-            var footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME);
-            footerContent = footerContent.Replace("{CREATE_DATE}", DateTime.Now.ToString());
-
-            emailContent += footerContent;
-
+           
             await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
 
             return true;
@@ -332,12 +306,7 @@ namespace DF_EvolutionAPI.Services
             if (created)
             {
                 Dictionary<int, UserNotificationData> notificationMap = await CreateUpdateNotifications(request.UserKRAModel);
-
-                // Create a list of tasks for sending emails
-                var sendEmailTasks = notificationMap.Select(entry => SendNotification(entry.Value, Constant.KRA_CREATED_TEMPLATE_NAME)).ToList();
-
-                // Wait for all email sending tasks to complete concurrently
-                await Task.WhenAll(sendEmailTasks);
+                SendNotificationsAsync(notificationMap);
 
                 model.IsSuccess = true;
             }
@@ -489,7 +458,7 @@ namespace DF_EvolutionAPI.Services
                 Notification notification = new Notification
                 {
                     ResourceId = userKRA.UserId.Value,
-                    Title = Constant.SUBJECT_KRA_UPDATED,
+                  // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
                     Description = userKRA.KRAName,     // store kra name
                     IsRead = 0,
                     IsActive = (int)Status.IS_ACTIVE,
@@ -530,6 +499,10 @@ namespace DF_EvolutionAPI.Services
                         notificationMap[userKRA.UserId.Value].SrManagerName = managerDetails.ResourceName;
                         notificationMap[userKRA.UserId.Value].IsForSrManager = true;
                     }
+
+                    notification.Title = notificationMap[userKRA.UserId.Value].IsForSrManager
+                                         ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER
+                                         : Constant.SUBJECT_KRA_UPDATED_MANAGER;
 
 
                     notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
@@ -650,7 +623,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception("Error fetching KRAs by UserId", ex);
             }
 
