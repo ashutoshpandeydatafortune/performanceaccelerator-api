@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+using System.Resources;
 
 
 namespace DF_EvolutionAPI.Services
@@ -470,8 +471,14 @@ namespace DF_EvolutionAPI.Services
 
                     //Fetching the manager details.                    
                     var userName = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
-                    var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();
-                    var srManagerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == managerDetails.ReportingTo.Value).FirstOrDefault();
+                    var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();                   
+                    var srManagerDetails = (from r in _dbcontext.Resources
+                                            join d in _dbcontext.Designations
+                                            on r.DesignationId equals d.DesignationId
+                                            where r.ResourceId == managerDetails.ReportingTo.Value &&                                           
+                                            !Constant.NO_MAIL_DESIGNATION.Contains(d.DesignationName)
+                                            select new { r.ResourceName, r.EmailId })
+                                            .FirstOrDefault();
 
                     //Sending mail according to manager after user has submitted their rating.
                     if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
@@ -493,8 +500,8 @@ namespace DF_EvolutionAPI.Services
 
                     else if (hasPendingFinalRating == true && (userKRA.IsApproved == null || userKRA.IsApproved == 0))
                     {
-                        notificationMap[userKRA.UserId.Value].Email = srManagerDetails.EmailId;
-                        notificationMap[userKRA.UserId.Value].ManagerName = srManagerDetails.ResourceName;
+                        notificationMap[userKRA.UserId.Value].Email = srManagerDetails?.EmailId;
+                        notificationMap[userKRA.UserId.Value].ManagerName = srManagerDetails?.ResourceName;
                         notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
                         notificationMap[userKRA.UserId.Value].SrManagerName = managerDetails.ResourceName;
                         notificationMap[userKRA.UserId.Value].IsForSrManager = true;
