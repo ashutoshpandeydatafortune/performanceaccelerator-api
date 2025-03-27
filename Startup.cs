@@ -134,6 +134,12 @@ namespace DF_EvolutionAPI
                 };
             });
 
+            //Enforce Authorization Globally
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = options.DefaultPolicy;
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
