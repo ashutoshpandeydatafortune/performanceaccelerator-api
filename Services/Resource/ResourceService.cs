@@ -7,6 +7,7 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Utils;
 using System.Globalization;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
@@ -35,7 +36,7 @@ namespace DF_EvolutionAPI.Services
                 resource = await (
                     from r in _dbcontext.Resources
                     join designation in _dbcontext.Designations on r.DesignationId equals designation.DesignationId
-                    where r.EmailId == emailId && r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                    where r.EmailId == emailId && r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     select new Resource
                     {
                         FunctionId = r.FunctionId,
@@ -182,7 +183,7 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == 8    // Alllowing all active resources.
+                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == 8 && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)   // Allowing all active resources.
                     //where resource.IsActive == 1
 
                     select new Team
@@ -265,7 +266,7 @@ namespace DF_EvolutionAPI.Services
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     select new TeamDetails
                     {
 
@@ -475,72 +476,7 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
-        // Retrieves a list of resources with KRA status for each quarter      
-
-        //public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
-        //{
-        //    var result = await (
-        //        from k in _dbcontext.KRALibrary
-        //        join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
-        //        join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
-        //        join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
-        //        join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
-        //        where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
-        //              && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
-        //                && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
-        //      && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
-        //        select new
-        //        {
-        //            r.ResourceId,
-        //            r.ResourceName,
-        //            des.DesignatedRoleName,
-        //            Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
-        //            qd.QuarterName,
-        //            k.Name,
-        //            uk.DeveloperRating,
-        //            uk.ManagerRating,
-        //            uk.FinalRating,
-        //            uk.RejectedBy,
-        //            uk.FinalComment,
-        //            uk.IsApproved,
-        //        })
-        //        .ToListAsync();
-
-        //    var flattenedResult = result
-        //        .GroupBy(x => new
-        //        {
-        //            x.ResourceId,
-        //            x.ResourceName,
-        //            x.DesignatedRoleName
-        //        })
-        //        .Select(g => new ResourceKrasSatus
-        //        {
-        //            ResourceId = g.Key.ResourceId,
-        //            ResourceName = g.Key.ResourceName,
-        //            DesignatedRole = g.Key.DesignatedRoleName,
-        //            Completed = g.GroupBy(x => x.Quarter).Any(q => q.All(item => item.IsApproved != 0)) ? 1 : 0, // 1 if at least one quarter has all comments not null
-        //            Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
-        //            Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
-        //                 .Select(q => new KraQuarter
-        //                 {
-        //                     Quarter = q.Key,
-        //                     QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
-        //                     Ratings = q.Select(item => new KraRating
-        //                     {
-        //                         KraName = item.Name,
-        //                         DeveloperRating = item.DeveloperRating,
-        //                         ManagerRating = item.ManagerRating,
-        //                         FinalRating = item.FinalRating,
-        //                         RejectedBy = item.RejectedBy,
-        //                         //FinalComment = item.FinalComment,
-        //                         IsApproved = item.IsApproved,
-        //                     }).ToList(),
-        //                 }).ToList()
-        //        }).ToList();
-
-        //    return flattenedResult;
-        //}
-
+        // Retrieves a list of resources with KRA status for each quarter   
         public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
         {
             var result = await (
