@@ -482,8 +482,8 @@ namespace DF_EvolutionAPI.Services
             var result = await (
                 from k in _dbcontext.KRALibrary
                 join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
-                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
-                join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id where qd.IsActive == (int)Status.IS_ACTIVE
+                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id where qd.IsActive == (int)Status.IS_ACTIVE && uk.IsActive == (int)Status.IS_ACTIVE
                 join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
                 // Join to get the ReportingTo (Manager) name
                 join reportingToResource in _dbcontext.Resources on r.ReportingTo equals reportingToResource.ResourceId into rpt
