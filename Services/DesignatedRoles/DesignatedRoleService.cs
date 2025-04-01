@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_PA_API.Services.DesignatedRoles
 {
@@ -104,7 +105,7 @@ namespace DF_PA_API.Services.DesignatedRoles
                     from designation in _dbcontext.DesignatedRoles
                     join resource in _dbcontext.Resources on designation.DesignatedRoleId equals resource.DesignatedRoleId
                     join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId
-                    where reportingto.EmailId.Equals(userName) && resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                    where reportingto.EmailId.Equals(userName) && resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     select new DesignatedRole
                     {
                         DesignatedRoleId = designation.DesignatedRoleId,
@@ -136,7 +137,8 @@ namespace DF_PA_API.Services.DesignatedRoles
 
                 if (designation != null)
                 {
-                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId && a.IsActive == (int)Status.IS_ACTIVE && a.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID)
+                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId &&
+                                a.IsActive == (int)Status.IS_ACTIVE && a.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !a.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX))
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,

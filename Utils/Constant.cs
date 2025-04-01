@@ -38,6 +38,7 @@ namespace DF_EvolutionAPI.Utils
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";        
         public static List<string> NO_MAIL_DESIGNATION = new List<string>();
+        public static string EMPLOYEE_PREFIX = "VDF";//Contract to hire employees, employeeid start with VDF
 
         public static int DAYS_TO_LOOK_BACK = -7;
     }
