@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRATemplate;
+using Microsoft.Extensions.Logging;
 
 
 namespace DF_EvolutionAPI.Controllers
@@ -12,10 +13,12 @@ namespace DF_EvolutionAPI.Controllers
     public class KRATemplateController : Controller
     {
         private IKRATemplateService _kraTemplateService;
+        private readonly ILogger<KRATemplateController> _logger;
 
-        public KRATemplateController(IKRATemplateService kraTemplateService )
+        public KRATemplateController(IKRATemplateService kraTemplateService, ILogger<KRATemplateController> logger )
         {
             _kraTemplateService = kraTemplateService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -107,6 +110,7 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> GetAllTemplates()
         {
+            _logger.LogInformation("Starting execution of GetAllResources method.");
             try
             {
                 var result = await _kraTemplateService.GetAllTemplates();

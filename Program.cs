@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI
 {
@@ -29,9 +30,12 @@ namespace DF_EvolutionAPI
                 DotEnv.Load(dotenv);
 
                 var builder = WebApplication.CreateBuilder(args);
-                builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("Mail"));
-
+                builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("Mail"));                
                 builder.Services.AddControllersWithViews();
+
+                builder.Logging.ClearProviders();
+                builder.Logging.AddConsole();
+                builder.Logging.AddDebug();
 
                 var app = builder.Build();
 
