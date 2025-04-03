@@ -110,16 +110,20 @@ namespace DF_EvolutionAPI.Controllers
         [Route("[Action]")]
         public async Task<IActionResult> GetAllTemplates()
         {
-            _logger.LogInformation("Starting execution of GetAllResources method.");
+            _logger.LogInformation("Starting execution of GetAllTemplates method.");      
+           
+
             try
             {
                 var result = await _kraTemplateService.GetAllTemplates();
+                _logger.LogInformation("Successfully retrieved {TemplateCount} templates.", result.Count);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
-            }            
+                _logger.LogError(ex, "An error occurred while fetching templates.");
+                return BadRequest("An error occurred while retrieving templates.");
+            }
         }
 
         /// <summary>

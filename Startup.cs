@@ -22,6 +22,8 @@ using DF_PA_API.Services;
 using DF_PA_API.Services.RolesMaster;
 using DF_PA_API.Services.DesignatedRoles;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+
 
 namespace DF_EvolutionAPI
 {
@@ -32,6 +34,8 @@ namespace DF_EvolutionAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+           
         }
 
         private void LoadConfiguration()
@@ -61,6 +65,12 @@ namespace DF_EvolutionAPI
             services.AddControllersWithViews();
             services.Configure<EmailService>(Configuration.GetSection("Mail"));
             LoadConfiguration();
+
+            //services.AddLogging(loggingBuilder =>
+            //{
+            //    loggingBuilder.ClearProviders();
+            //    loggingBuilder.AddSerilog();
+            //});
 
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
@@ -186,8 +196,12 @@ namespace DF_EvolutionAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            // Creating a log file.
+            loggerFactory.AddFile("Logs/mylog-{Date}.txt");
+
+            //app.userserilog(); // Enable Serilog Request Logging
             app.UseCors("CorsPolicy");
 
             if (env.IsDevelopment())

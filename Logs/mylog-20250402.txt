@@ -1,0 +1,7 @@
+2025-04-02T11:20:02.9378632+05:30  [INF] Application started. Press Ctrl+C to shut down. (dcaefe54)
+2025-04-02T11:20:02.9461033+05:30  [INF] Hosting environment: "Development" (c3307c92)
+2025-04-02T11:20:02.9485070+05:30  [INF] Content root path: "D:\Project\PerformanceAccelerator-api\performanceaccelerator-api" (b5d60022)
+2025-04-02T11:20:10.4730107+05:30 40000003-0006-fa00-b63f-84710c7967bb [WRN] Failed to determine the https port for redirect. (ca76cc21)
+2025-04-02T11:20:20.6827281+05:30 4000002d-0007-fc00-b63f-84710c7967bb [INF] Starting execution of GetAllTemplates method. (90a135bc)
+2025-04-02T11:20:21.3558835+05:30 4000002d-0007-fc00-b63f-84710c7967bb [INF] Retrieved 13 templates from the database. (9b479fe8)
+2025-04-02T11:20:21.3593631+05:30 4000002d-0007-fc00-b63f-84710c7967bb [INF] Successfully retrieved 13 templates. (fb0f9e84)

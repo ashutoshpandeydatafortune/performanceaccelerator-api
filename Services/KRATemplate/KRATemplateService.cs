@@ -7,48 +7,63 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
+using DF_EvolutionAPI.Controllers;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
     public class KRATemplateService : IKRATemplateService
     {
         private readonly DFEvolutionDBContext _dbContext;
-        public KRATemplateService(DFEvolutionDBContext dbContext)
+        private readonly ILogger<KRATemplateService> _logger;
+        public KRATemplateService(DFEvolutionDBContext dbContext, ILogger<KRATemplateService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         //For inserting the templates of KRA's
         public async Task<ResponseModel> CreateKraTemplate(PATemplate paTemplates)
         {
             ResponseModel model = new ResponseModel();
+            
 
             try
             {
+
+                string test = null;
+                int length = test.Length;
+
                 var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.IsActive == (int)Status.IS_ACTIVE);
 
                 if (existingTemplate == null)
                 {
-                    paTemplates.IsActive = (int)Status.IS_ACTIVE;                   
+                    paTemplates.IsActive = (int)Status.IS_ACTIVE;
                     paTemplates.CreateDate = DateTime.Now;
-
                     _dbContext.Add(paTemplates);
-                    model.Messsage = "Template Saved Successfully.";
+                   
+                    
 
                     await _dbContext.SaveChangesAsync();
+                    model.Messsage = "Template Saved Successfully.";
                     model.IsSuccess = true;
                 }
                 else
                 {
+                    
                     model.Messsage = "Template already exist.";
                     model.IsSuccess = false;
-
                 }
             }
             catch (Exception ex)
-            {
+            {                 
                 model.IsSuccess = false;
-                model.Messsage = "Error :" + ex.Message;
+                model.Messsage = $"Error: {ex.Message}";
+
+                _logger.LogError(ex, "Error occurred while creating template '{TemplateName}' at {Location}",
+                    paTemplates.Name, nameof(CreateKraTemplate));
+            
+        
             }
             return model;
         }
@@ -102,18 +117,22 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         // For Displaying the designation kras details for particular template.
         public async Task<PATemplate> GetKraTemplateByIdDetails(int templateId)
         {
+            _logger.LogInformation("Fetching KRA template details for TemplateId: {TemplateId}", templateId);
+
             var template = await _dbContext.PATemplates
-                    .Include(template => template.AssignedKras.Where(kra => kra.KraLibrary.IsActive == (int)Status.IS_ACTIVE && kra.IsActive == (int)Status.IS_ACTIVE))
-                    .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == (int)Status.IS_ACTIVE))
-                    .FirstOrDefaultAsync(t => t.TemplateId == templateId);
+                .Include(template => template.AssignedKras.Where(kra => kra.KraLibrary.IsActive == (int)Status.IS_ACTIVE && kra.IsActive == (int)Status.IS_ACTIVE))
+                .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == (int)Status.IS_ACTIVE))
+                .FirstOrDefaultAsync(t => t.TemplateId == templateId);
 
             if (template == null)
             {
+                _logger.LogWarning("Template not found: {TemplateId}", templateId);
                 return null;
             }
 
             if (template.AssignedKras != null && template.AssignedKras.Count > 0)
             {
+                _logger.LogInformation("Fetching KRA details for TemplateId: {TemplateId}", templateId);
                 foreach (var assignedKra in template.AssignedKras)
                 {
                     assignedKra.KraLibrary = await GetKraLibrary(assignedKra.KraId);
@@ -122,11 +141,10 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             if (template.AssignedDesignations != null && template.AssignedDesignations.Count > 0)
             {
+                _logger.LogInformation("Fetching designated roles for TemplateId: {TemplateId}", templateId);
                 foreach (var assignedDesignation in template.AssignedDesignations)
                 {
-                    //assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
                     assignedDesignation.DesignatedRole = await GetDesignatedRoles(assignedDesignation.DesignatedRoleId);
-
                 }
             }
 
@@ -188,7 +206,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         //Retrieves all templates
         public async Task<List<PATemplate>> GetAllTemplates()
         {
-            //return await _dbContext.PATemplates.Where(c => c.IsActive == 1).ToListAsync();
+            _logger.LogDebug("Fetching all active templates from the database.");
+
             var query = from template in _dbContext.PATemplates
                         join function in _dbContext.TechFunctions
                         on template.FunctionId equals function.FunctionId
@@ -207,8 +226,11 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             FunctionName = function.FunctionName
                         };
 
-            return await query.OrderBy(templateName => templateName.Name).ToListAsync();
+            var templates = await query.OrderBy(templateName => templateName.Name).ToListAsync();
 
+            _logger.LogInformation("Retrieved {TemplateCount} templates from the database.", templates.Count);
+
+            return templates;
         }
 
         //Delete the template.
