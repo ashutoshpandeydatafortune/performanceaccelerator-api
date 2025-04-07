@@ -5,16 +5,20 @@ using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
-    public class ProjectService: IProjectService
+    public class ProjectService : IProjectService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<ProjectResourceService> _logger;
 
-        public ProjectService(DFEvolutionDBContext dbContext)
+        public ProjectService(DFEvolutionDBContext dbContext, ILogger<ProjectResourceService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<Project>> GetAllProjects()
@@ -30,9 +34,10 @@ namespace DF_EvolutionAPI.Services
             {
                 project = await _dbcontext.Projects.FindAsync(projectId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return null;
             }
 
             return project;
@@ -46,9 +51,10 @@ namespace DF_EvolutionAPI.Services
             {
                 project = await _dbcontext.Projects.Where(x => x.ProjectId == projectId).ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return null;
             }
 
             return project;
@@ -77,9 +83,10 @@ namespace DF_EvolutionAPI.Services
                         UpdateDate = pr.UpdateDate
                     }).ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return null;
             }
             return projectResources;
         }
@@ -92,11 +99,12 @@ namespace DF_EvolutionAPI.Services
             {
                 project = await _dbcontext.Projects.FindAsync(projectName);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return null;
             }
-            
+
             return project;
         }
     }

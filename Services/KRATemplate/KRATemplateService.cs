@@ -33,7 +33,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
                 if (existingTemplate == null)
                 {
-                    paTemplates.IsActive = (int)Status.IS_ACTIVE;                   
+                    paTemplates.IsActive = (int)Status.IS_ACTIVE;
                     paTemplates.CreateDate = DateTime.Now;
 
                     _dbContext.Add(paTemplates);
@@ -63,7 +63,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             ResponseModel model = new ResponseModel();
             try
             {
-                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.FunctionId == paTemplates.FunctionId 
+                var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.FunctionId == paTemplates.FunctionId
                 && template.TemplateId != paTemplates.TemplateId && template.IsActive == (int)Status.IS_ACTIVE);
                 if (existingTemplate != null)
                 {
@@ -113,30 +113,30 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     .Include(template => template.AssignedDesignations.Where(assignedDesignation => assignedDesignation.IsActive == (int)Status.IS_ACTIVE))
                     .FirstOrDefaultAsync(t => t.TemplateId == templateId);
 
-            if (template == null)
-            {
-                return null;
-            }
-
-            if (template.AssignedKras != null && template.AssignedKras.Count > 0)
-            {
-                foreach (var assignedKra in template.AssignedKras)
+                if (template == null)
                 {
-                    assignedKra.KraLibrary = await GetKraLibrary(assignedKra.KraId);
+                    return null;
                 }
-            }
 
-            if (template.AssignedDesignations != null && template.AssignedDesignations.Count > 0)
-            {
-                foreach (var assignedDesignation in template.AssignedDesignations)
+                if (template.AssignedKras != null && template.AssignedKras?.Count > 0)
                 {
-                    //assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
-                    assignedDesignation.DesignatedRole = await GetDesignatedRoles(assignedDesignation.DesignatedRoleId);
-
+                    foreach (var assignedKra in template.AssignedKras)
+                    {
+                        assignedKra.KraLibrary = await GetKraLibrary(assignedKra.KraId);
+                    }
                 }
-            }
 
-            return template;
+                if (template.AssignedDesignations != null && template.AssignedDesignations?.Count > 0)
+                {
+                    foreach (var assignedDesignation in template.AssignedDesignations)
+                    {
+                        //assignedDesignation.Designation = await GetDesignation(assignedDesignation.DesignationId);
+                        assignedDesignation.DesignatedRole = await GetDesignatedRoles(assignedDesignation.DesignatedRoleId);
+
+                    }
+                }
+
+                return template;
             }
             catch (Exception ex)
             {
@@ -174,19 +174,19 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             }
         }
 
-        
+
         private async Task<DesignatedRole> GetDesignatedRoles(int designatedRoleId)
         {
             try
             {
                 return await _dbContext.DesignatedRoles
-            .Where(x => x.DesignatedRoleId == designatedRoleId)           
+            .Where(x => x.DesignatedRoleId == designatedRoleId)
             .FirstOrDefaultAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;
+                return null;
             }
         }
 
@@ -227,7 +227,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;
+                return null;
             }
 
         }
@@ -260,7 +260,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             {
                 model.IsSuccess = false;
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-
             }
             return model;
         }
@@ -304,7 +303,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         }
                     }
                 }
-               
+
                 await _dbContext.SaveChangesAsync();
                 model.IsSuccess = true;
                 model.Messsage = "Template designation assigned successfully.";
@@ -312,10 +311,9 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             }
             catch (Exception ex)
             {
-                model.IsSuccess = false;                
+                model.IsSuccess = false;
                 model.InnerException = ex.InnerException != null ? ex.InnerException.ToString() : ex.ToString();
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-
             }
             return model;
         }
@@ -372,42 +370,46 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         //Retrieves the list of assigned kras for particular designation.
         public async Task<List<object>> GetAssignedKRAsByDesignationId(int designationId)
         {
-            try 
-            { 
-            var assignedKRAs = await _dbContext.PA_TemplateDesignations
-                .Include(d => d.DesignatedRole)
-                .Where(d => d.DesignatedRoleId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
-                .Join(_dbContext.PATemplates,
-                d => d.TemplateId,
-                t => t.TemplateId,
-                (d, t) => new { DesignationRole = d, Template = t })
-                .SelectMany(dt => _dbContext.PA_TemplateKras
-                .Include(k => k.KraLibrary)
-                .Where(k => k.TemplateId == dt.DesignationRole.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
-                .Select(k => new
-                {
-                    kraIds = k.KraLibrary.Id,
-                    kraNames = k.KraLibrary.Name
-                }))
-                .GroupBy(k => new { k.kraIds, k.kraNames })
-                .Select(group => new
-                {
-                    kraId = group.Key.kraIds,
-                    kraName = group.Key.kraNames
-                })
-            .ToListAsync();
-
-
-            if (assignedKRAs == null || assignedKRAs.Count == 0)
+            try
             {
-                return new List<object>();
-            }
-            return assignedKRAs.Cast<object>().ToList();
+                if (designationId == 2) // You can set this to any value you want to trigger the exception
+                {
+                    // Force an exception to trigger the catch block
+                    throw new InvalidOperationException("Forcing an exception for debugging purposes.");
+                }
+                var assignedKRAs = await _dbContext.PA_TemplateDesignations
+                    .Include(d => d.DesignatedRole)
+                    .Where(d => d.DesignatedRoleId == designationId && d.IsActive == (int)Status.IS_ACTIVE)
+                    .Join(_dbContext.PATemplates,
+                    d => d.TemplateId,
+                    t => t.TemplateId,
+                    (d, t) => new { DesignationRole = d, Template = t })
+                    .SelectMany(dt => _dbContext.PA_TemplateKras
+                    .Include(k => k.KraLibrary)
+                    .Where(k => k.TemplateId == dt.DesignationRole.TemplateId && k.KraLibrary.IsActive == (int)Status.IS_ACTIVE && k.IsActive == (int)Status.IS_ACTIVE && dt.Template.IsActive == (int)Status.IS_ACTIVE)
+                    .Select(k => new
+                    {
+                        kraIds = k.KraLibrary.Id,
+                        kraNames = k.KraLibrary.Name
+                    }))
+                    .GroupBy(k => new { k.kraIds, k.kraNames })
+                    .Select(group => new
+                    {
+                        kraId = group.Key.kraIds,
+                        kraName = group.Key.kraNames
+                    })
+                .ToListAsync();
+
+                if (assignedKRAs == null || assignedKRAs?.Count == 0)
+                {
+                    return new List<object>();
+                }
+                return assignedKRAs.Cast<object>().ToList();
             }
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;
+                return null ;
             }
 
         }
@@ -415,24 +417,34 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         //Retrieves a list of KRAs assigned to users of a specific designatedRoleId
         public async Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId)
         {
-            try 
-            { 
-            var result = await (from u in _dbContext.UserKRA
-                                join r in _dbContext.Resources on u.UserId equals r.ResourceId
-                                join d in _dbContext.PA_TemplateDesignations on r.DesignatedRoleId equals d.DesignatedRoleId
-                                where d.DesignatedRoleId == designationId && u.IsApproved == 0 //&& u.FinalComment == null
-                                group u by new { u.UserId, u.KRAId } into g
-                                select new UserKraResult
-                                {
-                                    UserId = g.Key.UserId,
-                                    KraId = g.Key.KRAId
-                                }).ToListAsync();
-            return result;
+            try
+            {
+                
+                var result = await (from u in _dbContext.UserKRA
+                                    join r in _dbContext.Resources on u.UserId equals r.ResourceId
+                                    join d in _dbContext.PA_TemplateDesignations on r.DesignatedRoleId equals d.DesignatedRoleId
+                                    where d.DesignatedRoleId == designationId && u.IsApproved == 0 //&& u.FinalComment == null
+                                    group u by new { u.UserId, u.KRAId } into g
+                                    select new UserKraResult
+                                    {
+                                        UserId = g.Key.UserId,
+                                        KraId = g.Key.KRAId
+                                    }).ToListAsync();
+
+                // Check if result is null or empty and return empty list if so
+                if (result == null || result.Count == 0)
+                {
+                    return new List<UserKraResult>();  // Return empty list if no results
+                }
+
+                return result;               
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;
+                 return new List<UserKraResult>();         
+
             }
         }
     }

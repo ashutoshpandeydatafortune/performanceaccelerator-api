@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Linq;
 using DF_PA_API.Models;
 using System.Data.Entity;
@@ -13,8 +12,7 @@ using DF_EvolutionAPI.Services.KRA;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Models.Response;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.Resources;
+using Microsoft.Extensions.Logging;
 
 
 namespace DF_EvolutionAPI.Services
@@ -25,13 +23,15 @@ namespace DF_EvolutionAPI.Services
         private readonly IEmailService _emailService;
         private readonly DFEvolutionDBContext _dbcontext;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ILogger<UserAssignedKRA> _logger;
 
-        public UserKRAService(DFEvolutionDBContext dbContext, IWebHostEnvironment hostingEnvironment, IEmailService emailService, FileUtil fileUtil)
+        public UserKRAService(DFEvolutionDBContext dbContext, IWebHostEnvironment hostingEnvironment, IEmailService emailService, FileUtil fileUtil, ILogger<UserAssignedKRA> logger)
         {
             _fileUtil = fileUtil;
             _dbcontext = dbContext;
             _emailService = emailService;
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
 
         public async Task<List<UserKRA>> GetAllUserKRAList()
@@ -46,8 +46,9 @@ namespace DF_EvolutionAPI.Services
             {
                 userKRA = await _dbcontext.UserKRA.Where(c => c.IsActive == (int)Status.IS_ACTIVE && c.Id == userKRAId).FirstOrDefaultAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -73,8 +74,9 @@ namespace DF_EvolutionAPI.Services
 
                 return query.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -100,8 +102,9 @@ namespace DF_EvolutionAPI.Services
 
                 return query.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -179,9 +182,9 @@ namespace DF_EvolutionAPI.Services
 
                 await _dbcontext.SaveChangesAsync();
             }
-            catch
+            catch(Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));               
             }
 
             return true;
@@ -200,8 +203,9 @@ namespace DF_EvolutionAPI.Services
 
                 return notificationMap;
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -422,8 +426,8 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                // Log the exception properly (you can add logging here)
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace)); 
+                return false;
             }
         }
 
@@ -432,91 +436,91 @@ namespace DF_EvolutionAPI.Services
         {
             Dictionary<int, UserNotificationData> notificationMap = new Dictionary<int, UserNotificationData>();
 
-            // **Check if any KRA has FinalRating == 0**
-            bool hasPendingFinalRating = false;
-            var finalrating = userKRAModel.Count(kra => kra.FinalRating == null || kra.FinalRating == 0);
+                // **Check if any KRA has FinalRating == 0**
+                bool hasPendingFinalRating = false;
+                var finalrating = userKRAModel.Count(kra => kra.FinalRating == null || kra.FinalRating == 0);
             if( finalrating == 0 )
-            {
-                hasPendingFinalRating = true;
-            }
-
-            foreach (UserKRA userKRA in userKRAModel)
-            {
-                if (!notificationMap.ContainsKey(userKRA.UserId.Value))
                 {
-                    UserNotificationData userNotificationData = new UserNotificationData();
-                    userNotificationData.Notifications = new List<Notification>();
-
-                    notificationMap[userKRA.UserId.Value] = userNotificationData;
-
+                    hasPendingFinalRating = true;
                 }
 
-                // Find user details
-                var user = _dbcontext.Resources
-                               .Where(resource => resource.ResourceId == userKRA.UserId.Value)
-                               .FirstOrDefault();
-
-                Notification notification = new Notification
+                foreach (UserKRA userKRA in userKRAModel)
                 {
-                    ResourceId = userKRA.UserId.Value,
-                  // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
-                    Description = userKRA.KRAName,     // store kra name
-                    IsRead = 0,
-                    IsActive = (int)Status.IS_ACTIVE,
-                    CreateAt = DateTime.Now
-                };
-
-                if (userKRA.isUpdated == true)
-                {
-
-                    //Fetching the manager details.                    
-                    var userName = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
-                    var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();                   
-                    var srManagerDetails = (from r in _dbcontext.Resources
-                                            join d in _dbcontext.Designations
-                                            on r.DesignationId equals d.DesignationId
-                                            where r.ResourceId == managerDetails.ReportingTo.Value &&                                           
-                                            !Constant.NO_MAIL_DESIGNATION.Contains(d.DesignationName)
-                                            select new { r.ResourceName, r.EmailId })
-                                            .FirstOrDefault();
-
-                    //Sending mail according to manager after user has submitted their rating.
-                    if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
-                        && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0))
+                    if (!notificationMap.ContainsKey(userKRA.UserId.Value))
                     {
-                        notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
-                        notificationMap[userKRA.UserId.Value].ManagerName = managerDetails.ResourceName;
-                        notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
+                        UserNotificationData userNotificationData = new UserNotificationData();
+                        userNotificationData.Notifications = new List<Notification>();
+
+                        notificationMap[userKRA.UserId.Value] = userNotificationData;
+
                     }
 
-                    // For Rejection mail to user.
-                    //else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
-                    //         && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
-                    //{
-                    //    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                    //    notificationMap[userKRA.UserId.Value].ManagerName = reportingTos.ResourceName;
-                    //    notificationMap[userKRA.UserId.Value].UserName = managerDetails.ResourceName;
-                    //}
+                    // Find user details
+                    var user = _dbcontext.Resources
+                                   .Where(resource => resource.ResourceId == userKRA.UserId.Value)
+                                   .FirstOrDefault();
 
-                    else if (hasPendingFinalRating == true && (userKRA.IsApproved == null || userKRA.IsApproved == 0))
+                    Notification notification = new Notification
                     {
-                        notificationMap[userKRA.UserId.Value].Email = srManagerDetails?.EmailId;
-                        notificationMap[userKRA.UserId.Value].ManagerName = srManagerDetails?.ResourceName;
-                        notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
-                        notificationMap[userKRA.UserId.Value].SrManagerName = managerDetails.ResourceName;
-                        notificationMap[userKRA.UserId.Value].IsForSrManager = true;
+                        ResourceId = userKRA.UserId.Value,
+                        // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
+                        Description = userKRA.KRAName,     // store kra name
+                        IsRead = 0,
+                        IsActive = (int)Status.IS_ACTIVE,
+                        CreateAt = DateTime.Now
+                    };
+
+                    if (userKRA.isUpdated == true)
+                    {
+
+                        //Fetching the manager details.                    
+                        var userName = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
+                        var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();
+                        var srManagerDetails = (from r in _dbcontext.Resources
+                                                join d in _dbcontext.Designations
+                                                on r.DesignationId equals d.DesignationId
+                                                where r.ResourceId == managerDetails.ReportingTo.Value &&
+                                                !Constant.NO_MAIL_DESIGNATION.Contains(d.DesignationName)
+                                                select new { r.ResourceName, r.EmailId })
+                                                .FirstOrDefault();
+
+                        //Sending mail according to manager after user has submitted their rating.
+                        if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
+                            && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0))
+                        {
+                            notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
+                            notificationMap[userKRA.UserId.Value].ManagerName = managerDetails.ResourceName;
+                            notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
+                        }
+
+                        // For Rejection mail to user.
+                        //else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
+                        //         && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
+                        //{
+                        //    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
+                        //    notificationMap[userKRA.UserId.Value].ManagerName = reportingTos.ResourceName;
+                        //    notificationMap[userKRA.UserId.Value].UserName = managerDetails.ResourceName;
+                        //}
+
+                        else if (hasPendingFinalRating == true && (userKRA.IsApproved == null || userKRA.IsApproved == 0))
+                        {
+                            notificationMap[userKRA.UserId.Value].Email = srManagerDetails?.EmailId;
+                            notificationMap[userKRA.UserId.Value].ManagerName = srManagerDetails?.ResourceName;
+                            notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
+                            notificationMap[userKRA.UserId.Value].SrManagerName = managerDetails.ResourceName;
+                            notificationMap[userKRA.UserId.Value].IsForSrManager = true;
+                        }
+
+                        notification.Title = notificationMap[userKRA.UserId.Value].IsForSrManager
+                                             ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER
+                                             : Constant.SUBJECT_KRA_UPDATED_MANAGER;
+
+
+                        notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
                     }
-
-                    notification.Title = notificationMap[userKRA.UserId.Value].IsForSrManager
-                                         ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER
-                                         : Constant.SUBJECT_KRA_UPDATED_MANAGER;
-
-
-                    notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
                 }
+                return notificationMap;
             }
-            return notificationMap;
-        }
 
         public async Task<Dictionary<int, UserNotificationData>> CreateUpdateNotifications(List<UserKRA> userKRAModel)
         {
@@ -531,9 +535,10 @@ namespace DF_EvolutionAPI.Services
 
                 return notificationMap;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return null;
             }
         }
 
@@ -564,7 +569,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -630,8 +635,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-
-                throw new Exception("Error fetching KRAs by UserId", ex);
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));                
             }
 
             return userKRADetails;
@@ -669,11 +673,11 @@ namespace DF_EvolutionAPI.Services
                     .OrderBy(x => x.QuarterYearRange)
                     .ToList();
 
-
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -713,7 +717,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

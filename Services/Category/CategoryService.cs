@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_PA_API.Services
 {
@@ -13,9 +15,11 @@ namespace DF_PA_API.Services
     {
 
         private readonly DFEvolutionDBContext _dbContext;
-        public CategoryService(DFEvolutionDBContext dbContext)
+        private readonly ILogger<CategoryService> _logger;
+        public CategoryService(DFEvolutionDBContext dbContext, ILogger<CategoryService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<ResponseModel> CreateCategory(Category categoryModel)
@@ -45,7 +49,7 @@ namespace DF_PA_API.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error :" + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
@@ -88,9 +92,9 @@ namespace DF_PA_API.Services
                 }
             }
             catch (Exception ex)
-            {
-                model.Messsage = "Error" + ex.Message;
+            {               
                 model.IsSuccess = false;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
@@ -124,7 +128,7 @@ namespace DF_PA_API.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error" + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
 
             }
             return model;
