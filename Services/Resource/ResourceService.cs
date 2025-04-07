@@ -10,16 +10,19 @@ using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Utils;
 using System.Globalization;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Services
 {
     public class ResourceService : IResourceService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger _logger;
 
-        public ResourceService(DFEvolutionDBContext dbContext)
+        public ResourceService(DFEvolutionDBContext dbContext, ILogger<ResourceService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<Resource>> GetAllResources()
@@ -50,8 +53,9 @@ namespace DF_EvolutionAPI.Services
                     }
                 ).FirstOrDefaultAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -115,8 +119,9 @@ namespace DF_EvolutionAPI.Services
                 // var Reportingto = from resources in _dbcontext.Resources
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -125,57 +130,80 @@ namespace DF_EvolutionAPI.Services
 
         private async Task<List<Project>> GetProjects(Resource resource)
         {
-            var projectList = new List<Project>();
-           
-            foreach (var rp in resource.ResourceProjectList)
+            try
             {
-                var project = await (from p in _dbcontext.Projects
-                                     where p.ProjectId == rp.ProjectId && p.IsActive == (int)Status.IS_ACTIVE
-                                     select p).FirstOrDefaultAsync();
+                var projectList = new List<Project>();
 
-                if (project != null)// To restrict adding a null value in the case of an inactive project
+                foreach (var rp in resource.ResourceProjectList)
                 {
-                    projectList.Add(project);
-                }
-            }
+                    var project = await (from p in _dbcontext.Projects
+                                         where p.ProjectId == rp.ProjectId && p.IsActive == (int)Status.IS_ACTIVE
+                                         select p).FirstOrDefaultAsync();
 
-            return projectList;
+                    if (project != null)// To restrict adding a null value in the case of an inactive project
+                    {
+                        projectList.Add(project);
+                    }
+                }
+
+                return projectList;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         private async Task<List<Client>> GetClients(Resource resource)
         {
             var clientList = new List<Client>();
-
-            foreach (var projectResource in resource.ProjectList)
+            try
             {
-                var client = await (from c in _dbcontext.Clients
-                                    where c.ClientId == projectResource.ClientId && c.IsActive == (int)Status.IS_ACTIVE
-                                    select c).FirstOrDefaultAsync();
-                if (client != null)// To restrict adding a null value in the case of an inactive client
+                foreach (var projectResource in resource.ProjectList)
                 {
-                    clientList.Add(client);
+                    var client = await (from c in _dbcontext.Clients
+                                        where c.ClientId == projectResource.ClientId && c.IsActive == (int)Status.IS_ACTIVE
+                                        select c).FirstOrDefaultAsync();
+                    if (client != null)// To restrict adding a null value in the case of an inactive client
+                    {
+                        clientList.Add(client);
+                    }
                 }
-            }
 
-            return clientList;
+                return clientList;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         private async Task<List<BusinessUnit>> GetBusinessUnits(Resource resource)
         {
             var businessUnits = new List<BusinessUnit>();
 
-            foreach (var c in resource.ClientList)
+            try
             {
-                var businessUnit = await (from b in _dbcontext.BusinessUnits
-                                          where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == (int)Status.IS_ACTIVE
-                                          select b).FirstOrDefaultAsync();
-                if (businessUnit != null)
+                foreach (var c in resource.ClientList)
                 {
-                    businessUnits.Add(businessUnit);
+                    var businessUnit = await (from b in _dbcontext.BusinessUnits
+                                              where b.BusinessUnitId == c.BusinessUnitId && b.IsActive == (int)Status.IS_ACTIVE
+                                              select b).FirstOrDefaultAsync();
+                    if (businessUnit != null)
+                    {
+                        businessUnits.Add(businessUnit);
+                    }
                 }
-            }
 
-            return businessUnits;
+                return businessUnits;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         public async Task<string> GetChildResources(string userName)
@@ -253,8 +281,9 @@ namespace DF_EvolutionAPI.Services
 
                 return resources;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -263,6 +292,8 @@ namespace DF_EvolutionAPI.Services
         // Gets the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
+            try 
+            { 
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
@@ -299,28 +330,42 @@ namespace DF_EvolutionAPI.Services
 
             // Convert to JSON
             return JsonConvert.SerializeObject(tree, Formatting.Indented);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         // Gets the count of distinct quarters for KRAs that are not approved for a specified user.
         public int GetNotApprovedKras(int userId)
         {
-            var quarterCount = (
-                from resource in _dbcontext.Resources
-                join designation in _dbcontext.Designations
-                on resource.DesignationId equals designation.DesignationId
-                join userKras in _dbcontext.UserKRA
-                on resource.ResourceId equals userKras.UserId
-                join quarters in _dbcontext.QuarterDetails // Join with QuarterDetails to associate user KRAs with their respective quarters.
-                on userKras.QuarterId equals quarters.Id
-                where userKras.UserId == userId // Filter by the specified user ID
-                && userKras.FinalRating == null // Only include KRAs that have not been approved (FinalRating is null)
-                && userKras.IsActive == (int)Status.IS_ACTIVE  // Ensure the KRA is active
-                && userKras.DeveloperRating != null // Include only those KRAs that have a DeveloperRating
-                && userKras.RejectedBy == null // Include only those kras which are not rejected.
-                select quarters.Id // Select the quarter ID to count distinct quarters
-            ).Distinct().Count(); // Count the distinct quarter IDs
+            try
+            {
+                var quarterCount = (
+                    from resource in _dbcontext.Resources
+                    join designation in _dbcontext.Designations
+                    on resource.DesignationId equals designation.DesignationId
+                    join userKras in _dbcontext.UserKRA
+                    on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails // Join with QuarterDetails to associate user KRAs with their respective quarters.
+                    on userKras.QuarterId equals quarters.Id
+                    where userKras.UserId == userId // Filter by the specified user ID
+                    && userKras.FinalRating == null // Only include KRAs that have not been approved (FinalRating is null)
+                    && userKras.IsActive == (int)Status.IS_ACTIVE  // Ensure the KRA is active
+                    && userKras.DeveloperRating != null // Include only those KRAs that have a DeveloperRating
+                    && userKras.RejectedBy == null // Include only those kras which are not rejected.
+                    select quarters.Id // Select the quarter ID to count distinct quarters
+                ).Distinct().Count(); // Count the distinct quarter IDs
 
-            return quarterCount;
+                return quarterCount;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         //Gets average yearly KRA rating for a user within the specified quarter range.
@@ -378,8 +423,9 @@ namespace DF_EvolutionAPI.Services
 
                 return resultList;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -426,8 +472,9 @@ namespace DF_EvolutionAPI.Services
 
                 return resultList;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -435,135 +482,170 @@ namespace DF_EvolutionAPI.Services
         //Retrieves a list of designations associated with a specific function
         public async Task<List<FunctionsDesignations>> GetDesignationsByFunctionId(int functionId)
         {
-            var result = await (from des in _dbcontext.Designations
-                                join res in _dbcontext.Resources on des.DesignationId equals res.DesignationId
-                                join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
-                                where tecfun.FunctionId == functionId
-                                     && tecfun.IsActive == (int)Status.IS_ACTIVE
-                                     && des.IsActive == (int)Status.IS_ACTIVE
-                                group new { des, tecfun } by new { des.DesignationId, des.DesignationName } into grouped
+            try
+            {
+                var result = await (from des in _dbcontext.Designations
+                                    join res in _dbcontext.Resources on des.DesignationId equals res.DesignationId
+                                    join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
+                                    where tecfun.FunctionId == functionId
+                                         && tecfun.IsActive == (int)Status.IS_ACTIVE
+                                         && des.IsActive == (int)Status.IS_ACTIVE
+                                    group new { des, tecfun } by new { des.DesignationId, des.DesignationName } into grouped
 
-                                select new FunctionsDesignations
-                                {
-                                    FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
-                                    FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
-                                    DesignationId = grouped.Key.DesignationId,
-                                    DesignationName = grouped.Key.DesignationName
-                                }).ToListAsync();
+                                    select new FunctionsDesignations
+                                    {
+                                        FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
+                                        FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
+                                        DesignationId = grouped.Key.DesignationId,
+                                        DesignationName = grouped.Key.DesignationName
+                                    }).ToListAsync();
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         //Retrieves a list of designated roles associated with a specific function
         public async Task<List<FunctionsDesignations>> GetDesignatedRolesByFunctionId(int functionId)
         {
-            var result = await (from des in _dbcontext.DesignatedRoles
-                                join res in _dbcontext.Resources on des.DesignatedRoleId equals res.DesignatedRoleId
-                                join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
-                                where tecfun.FunctionId == functionId
-                                     && tecfun.IsActive == (int)Status.IS_ACTIVE
-                                     && des.IsActive == (int)Status.IS_ACTIVE
-                                group new { des, tecfun } by new { des.DesignatedRoleId, des.DesignatedRoleName } into grouped
+            try
+            {
+                var result = await (from des in _dbcontext.DesignatedRoles
+                                    join res in _dbcontext.Resources on des.DesignatedRoleId equals res.DesignatedRoleId
+                                    join tecfun in _dbcontext.TechFunctions on res.FunctionId equals tecfun.FunctionId
+                                    where tecfun.FunctionId == functionId
+                                         && tecfun.IsActive == (int)Status.IS_ACTIVE
+                                         && des.IsActive == (int)Status.IS_ACTIVE
+                                    group new { des, tecfun } by new { des.DesignatedRoleId, des.DesignatedRoleName } into grouped
 
-                                select new FunctionsDesignations
-                                {
-                                    FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
-                                    FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
-                                    DesignatedRoleId = grouped.Key.DesignatedRoleId,
-                                    DesignatedRoleName = grouped.Key.DesignatedRoleName,
-                                }).ToListAsync();
+                                    select new FunctionsDesignations
+                                    {
+                                        FunctionId = (int)grouped.Select(g => g.tecfun.FunctionId).FirstOrDefault(),
+                                        FunctionName = grouped.Select(g => g.tecfun.FunctionName).FirstOrDefault(),
+                                        DesignatedRoleId = grouped.Key.DesignatedRoleId,
+                                        DesignatedRoleName = grouped.Key.DesignatedRoleName,
+                                    }).ToListAsync();
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         // Retrieves a list of resources with KRA status for each quarter   
         public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
         {
-            var result = await (
-                from k in _dbcontext.KRALibrary
-                join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
-                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
-                join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id where qd.IsActive == (int)Status.IS_ACTIVE && uk.IsActive == (int)Status.IS_ACTIVE
-                join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
-                // Join to get the ReportingTo (Manager) name
-                join reportingToResource in _dbcontext.Resources on r.ReportingTo equals reportingToResource.ResourceId into rpt
-                from manager in rpt.DefaultIfEmpty() // Left join, if no manager, it will be null
-                                                     // Join to get the ReportingTo name of the Manager (second level)
-                join managerReportingTo in _dbcontext.Resources on manager.ReportingTo equals managerReportingTo.ResourceId into managerRpt
-                from manager2 in managerRpt.DefaultIfEmpty() // Left join, if no second level manager, it will be null
-                where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
-                      && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
-                      && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
-                      && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
-                select new
-                {
-                    r.ResourceId,
-                    r.ResourceName,
-                    des.DesignatedRoleName,
-                    Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
-                    qd.QuarterName,
-                    k.Name,
-                    uk.DeveloperRating,
-                    uk.ManagerRating,
-                    uk.FinalRating,
-                    uk.RejectedBy,
-                    uk.FinalComment,
-                    uk.IsApproved,
-                    ReportingToName = manager.ResourceName, // Manager's name
-                    ManagerReportingToName = manager2.ResourceName // Manager's manager name
-                })
-                .ToListAsync();
+            try
+            {
+                var result = await (
+                    from k in _dbcontext.KRALibrary
+                    join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
+                    join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
+                    where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
+                    where qd.IsActive == (int)Status.IS_ACTIVE && uk.IsActive == (int)Status.IS_ACTIVE
+                    join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
+                    // Join to get the ReportingTo (Manager) name
+                    join reportingToResource in _dbcontext.Resources on r.ReportingTo equals reportingToResource.ResourceId into rpt
+                    from manager in rpt.DefaultIfEmpty() // Left join, if no manager, it will be null
+                                                         // Join to get the ReportingTo name of the Manager (second level)
+                    join managerReportingTo in _dbcontext.Resources on manager.ReportingTo equals managerReportingTo.ResourceId into managerRpt
+                    from manager2 in managerRpt.DefaultIfEmpty() // Left join, if no second level manager, it will be null
+                    where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
+                          && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
+                          && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
+                          && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
+                    select new
+                    {
+                        r.ResourceId,
+                        r.ResourceName,
+                        des.DesignatedRoleName,
+                        Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
+                        qd.QuarterName,
+                        k.Name,
+                        uk.DeveloperRating,
+                        uk.ManagerRating,
+                        uk.FinalRating,
+                        uk.RejectedBy,
+                        uk.FinalComment,
+                        uk.IsApproved,
+                        ReportingToName = manager.ResourceName, // Manager's name
+                        ManagerReportingToName = manager2.ResourceName // Manager's manager name
+                    })
+                    .ToListAsync();
 
-            var flattenedResult = result
-                .GroupBy(x => new
-                {
-                    x.ResourceId,
-                    x.ResourceName,
-                    x.DesignatedRoleName
-                })
-                .Select(g => new ResourceKrasSatus
-                {
-                    ResourceId = g.Key.ResourceId,
-                    ResourceName = g.Key.ResourceName,
-                    DesignatedRole = g.Key.DesignatedRoleName,
-                    Completed = g.GroupBy(x => x.Quarter).Count(q => q.All(item => item.IsApproved != 0)), // 1 if at least one quarter has all comments not null
-                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
-                    Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
-                        .Select(q => new KraQuarter
-                        {
-                            Quarter = q.Key,
-                            QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
-                            Ratings = q.Select(item => new KraRating
+                var flattenedResult = result
+                    .GroupBy(x => new
+                    {
+                        x.ResourceId,
+                        x.ResourceName,
+                        x.DesignatedRoleName
+                    })
+                    .Select(g => new ResourceKrasSatus
+                    {
+                        ResourceId = g.Key.ResourceId,
+                        ResourceName = g.Key.ResourceName,
+                        DesignatedRole = g.Key.DesignatedRoleName,
+                        Completed = g.GroupBy(x => x.Quarter).Count(q => q.All(item => item.IsApproved != 0)), // 1 if at least one quarter has all comments not null
+                        Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
+                        Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
+                            .Select(q => new KraQuarter
                             {
-                                KraName = item.Name,
-                                DeveloperRating = item.DeveloperRating,
-                                ManagerRating = item.ManagerRating,
-                                FinalRating = item.FinalRating,
-                                RejectedBy = item.RejectedBy,
-                                IsApproved = item.IsApproved,
+                                Quarter = q.Key,
+                                QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
+                                Ratings = q.Select(item => new KraRating
+                                {
+                                    KraName = item.Name,
+                                    DeveloperRating = item.DeveloperRating,
+                                    ManagerRating = item.ManagerRating,
+                                    FinalRating = item.FinalRating,
+                                    RejectedBy = item.RejectedBy,
+                                    IsApproved = item.IsApproved,
+                                }).ToList(),
                             }).ToList(),
-                        }).ToList(),
-                    ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
-                    ManagerReportingToName = g.FirstOrDefault().ManagerReportingToName // Fetching the second-level manager's name
-                }).ToList();
+                        ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
+                        ManagerReportingToName = g.FirstOrDefault().ManagerReportingToName // Fetching the second-level manager's name
+                    }).ToList();
 
-            return flattenedResult;
+                return flattenedResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
         }
 
         public async Task<ReportingToName> GetUserManagerName(int userId)
         {
-            var result = await (from r in _dbcontext.Resources
-                                join manager in _dbcontext.Resources
-                                on r.ReportingTo equals manager.ResourceId into mgr
-                                from manager in mgr.DefaultIfEmpty() // Left Join to handle null
-                                where r.ResourceId == userId // Ensure we're filtering correctly
-                                select new ReportingToName
-                                {
-                                    ManagerName = manager != null ? manager.ResourceName : "No Manager"
-                                })
-                                .FirstOrDefaultAsync(); // Avoid exceptions if no result
+            try
+            {
+                var result = await (from r in _dbcontext.Resources
+                                    join manager in _dbcontext.Resources
+                                    on r.ReportingTo equals manager.ResourceId into mgr
+                                    from manager in mgr.DefaultIfEmpty() // Left Join to handle null
+                                    where r.ResourceId == userId // Ensure we're filtering correctly
+                                    select new ReportingToName
+                                    {
+                                        ManagerName = manager != null ? manager.ResourceName : "No Manager"
+                                    })
+                                    .FirstOrDefaultAsync(); // Avoid exceptions if no result
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
 

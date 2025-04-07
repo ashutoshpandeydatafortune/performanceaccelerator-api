@@ -5,16 +5,20 @@ using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
     public class ProjectResourceService: IProjectResourceService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<ProjectResourceService> _logger;
 
-        public ProjectResourceService(DFEvolutionDBContext dbContext)
+        public ProjectResourceService(DFEvolutionDBContext dbContext, ILogger<ProjectResourceService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<ProjectResource>> GetAllProjectResources()
@@ -47,8 +51,9 @@ namespace DF_EvolutionAPI.Services
                         UpdateDate = pr.UpdateDate,
                     }).ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
             return projectResources;
@@ -84,8 +89,9 @@ namespace DF_EvolutionAPI.Services
                         ProjectList = (_dbcontext.Projects.Where(r => (int?)r.ProjectId == pr.ProjectId)).ToList()
                     }).ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
