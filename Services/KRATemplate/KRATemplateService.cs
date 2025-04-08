@@ -141,7 +141,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             catch (Exception ex)
             {               
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                return null;
+                throw;
             }
         }
 
@@ -186,7 +186,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                return null;
+                throw;
             }
         }
 
@@ -226,7 +226,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                return null;
+                throw;
 
             }
 
@@ -431,7 +431,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             catch (Exception ex)
             {                
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                return null;
+                throw;
             }
         }
     }
