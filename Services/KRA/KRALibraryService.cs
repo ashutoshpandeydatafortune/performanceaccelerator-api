@@ -6,20 +6,26 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
     public class KRALibraryService : IKRALibraryService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<KRALibraryService> _logger;
 
-        public KRALibraryService(DFEvolutionDBContext dbContext)
+        public KRALibraryService(DFEvolutionDBContext dbContext, ILogger<KRALibraryService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<KRAList>> GetAllKRALibraryList(int? isNotSpecial)
         {
+            try 
+            { 
             //Checked isSpecial condition for displaying kras list.
             if (isNotSpecial == null || isNotSpecial == 0)
             {
@@ -67,6 +73,12 @@ namespace DF_EvolutionAPI.Services.KRA
                             };
 
                 return await query.OrderBy(kra => kra.Name).ToListAsync();
+            }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
             }
 
         }
@@ -185,7 +197,7 @@ namespace DF_EvolutionAPI.Services.KRA
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -252,7 +264,7 @@ namespace DF_EvolutionAPI.Services.KRA
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return kraweightage;
@@ -307,7 +319,7 @@ namespace DF_EvolutionAPI.Services.KRA
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return kraDetails;
