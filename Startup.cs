@@ -22,7 +22,6 @@ using DF_PA_API.Services;
 using DF_PA_API.Services.RolesMaster;
 using DF_PA_API.Services.DesignatedRoles;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI
 {
@@ -187,12 +186,10 @@ namespace DF_EvolutionAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory )
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env )
 
         {
-            // Configure logging to write daily rolling logs to the 'Logs' folder with the format "my-log-{Date}.txt".
-            loggerFactory.AddFile("Logs/my-log-{Date}.txt");
-
+           
             app.UseCors("CorsPolicy");
 
             if (env.IsDevelopment())
