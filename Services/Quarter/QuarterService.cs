@@ -6,16 +6,21 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Services.KRATemplate;
 
 namespace DF_EvolutionAPI.Services
 {
     public class QuarterService : IQuarterService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<QuarterService> _logger;
 
-        public QuarterService(DFEvolutionDBContext dbContext)
+        public QuarterService(DFEvolutionDBContext dbContext, ILogger<QuarterService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<QuarterDetails>> GetAllQuarterList(string type)
@@ -38,8 +43,9 @@ namespace DF_EvolutionAPI.Services
             {
                 quarterdetails = await _dbcontext.FindAsync<QuarterDetails>(quarterId);
             }
-            catch (Exception) 
+            catch (Exception ex) 
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -91,7 +97,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -124,7 +130,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -158,7 +164,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -190,7 +196,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

@@ -7,18 +7,21 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Services.Submission;
 
 namespace DF_PA_API.Services.DesignatedRoles
 {
     public class DesignatedRoleService : IDesignatedRoleService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<DesignatedRoleService> _logger;
 
-        public DesignatedRoleService(DFEvolutionDBContext dbContext)
+        public DesignatedRoleService(DFEvolutionDBContext dbContext, ILogger<DesignatedRoleService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
-
 
         public async Task<List<DesignatedRole>> GetAllDesignatedRoles()
         {
@@ -38,8 +41,9 @@ namespace DF_PA_API.Services.DesignatedRoles
                         UpdateDate = pr.UpdateDate,
                     }).ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -88,8 +92,9 @@ namespace DF_PA_API.Services.DesignatedRoles
 
                                   }).ToListAsync();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                     throw;
                 }
             }
@@ -112,8 +117,9 @@ namespace DF_PA_API.Services.DesignatedRoles
                         DesignatedRoleName = designation.DesignatedRoleName
                     }).Distinct().ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -156,8 +162,9 @@ namespace DF_PA_API.Services.DesignatedRoles
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 

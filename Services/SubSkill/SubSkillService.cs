@@ -6,16 +6,20 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
     public class SubSkillService : ISubSkillService
     {
         private readonly DFEvolutionDBContext _dbContext;
+        private readonly ILogger<SubSkillService> _logger;
 
-        public SubSkillService(DFEvolutionDBContext dbContext)
+        public SubSkillService(DFEvolutionDBContext dbContext, ILogger<SubSkillService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<ResponseModel> CreateSubSkill(SubSkill subSkillModel)
@@ -50,7 +54,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error :" + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
@@ -101,8 +105,9 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                model.Messsage = "Error" + ex.Message;
                 model.IsSuccess = false;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                
             }
             return model;
         }
@@ -142,7 +147,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error" + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
 
             }
             return model;

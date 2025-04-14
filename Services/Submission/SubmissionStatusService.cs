@@ -1,21 +1,26 @@
-﻿using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.ViewModels;
-using DF_PA_API.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.ViewModels;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace DF_EvolutionAPI.Services.Submission
 {
     public class SubmissionStatusService : ISubmissionStatusService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<SubmissionStatusService> _logger;
 
-        public SubmissionStatusService(DFEvolutionDBContext dbContext)
+        public SubmissionStatusService(DFEvolutionDBContext dbContext, ILogger<SubmissionStatusService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<SubmissionStatus>> GetAllSubmissionStatusList()
@@ -31,8 +36,9 @@ namespace DF_EvolutionAPI.Services.Submission
             {
                 submissionStatus = await _dbcontext.FindAsync<SubmissionStatus>(submissionStatusId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
             
@@ -79,7 +85,7 @@ namespace DF_EvolutionAPI.Services.Submission
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -111,7 +117,7 @@ namespace DF_EvolutionAPI.Services.Submission
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

@@ -1,6 +1,8 @@
 ﻿using System;
+using DF_EvolutionAPI.Utils;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using DF_EvolutionAPI.Services;
 
@@ -11,10 +13,12 @@ namespace DF_EvolutionAPI.Controllers
     public class ProjectResourceController : ControllerBase
     {
         private IProjectResourceService _projectResourceService;
+        private readonly ILogger<ProjectResourceController> _logger;
 
-        public ProjectResourceController(IProjectResourceService projectResourceService)
+        public ProjectResourceController(IProjectResourceService projectResourceService, ILogger<ProjectResourceController> logger)
         {
             _projectResourceService = projectResourceService;
+            _logger = logger;
         }
 
         #region Project Resources
@@ -29,11 +33,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var projectResources = await _projectResourceService.GetAllProjectResources();
                 return Ok(projectResources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -48,11 +56,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var projectResources = await _projectResourceService.GetAllProjectResourcesByResourceId(resourceId);
                 return Ok(projectResources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -67,11 +79,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var projectResources = await _projectResourceService.GetAllProjectResourcesByProjectId(projectId);
                 return Ok(projectResources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }

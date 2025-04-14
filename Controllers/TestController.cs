@@ -11,7 +11,7 @@ namespace DF_EvolutionAPI.Controllers
         [HttpGet("server/status")]
         public IActionResult Status()
         {
-            return Ok("Server is running on stage...");
+            return Ok("Server is running...");
         }
     }
 }

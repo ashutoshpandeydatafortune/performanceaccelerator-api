@@ -1,7 +1,9 @@
-﻿using DF_EvolutionAPI.Services;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -10,10 +12,12 @@ namespace DF_EvolutionAPI.Controllers
     public class ResourceFunctionController : ControllerBase
     {
         private IResourceFunctionService _resourceFunctionService;
+        private readonly ILogger<ResourceFunctionController> _logger;
 
-        public ResourceFunctionController(IResourceFunctionService resourceFunctionService)
+        public ResourceFunctionController(IResourceFunctionService resourceFunctionService, ILogger<ResourceFunctionController> logger)
         {
             _resourceFunctionService = resourceFunctionService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -26,11 +30,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var functions = await _resourceFunctionService.GetAllFunctions();
                 return Ok(functions);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -46,6 +54,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var client = await _resourceFunctionService.GetFunctionById(functionId);
 
                 if (client == null) return NotFound();
@@ -54,6 +64,8 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
