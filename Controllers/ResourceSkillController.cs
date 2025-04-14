@@ -1,8 +1,10 @@
 ﻿using System;
+using DF_EvolutionAPI.Utils;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 
 
@@ -13,10 +15,12 @@ namespace DF_EvolutionAPI.Controllers
     public class ResourceSkillController : Controller
     {
         private IResourceSkillService _resourceSkillService;
+        private readonly ILogger<ResourceSkillController> _logger;
 
-        public ResourceSkillController(IResourceSkillService resourceSkillService)
+        public ResourceSkillController(IResourceSkillService resourceSkillService, ILogger<ResourceSkillController> logger)
         {
             _resourceSkillService = resourceSkillService;
+            _logger = logger;
         }
 
       
@@ -31,6 +35,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.UpdateResourceSkill(resourceSkillRequestModel);
                 return Ok(response);
             }
@@ -51,6 +57,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.InsertResourceSkill(resourceSkillRequestModel);
                 return Ok(response);
             }
@@ -71,6 +79,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.GetAllResourceSkills();
                 return Ok(response);
             }
@@ -91,6 +101,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.GetResourceSkillsById(resourceId);
                 return Ok(response);
             }
@@ -111,6 +123,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.GetResourcesBySkill(searchSkillModel);
                 return Ok(response);
             }
@@ -131,6 +145,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.UpdateApprovalStatus(updateApproval);
                 return Ok(response);
             }
@@ -151,6 +167,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.CheckResourceSkillsUpdated(resourceId);
                 return Ok(response);
             }
@@ -172,6 +190,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _resourceSkillService.MarkResourceSkillAsInactive(resourceSkillRequestModel);
                 return Ok(response);
             }

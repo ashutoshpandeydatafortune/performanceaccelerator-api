@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
@@ -24,13 +25,18 @@ namespace DF_EvolutionAPI.Services.KRA
 
         public async Task<List<KRAList>> GetAllKRALibraryList(int? isNotSpecial)
         {
-            try 
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(KRAList), nameof(GetAllKRALibraryList));
+            _logger.LogInformation("Fetching KRA list. IsNotSpecial filter: {IsNotSpecial}", isNotSpecial);
+
+            try
             { 
             //Checked isSpecial condition for displaying kras list.
             if (isNotSpecial == null || isNotSpecial == 0)
             {
-                //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
-                var query = from kraLibrary in _dbcontext.KRALibrary
+                    _logger.LogInformation("Fetching all KRA records including special ones.");
+
+                    //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
+                    var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId into kraTechGroup
                             from techFunc in kraTechGroup.DefaultIfEmpty()
@@ -72,8 +78,10 @@ namespace DF_EvolutionAPI.Services.KRA
                                 IsSpecial = kraLibrary.IsSpecial,
                             };
 
-                return await query.OrderBy(kra => kra.Name).ToListAsync();
-            }
+                    var result = await query.OrderBy(kra => kra.Name).ToListAsync();
+                    _logger.LogInformation("Retrieved {Count} KRA records (excluding special).", result.Count);
+                    return result;
+                }
             }
             catch (Exception ex)
             {
