@@ -178,6 +178,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
+                e.Property(e => e.ReferenceId).HasColumnName("ReferenceId");
+                e.Property(e => e.TechFunctionId).HasColumnName("TechFunctionId");
             });
 
             modelBuilder.HasDefaultSchema("dbo").Entity<TechFunction>(e =>
@@ -362,6 +364,8 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.IsDescriptionRequired).HasColumnName("IsDescriptionRequired");
                 e.Property(e => e.MinimumRatingForDescription).HasColumnName("MinimumRatingForDescription");
                 e.Property(e => e.FunctionId).HasColumnName("FunctionId");
+                e.Property(e => e.BusinessUnitId).HasColumnName("BusinessUnitId");
+                
             });
 
             modelBuilder.Entity<Role>(e =>

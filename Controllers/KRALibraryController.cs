@@ -180,5 +180,25 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Get all kras by businessUnit wise
+        /// </summary>
+        /// /// <param name="businessUnitId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllKRAsByBusinessUnit/{businessUnitId}")]
+        public async Task<IActionResult> GetAllKRAsByBusinessUnit(int businessUnitId)
+        {
+            try
+            {
+                var kras = await _kraLibraryService.GetAllKRAsByBusinessUnit(businessUnitId);
+                return Ok(kras);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
