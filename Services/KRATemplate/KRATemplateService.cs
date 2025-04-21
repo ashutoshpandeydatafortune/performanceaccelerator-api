@@ -78,6 +78,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         updatetemplate.UpdateBy = paTemplates.UpdateBy;
                         updatetemplate.UpdateDate = DateTime.Now;
                         updatetemplate.FunctionId = paTemplates.FunctionId;
+                        updatetemplate.BusinessUnitId = paTemplates.BusinessUnitId;
 
                         await _dbContext.SaveChangesAsync();
                         model.IsSuccess = true;
@@ -192,6 +193,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             var query = from template in _dbContext.PATemplates
                         join function in _dbContext.TechFunctions
                         on template.FunctionId equals function.FunctionId
+                        join businessUnit in _dbContext.BusinessUnits
+                        on template.BusinessUnitId equals businessUnit.BusinessUnitId
                         where template.IsActive == (int)Status.IS_ACTIVE
                         select new PATemplate
                         {
@@ -204,12 +207,66 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             CreateDate = template.CreateDate,
                             UpdateDate = template.UpdateDate,
                             FunctionId = template.FunctionId,
-                            FunctionName = function.FunctionName
+                            FunctionName = function.FunctionName,
+                            BusinessUnitId = template.BusinessUnitId,
+                            BusinessUnitName = businessUnit.BusinessUnitName,
+                        };
+
+            return await query.OrderBy(templateName => templateName.Name).ToListAsync();
+        }
+
+        //Retrieves all active templates associated with the specified function ID.
+        public async Task<List<TemplateByFunction>> GetAllTemplatesByFunctionId(int functionId)
+        {
+            var query = from template in _dbContext.PATemplates
+                        join function in _dbContext.TechFunctions
+                        on template.FunctionId equals function.FunctionId
+                        where template.IsActive == (int)Status.IS_ACTIVE && template.FunctionId == functionId
+                        select new TemplateByFunction
+                        {
+                            TemplateId = template.TemplateId,
+                            Name = template.Name,
+                            IsActive = template.IsActive,
+                            CreateBy = template.CreateBy,
+                            UpdateBy = template.UpdateBy,
+                            CreateDate = template.CreateDate,
+                            UpdateDate = template.UpdateDate,
+                            FunctionId = template.FunctionId,
+                            FunctionName = function.FunctionName,
+
                         };
 
             return await query.OrderBy(templateName => templateName.Name).ToListAsync();
 
         }
+
+        //Retrieves all active templates associated with the specified businessUnit ID.
+        public async Task<List<TemplateByBusinessUnit>> GetAllTemplatesByBusinessUnitId(int businessUnitId)
+        {
+            var query = from template in _dbContext.PATemplates
+                        join businessUnit in _dbContext.BusinessUnits
+                        on template.BusinessUnitId equals businessUnit.BusinessUnitId
+                        where template.IsActive == (int)Status.IS_ACTIVE && template.BusinessUnitId == businessUnitId
+                        select new TemplateByBusinessUnit
+                        {
+                            TemplateId = template.TemplateId,
+                            Name = template.Name,
+                            IsActive = template.IsActive,
+                            CreateBy = template.CreateBy,
+                            UpdateBy = template.UpdateBy,
+                            CreateDate = template.CreateDate,
+                            UpdateDate = template.UpdateDate,
+                            BusinessUnitId = template.BusinessUnitId,
+                            BusinessUnitName = businessUnit.BusinessUnitName,
+
+                        };
+
+            return await query.OrderBy(templateName => templateName.Name).ToListAsync();
+
+        }
+
+
+
 
         //Delete the template.
         public async Task<ResponseModel> DeleteKraTemplateById(int id)
