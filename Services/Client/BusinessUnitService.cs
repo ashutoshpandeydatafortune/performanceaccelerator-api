@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-//using System.Reflection.Metadata;
-using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -55,7 +54,6 @@ namespace DF_EvolutionAPI.Services
                 throw;
             }
         }
-
 
         public async Task<List<BusinessUnit>> GetAllClientsBusinessUnits(int? businessUnitId)
         {
