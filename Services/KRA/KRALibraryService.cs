@@ -328,6 +328,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
+                            join businessunit in _dbcontext.BusinessUnits
+                            on kraLibrary.BusinessUnitId equals businessunit.BusinessUnitId 
                             where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.FunctionId == functionId
                             orderby kraLibrary.Name // OrderBy KraName ascending.
                             select new KRAList
@@ -340,7 +342,9 @@ namespace DF_EvolutionAPI.Services.KRA
                                 IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
                                 MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                                 FunctionId = kraLibrary.FunctionId ?? null,
-                                FunctionName = function.FunctionName ?? null
+                                FunctionName = function.FunctionName ?? null,
+                                BusinessUnitId = kraLibrary.BusinessUnitId ?? null,
+                                BusinessUnitName = businessunit.BusinessUnitName ?? null,
                             };
 
                 return await query.ToListAsync();
@@ -352,6 +356,8 @@ namespace DF_EvolutionAPI.Services.KRA
             var query = from kraLibrary in _dbcontext.KRALibrary
                         join function in _dbcontext.TechFunctions
                         on kraLibrary.FunctionId equals function.FunctionId
+                        join businessunit in _dbcontext.BusinessUnits
+                        on kraLibrary.BusinessUnitId equals businessunit.BusinessUnitId
                         where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.BusinessUnitId == businessUnitId
                         orderby kraLibrary.Name // OrderBy KraName ascending.
                         select new KRAList
@@ -364,7 +370,11 @@ namespace DF_EvolutionAPI.Services.KRA
                             IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
                             MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                             FunctionId = kraLibrary.FunctionId ?? null,
-                            FunctionName = function.FunctionName ?? null
+                            FunctionName = function.FunctionName ?? null,
+                            BusinessUnitId = kraLibrary.BusinessUnitId ?? null,
+                            BusinessUnitName = businessunit.BusinessUnitName ?? null,
+                           
+                            
                         };
 
             return await query.ToListAsync();
