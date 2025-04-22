@@ -30,20 +30,30 @@ namespace DF_EvolutionAPI
 
                 var dotenv = Path.Combine(Directory.GetCurrentDirectory(), ".env");
                 DotEnv.Load(dotenv);
+                var builder = WebApplication.CreateBuilder(args);
                 // Read log level directly from env
-                var logLevelString = Environment.GetEnvironmentVariable("LOG_LEVEL");               
-                // Parse string to LogEventLevel (no switch-case)
-                var logLevel = (Serilog.Events.LogEventLevel)Enum.Parse(typeof(Serilog.Events.LogEventLevel), logLevelString, ignoreCase: true);
+                var logLevelString = Environment.GetEnvironmentVariable("LOG_LEVEL");
+                var logDeletionDaysEnv = Environment.GetEnvironmentVariable("LOG_DELETION_DAYS");
+
+                // If LOG_LEVEL is null or empty, fallback to appsettings.json
+                if (string.IsNullOrWhiteSpace(logLevelString))
+                {
+                    logLevelString = builder.Configuration["Logging:LogLevel:Default"] ?? "Information";
+                }
+
+                // Safe parsing of log level
+                var logLevel = Enum.TryParse<Serilog.Events.LogEventLevel>(logLevelString, true, out var parsedLevel) ? parsedLevel : LogEventLevel.Information;
+                int logDeletionDays = int.TryParse(logDeletionDaysEnv, out var parsedValue) ? parsedValue : Constant.LOG_DELETION_DAYS;
 
                 DotEnv.Load(dotenv);
                 Log.Logger = new LoggerConfiguration()
                     .MinimumLevel.Is(logLevel)// Set the minimum log level from the environment
                     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) // Ignore info/debug logs from Microsoft-related logs
                     .MinimumLevel.Override("System", LogEventLevel.Warning)// Same for System-related logs 
-                    .WriteTo.File(new CustomJsonFormatter(), "Logs/log.json", rollingInterval: RollingInterval.Day, retainedFileCountLimit:Constant.LOG_DELETION_DAYS)// Rotate file daily. Keep logs for last 10 days
-                    .CreateLogger();               
+                     .WriteTo.File(new CustomJsonFormatter(), "Logs/log.json", rollingInterval: RollingInterval.Day, retainedFileCountLimit: logDeletionDays)// Rotate file daily. Keep logs for last 10 days
+                    .CreateLogger();      
 
-                var builder = WebApplication.CreateBuilder(args);
+               
                 builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("Mail"));
 
                 builder.Services.AddControllersWithViews();
