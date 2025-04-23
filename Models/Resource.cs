@@ -87,5 +87,20 @@ namespace DF_EvolutionAPI.Models
         public int KRAId { get; set; }
         public string KraName { get; set; }
     }
-   
+
+    public class ResourceEvaluation
+    {
+        public int? ResourceId { get; set; }
+        public string ResourceName { get; set; }
+        public string QuarterId { get; set; }
+        public string QuarterName { get; set; }
+    }
+
+    public class ResourceEvaluationResponse
+    {       
+        public List<ResourceEvaluation> ResourceEvaluationList { get; set; }
+        public int totalCount { get; set; }
+
+    }
+
 }

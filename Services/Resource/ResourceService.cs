@@ -126,7 +126,7 @@ namespace DF_EvolutionAPI.Services
         private async Task<List<Project>> GetProjects(Resource resource)
         {
             var projectList = new List<Project>();
-           
+
             foreach (var rp in resource.ResourceProjectList)
             {
                 var project = await (from p in _dbcontext.Projects
@@ -345,7 +345,7 @@ namespace DF_EvolutionAPI.Services
                         grouped.Key.Id,
                         grouped.Key.QuarterName,
                         grouped.Key.QuarterYear,
-                        grouped.Key.QuarterYearRange,                       
+                        grouped.Key.QuarterYearRange,
                         Weightage = grouped.Sum(x => x.kraLibrary.Weightage),
                         Score = grouped.Sum(x => x.userKRA.FinalRating * x.kraLibrary.Weightage)
                     }
@@ -365,7 +365,7 @@ namespace DF_EvolutionAPI.Services
                     .ToList();
 
                 var averageRating = results?.Any() == true ? Math.Round((double)results.Average(average => average.Rating), 2) : 0.0;
-              
+
                 if (rating.Count == 1)//If there is only 1 rating, set the count to 0 for the 1st quarter
                 {
                     averageRating = 0.0;
@@ -566,6 +566,188 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
+        // Gets the list of resources whose evaluation is pending by the manager.
+        public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
+        {
+            try
+            {
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId
+                        && resource.IsActive == (int)Status.IS_ACTIVE
+                        && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                        && userKras.FinalRating == null
+                        && userKras.IsActive == (int)Status.IS_ACTIVE
+                        && userKras.DeveloperRating != 0
+                        && userKras.RejectedBy == null
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();
+
+                // Group and format data in memory
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
+                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                    })
+                    .ToList();
+
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
+
+        // Gets the list of resources whose evaluations are completed.
+        public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId)
+        {
+            try
+            {
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId
+                          && resource.IsActive == (int)Status.IS_ACTIVE 
+                          && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                          && userKras.FinalRating != 0
+                          && userKras.IsActive == (int)Status.IS_ACTIVE
+                          && userKras.DeveloperRating != 0
+                          && userKras.RejectedBy != 0
+                          && userKras.IsApproved == 1
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();
+
+                // Group and format data in memory
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
+                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                    })
+                    .ToList();
+
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
+
+
+        // Gets the list of resources whose self-evaluation is pending.
+        public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId)
+        {
+            try
+            {
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId
+                      && resource.IsActive == (int)Status.IS_ACTIVE
+                      && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                      && userKras.FinalRating == null
+                      && userKras.IsActive == (int)Status.IS_ACTIVE
+                      && userKras.DeveloperRating == 0
+                      && userKras.RejectedBy == null
+                      && userKras.IsApproved == 0
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();
+
+                // Group and format data in memory
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
+                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                    })
+                    .ToList();
+
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
 
     }
 }

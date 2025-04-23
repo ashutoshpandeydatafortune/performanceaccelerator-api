@@ -190,5 +190,63 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        ///<Summary>
+        /// // Gets the list of resources whose evaluation is pending by the manager.
+        /// </Summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingResourceEvaluations(int? userId)
+        {
+            try
+            {
+                var resourceList = await _resourceService.GetPendingResourceEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch ( Exception ex)
+            {
+                return BadRequest(ex.Message );
+            }
+        }
+
+        ///<summary>
+        /// // Gets the list of resources whose evaluations are completed.
+        ///</summary>
+        ///<return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCompletedResourceEvaluation(int? userId)
+        {
+            try
+            {
+                var resourceList = await _resourceService.GetCompletedResourceEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message );
+            }
+        }
+
+        ///<summary>
+        /// Gets the list of resources whose self-evaluation is pending.
+        /// </summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingSelfEvaluations(int? userId)
+        {
+            try
+            {
+                var resourceList = await _resourceService.GetPendingSelfEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message );
+            }                        
+        }
+
     }
 }
