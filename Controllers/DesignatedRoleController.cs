@@ -113,7 +113,6 @@ namespace DF_PA_API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
     }
 }

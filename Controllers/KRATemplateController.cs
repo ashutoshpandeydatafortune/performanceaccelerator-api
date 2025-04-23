@@ -257,7 +257,5 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
     }
 }

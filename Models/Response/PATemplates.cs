@@ -36,7 +36,7 @@ namespace DF_EvolutionAPI.Models.Response
         public int? KraId { get; set; }
     }
 
-    //Represents a template associated with a specific finction
+    //Represents a template associated with a specific function
     public class TemplateByFunction
     {
         public int TemplateId { get; set; }
