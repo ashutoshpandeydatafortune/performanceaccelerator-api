@@ -644,8 +644,7 @@ namespace DF_EvolutionAPI.Services
                           && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                           && userKras.FinalRating != 0
                           && userKras.IsActive == (int)Status.IS_ACTIVE
-                          && userKras.DeveloperRating != 0
-                          && userKras.RejectedBy != 0
+                          && (userKras.DeveloperRating != null || userKras.RejectedBy != null)                          
                           && userKras.IsApproved == 1
                     select new
                     {
@@ -706,8 +705,7 @@ namespace DF_EvolutionAPI.Services
                       && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                       && userKras.FinalRating == null
                       && userKras.IsActive == (int)Status.IS_ACTIVE
-                      && (userKras.DeveloperRating == null || userKras.DeveloperRating == 0)
-                      && (userKras.RejectedBy == null)
+                      && (userKras.DeveloperRating == null || userKras.RejectedBy == null)                      
                       && userKras.IsApproved == 0
                     select new
                     {
