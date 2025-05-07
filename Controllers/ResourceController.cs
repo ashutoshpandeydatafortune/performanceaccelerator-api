@@ -216,7 +216,7 @@ namespace DF_EvolutionAPI.Controllers
         ///<return></return>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetCompletedResourceEvaluation(int? userId)
+        public async Task<IActionResult> GetCompletedResourceEvaluations(int? userId)
         {
             try
             {
