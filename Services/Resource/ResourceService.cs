@@ -644,7 +644,8 @@ namespace DF_EvolutionAPI.Services
                           && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                           && userKras.FinalRating != 0
                           && userKras.IsActive == (int)Status.IS_ACTIVE
-                          && (userKras.DeveloperRating != null || userKras.RejectedBy != null)                          
+                          && (userKras.DeveloperRating != null)
+                          && (userKras.RejectedBy == null)
                           && userKras.IsApproved == 1
                     select new
                     {
