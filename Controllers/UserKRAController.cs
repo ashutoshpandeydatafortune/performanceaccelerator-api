@@ -7,6 +7,8 @@ using DF_EvolutionAPI.ViewModels;
 using DF_EvolutionAPI.Services.KRA;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static DF_EvolutionAPI.Models.UserKRADetails;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -15,10 +17,12 @@ namespace DF_EvolutionAPI.Controllers
     public class UserKRAController : Controller
     {
         private IUserKRAService _userKRAService;
+        private readonly ILogger<UserKRAController> _logger;
 
-        public UserKRAController(IUserKRAService userKRAService)
+        public UserKRAController(IUserKRAService userKRAService, ILogger<UserKRAController> logger)
         {
             _userKRAService = userKRAService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -30,12 +34,15 @@ namespace DF_EvolutionAPI.Controllers
         public async Task<IActionResult> GetAllUserKRAs()
         {
             try
-            {
+            {   // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var userKRAs = await _userKRAService.GetAllUserKRAList();
                 return Ok(userKRAs);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -51,6 +58,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var userKRA = await _userKRAService.GetUserKRAById(userKRAId);
 
                 if (userKRA == null) return NotFound();
@@ -59,6 +68,8 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -74,6 +85,8 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -84,11 +97,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var assignedKRAs = _userKRAService.GetAssignedKRAsByDesignation(designation);
                 return Ok(assignedKRAs);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -104,11 +121,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var assignedKRAs = _userKRAService.GetAssignedKRAsByDesignationId(designationId);
                 return Ok(assignedKRAs);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -125,12 +146,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 ResponseModel model = await _userKRAService.CreateUserKRA(userKRAModel);
 
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -146,6 +171,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 ResponseModel model = await _userKRAService.UpdateUserKra(request);
 
                 return Ok(model);
@@ -167,11 +194,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _userKRAService.DeleteUserKRA(userKRAId);
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -186,12 +217,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = _userKRAService.GetUserKraGraph(userId, quarterYearRange);
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+                var model = _userKRAService.GetUserKraGraph(userId, quarterYearRange); 
                 return Ok(model);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -228,10 +263,16 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 var model = await _userKRAService.GetReleasedKraUsers(quarterId, managerId);
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+                var model = await _userKRAService.AssignUnassignKra(userKraId,IsActive);
+
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
