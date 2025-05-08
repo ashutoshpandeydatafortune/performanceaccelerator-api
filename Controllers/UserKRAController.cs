@@ -218,7 +218,7 @@ namespace DF_EvolutionAPI.Controllers
             try
             {
                 // Log the API endpoint path being hit for request tracing and monitoring
-                //_logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = _userKRAService.GetUserKraGraph(userId, quarterYearRange); 
                 return Ok(model);
             }
@@ -242,9 +242,31 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                var model = await _userKRAService.AssignUnassignKra(userKraId, IsActive);
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get the list of Resources whoes kras are released.
+        /// </summary>
+        /// <param quarter="quarterId" manger="reportingTo"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetReleasedKraUsers(int quarterId, int managerId)
+        {
+            try
+            {
+                var model = await _userKRAService.GetReleasedKraUsers(quarterId, managerId);
                 // Log the API endpoint path being hit for request tracing and monitoring
                 _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _userKRAService.AssignUnassignKra(userKraId,IsActive);
+
                 return Ok(model);
             }
             catch (Exception ex)

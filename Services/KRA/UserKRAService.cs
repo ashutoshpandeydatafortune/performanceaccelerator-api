@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
-using System.Data.Entity;
+//using System.Data.Entity;
 using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
@@ -158,8 +158,9 @@ namespace DF_EvolutionAPI.Services
                 {
                     //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
                     var kralist = _dbcontext.UserKRA.Where(kra =>
-                     kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
-
+                     //kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
+                     kra.QuarterId == item.QuarterId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
+                    
                     if (kralist.Count == 0)
                     {
                         item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
@@ -725,5 +726,25 @@ namespace DF_EvolutionAPI.Services
 
             return model;
         }
+
+        /// Get the list of Resources whoes kras are released.
+        public async Task<List<UserKRA>> GetReleasedKraUsers(int quarterId, int managerId)
+        {
+            try
+            {
+                var userKRAList = await _dbcontext.UserKRA
+                    .Where(c => c.IsActive == (int)Status.IS_ACTIVE
+                                && c.QuarterId == quarterId
+                                && c.CreateBy == managerId)
+                    .ToListAsync();
+
+                return userKRAList;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
