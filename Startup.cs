@@ -192,7 +192,7 @@ namespace DF_EvolutionAPI
            
             app.UseCors("CorsPolicy");
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsStaging())
             {
                 app.UseDeveloperExceptionPage();
                     
