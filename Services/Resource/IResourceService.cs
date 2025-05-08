@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DF_PA_API.Models;
 using DF_EvolutionAPI.Models;
+using System.Data;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -17,6 +18,7 @@ namespace DF_EvolutionAPI.Services
         Task<List<FunctionsDesignations>> GetDesignatedRolesByFunctionId(int functionId);
         Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus);
         Task<ReportingToName> GetUserManagerName(int userId);
-
+        Task<List<ApprovalResources>> GetPendingKrasApprovalResources( int quarteId, int userId);
+        Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate);
     }
 }
