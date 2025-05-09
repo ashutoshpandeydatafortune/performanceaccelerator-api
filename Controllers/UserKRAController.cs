@@ -242,6 +242,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+               // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _userKRAService.AssignUnassignKra(userKraId, IsActive);
                 return Ok(model);
             }
@@ -262,10 +264,7 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
-                var model = await _userKRAService.GetReleasedKraUsers(quarterId, managerId);
-                // Log the API endpoint path being hit for request tracing and monitoring
-                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
-                var model = await _userKRAService.AssignUnassignKra(userKraId,IsActive);
+                var model = await _userKRAService.GetReleasedKraUsers(quarterId, managerId);               
 
                 return Ok(model);
             }
