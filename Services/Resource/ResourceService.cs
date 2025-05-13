@@ -566,11 +566,42 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
+        private async Task<QuarterDetails> GetCurrentQuarter()
+        {
+            var currentDate = DateTime.Now;
+            return await _dbcontext.QuarterDetails
+                .FirstOrDefaultAsync(q =>
+                    q.QuarterYear == currentDate.Year
+                    && q.IsActive == 1
+                    && q.IsDeleted == 0
+                    && (
+                        (q.QuarterName == "Jan-Mar" && currentDate.Month >= 1 && currentDate.Month <= 3) ||
+                        (q.QuarterName == "Apr-Jun" && currentDate.Month >= 4 && currentDate.Month <= 6) ||
+                        (q.QuarterName == "Jul-Sep" && currentDate.Month >= 7 && currentDate.Month <= 9) ||
+                        (q.QuarterName == "Oct-Dec" && currentDate.Month >= 10 && currentDate.Month <= 12)
+                    )
+                );
+        }
+
+
         // Gets the list of resources whose evaluation is pending by the manager.
         public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
         {
             try
             {
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
+
                 // Fetch raw matching data
                 var rawData = await (
                     from resource in _dbcontext.Resources
@@ -585,7 +616,8 @@ namespace DF_EvolutionAPI.Services
                         && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                         && userKras.FinalRating == null
                         && userKras.IsActive == (int)Status.IS_ACTIVE
-                        && (userKras.DeveloperRating != null || userKras.RejectedBy != null)                        
+                        && (userKras.DeveloperRating != null || userKras.RejectedBy != null)   
+                        && userKras.QuarterId == currentQuarter.Id
                     select new
                     {
                         resource.ResourceId,
@@ -630,6 +662,18 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
                 // Fetch raw matching data
                 var rawData = await (
                     from resource in _dbcontext.Resources
@@ -647,6 +691,7 @@ namespace DF_EvolutionAPI.Services
                           && (userKras.DeveloperRating != null)
                           && (userKras.RejectedBy == null)
                           && userKras.IsApproved == 1
+                          && userKras.QuarterId == currentQuarter.Id
                     select new
                     {
                         resource.ResourceId,
@@ -689,9 +734,23 @@ namespace DF_EvolutionAPI.Services
 
         // Gets the list of resources whose self-evaluation is pending.
         public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId)
-        {
+       {
             try
             {
+
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
+
                 // Fetch raw matching data
                 var rawData = await (
                     from resource in _dbcontext.Resources
@@ -701,13 +760,14 @@ namespace DF_EvolutionAPI.Services
                         on resource.ResourceId equals userKras.UserId
                     join quarters in _dbcontext.QuarterDetails
                         on userKras.QuarterId equals quarters.Id
-                    where resource.ReportingTo == userId
+                    where resource.ReportingTo == userId                     
                       && resource.IsActive == (int)Status.IS_ACTIVE
                       && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                       && userKras.FinalRating == null
                       && userKras.IsActive == (int)Status.IS_ACTIVE
                       && (userKras.DeveloperRating == null || userKras.RejectedBy == null)                      
                       && userKras.IsApproved == 0
+                      && userKras.QuarterId == currentQuarter.Id
                     select new
                     {
                         resource.ResourceId,
