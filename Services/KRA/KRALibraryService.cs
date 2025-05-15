@@ -6,28 +6,43 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models.Response;
 
 namespace DF_EvolutionAPI.Services.KRA
 {
     public class KRALibraryService : IKRALibraryService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<KRALibraryService> _logger;
 
-        public KRALibraryService(DFEvolutionDBContext dbContext)
+        public KRALibraryService(DFEvolutionDBContext dbContext, ILogger<KRALibraryService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<KRAList>> GetAllKRALibraryList(int? isNotSpecial)
         {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(KRAList), nameof(GetAllKRALibraryList));
+            _logger.LogInformation("Fetching KRA list. IsNotSpecial filter: {IsNotSpecial}", isNotSpecial);
+
+            try
+            { 
             //Checked isSpecial condition for displaying kras list.
             if (isNotSpecial == null || isNotSpecial == 0)
             {
-                //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
-                var query = from kraLibrary in _dbcontext.KRALibrary
+                    _logger.LogInformation("Fetching all KRA records including special ones.");
+
+                    //return await _dbcontext.KRALibrary.Where(x => x.IsActive == 1).ToListAsync();
+                    var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId into kraTechGroup
                             from techFunc in kraTechGroup.DefaultIfEmpty()
+                            join businessUnit in _dbcontext.BusinessUnits
+                            on kraLibrary.BusinessUnitId equals businessUnit.BusinessUnitId into businessUnitGroup
+                            from bu in businessUnitGroup.DefaultIfEmpty()
                             where kraLibrary.IsActive == (int)Status.IS_ACTIVE && (kraLibrary.FunctionId == null || techFunc.FunctionId != null)
                             select new KRAList
                             {
@@ -40,7 +55,9 @@ namespace DF_EvolutionAPI.Services.KRA
                                 MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                                 FunctionName = techFunc != null ? techFunc.FunctionName : null,
                                 FunctionId = kraLibrary.FunctionId?? null,
-                                IsSpecial = kraLibrary.IsSpecial,                                
+                                IsSpecial = kraLibrary.IsSpecial,  
+                                BusinessUnitId = kraLibrary.BusinessUnitId?? null,
+                                BusinessUnitName = bu != null ? bu.BusinessUnitName : null,
                             };
 
                 return await query.OrderBy(kra => kra.Name).ToListAsync();
@@ -51,6 +68,8 @@ namespace DF_EvolutionAPI.Services.KRA
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
+                            join businessUnit in _dbcontext.BusinessUnits
+                            on kraLibrary.BusinessUnitId equals businessUnit.BusinessUnitId
                             where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.IsSpecial != 1
                             select new KRAList
                             {
@@ -64,9 +83,19 @@ namespace DF_EvolutionAPI.Services.KRA
                                 FunctionId = kraLibrary.FunctionId?? null,
                                 FunctionName = function.FunctionName != null ? function.FunctionName: null,
                                 IsSpecial = kraLibrary.IsSpecial,
+                                BusinessUnitId = kraLibrary.BusinessUnitId,
+                                BusinessUnitName = businessUnit != null ? businessUnit.BusinessUnitName : null,
                             };
 
-                return await query.OrderBy(kra => kra.Name).ToListAsync();
+                    var result = await query.OrderBy(kra => kra.Name).ToListAsync();
+                    _logger.LogInformation("Retrieved {Count} KRA records (excluding special).", result.Count);
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
             }
 
         }
@@ -94,13 +123,13 @@ namespace DF_EvolutionAPI.Services.KRA
             try
             {
                 // Check if a KRA with the same Name and FunctionId already exists for Update (excluding the current KRA being updated)
-                var existingKRAUpdate = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name && k.FunctionId == kraLibraryModel.FunctionId && k.Id != kraLibraryModel.Id && k.IsActive == (int)Status.IS_ACTIVE);
-                // Check if a KRA with the same Name and FunctionId already exists for Create
+                var existingKRAUpdate = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name && k.FunctionId == kraLibraryModel.FunctionId && k.BusinessUnitId == kraLibraryModel.BusinessUnitId && k.Id != kraLibraryModel.Id && k.IsActive == (int)Status.IS_ACTIVE);
+                // Check if a KRA with the same Name, FunctionId and BusinessunitId already exists for Create
                 var existingKRA = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name
-                && k.FunctionId == kraLibraryModel.FunctionId && k.IsActive == (int)Status.IS_ACTIVE && k.IsSpecial != 1);
+                && k.FunctionId == kraLibraryModel.FunctionId && k.BusinessUnitId == kraLibraryModel.BusinessUnitId && k.IsActive == (int)Status.IS_ACTIVE && k.IsSpecial != 1);
                 // Check if a  Special KRA with the same Name already exists for Create
                 var IsSpecialKra = _dbcontext.KRALibrary.FirstOrDefault(k => k.Name == kraLibraryModel.Name
-                && k.FunctionId == kraLibraryModel.FunctionId && k.IsActive == (int)Status.IS_ACTIVE && k.IsSpecial == 1);
+                && k.FunctionId == kraLibraryModel.FunctionId && k.BusinessUnitId == kraLibraryModel.BusinessUnitId && k.IsActive == (int)Status.IS_ACTIVE && k.IsSpecial == 1);
 
                 KRALibrary kraLibrary = await GetKRALibraryById(kraLibraryModel.Id);
                 if (kraLibrary != null)
@@ -131,6 +160,7 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibrary.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
                     kraLibrary.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
                     kraLibrary.FunctionId = kraLibraryModel.FunctionId;
+                    kraLibrary.BusinessUnitId = kraLibraryModel.BusinessUnitId;
 
                     _dbcontext.Update<KRALibrary>(kraLibrary);
 
@@ -170,8 +200,7 @@ namespace DF_EvolutionAPI.Services.KRA
                     kraLibraryModel.IsDescriptionRequired = kraLibraryModel.IsDescriptionRequired;
                     kraLibraryModel.MinimumRatingForDescription = kraLibraryModel.MinimumRatingForDescription;
                     kraLibraryModel.FunctionId = kraLibraryModel.FunctionId;
-
-
+                    kraLibraryModel.BusinessUnitId = kraLibraryModel.BusinessUnitId;
 
                     _dbcontext.Add(kraLibraryModel);
 
@@ -185,7 +214,7 @@ namespace DF_EvolutionAPI.Services.KRA
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -252,7 +281,7 @@ namespace DF_EvolutionAPI.Services.KRA
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return kraweightage;
@@ -307,7 +336,7 @@ namespace DF_EvolutionAPI.Services.KRA
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return kraDetails;
@@ -335,6 +364,30 @@ namespace DF_EvolutionAPI.Services.KRA
                             };
 
                 return await query.ToListAsync();
+        }
+
+        // Get the all kras businessUnitWise.
+        public async Task<List<KRAList>> GetAllKRAsByBusinessUnit(int businessUnitId)
+        {
+            var query = from kraLibrary in _dbcontext.KRALibrary
+                        join function in _dbcontext.TechFunctions
+                        on kraLibrary.FunctionId equals function.FunctionId
+                        where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.BusinessUnitId == businessUnitId
+                        orderby kraLibrary.Name // OrderBy KraName ascending.
+                        select new KRAList
+                        {
+                            Id = kraLibrary.Id,
+                            Name = kraLibrary.Name,
+                            DisplayName = kraLibrary.DisplayName,
+                            Description = kraLibrary.Description,
+                            Weightage = kraLibrary.Weightage,
+                            IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                            MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                            FunctionId = kraLibrary.FunctionId ?? null,
+                            FunctionName = function.FunctionName ?? null
+                        };
+
+            return await query.ToListAsync();
         }
 
         // Gets the KRAs assigned to resources based on KRA ID and Function ID.

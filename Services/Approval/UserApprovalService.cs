@@ -3,19 +3,24 @@ using System.Linq;
 using DF_PA_API.Models;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_PA_API.Services;
 
 namespace DF_EvolutionAPI.Services
 {
     public class UserApprovalService : IUserApprovalService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<UserApprovalService> _logger;
 
-        public UserApprovalService(DFEvolutionDBContext dbContext)
+        public UserApprovalService(DFEvolutionDBContext dbContext, ILogger<UserApprovalService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<UserApproval>> GetAllApprovalList()
@@ -31,8 +36,9 @@ namespace DF_EvolutionAPI.Services
             {
                 userApproval = await _dbcontext.FindAsync<UserApproval>(userApprovalId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         
@@ -84,7 +90,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -116,7 +122,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

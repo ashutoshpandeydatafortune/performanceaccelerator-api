@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Services
 
@@ -13,9 +15,11 @@ namespace DF_EvolutionAPI.Services
     public class SkillService : ISkillService
     {
         private readonly DFEvolutionDBContext _dbContext;
-        public SkillService(DFEvolutionDBContext dbContext)
+        private readonly ILogger<SkillService> _logger;
+        public SkillService(DFEvolutionDBContext dbContext, ILogger<SkillService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<ResponseModel> CreateSkill(Skill skillModel)
@@ -50,7 +54,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error :" + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
@@ -97,8 +101,9 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                model.Messsage = "Error" + ex.Message;
                 model.IsSuccess = false;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
             }
             return model;
         }
@@ -151,9 +156,9 @@ namespace DF_EvolutionAPI.Services
                         Name = sub.Name,
                         Description = sub.Description,
                     }).ToList()
-                }
-            ).FirstOrDefaultAsync();
-            return result;
+                }).FirstOrDefaultAsync();
+
+                return result;
         }
 
 
@@ -161,35 +166,34 @@ namespace DF_EvolutionAPI.Services
         public async Task<List<CategoryDetails>> GetSkillByCategoryId(int id)
         {
             var categoryWiseSkills = await (
-     from category in _dbContext.Categories
-     join skill in _dbContext.Skills on category.CategoryId equals skill.CategoryId
-     where skill.IsActive == (int)Status.IS_ACTIVE && category.CategoryId == id
-     orderby category.CategoryName, skill.SkillId
-     group skill by new
-     {
-         category.CategoryId,
-         category.CategoryName
-     } into categoryGroup
-     select new CategoryDetails
-     {
-         CategoryId = categoryGroup.Key.CategoryId,
-         CategoryName = categoryGroup.Key.CategoryName,
-         Skills = categoryGroup.Select(skill => new Skill
-         {
-             SkillId = skill.SkillId,
-             Name = skill.Name,
-             Description = skill.Description,
-             IsActive = skill.IsActive,
-             CreateBy = skill.CreateBy,
-             UpdateBy = skill.UpdateBy,
-             CreateDate = skill.CreateDate,
-             UpdateDate = skill.UpdateDate,
-             CategoryId = skill.CategoryId,
-             CategoryName = categoryGroup.Key.CategoryName,
-             SubSkills = skill.SubSkills.Where(sub => sub.IsActive == (int)Status.IS_ACTIVE).ToList()
-         }).ToList()
-     }
- ).ToListAsync();
+             from category in _dbContext.Categories
+             join skill in _dbContext.Skills on category.CategoryId equals skill.CategoryId
+             where skill.IsActive == (int)Status.IS_ACTIVE && category.CategoryId == id
+             orderby category.CategoryName, skill.SkillId
+             group skill by new
+             {
+                 category.CategoryId,
+                 category.CategoryName
+             } into categoryGroup
+             select new CategoryDetails
+             {
+                 CategoryId = categoryGroup.Key.CategoryId,
+                 CategoryName = categoryGroup.Key.CategoryName,
+                 Skills = categoryGroup.Select(skill => new Skill
+                 {
+                     SkillId = skill.SkillId,
+                     Name = skill.Name,
+                     Description = skill.Description,
+                     IsActive = skill.IsActive,
+                     CreateBy = skill.CreateBy,
+                     UpdateBy = skill.UpdateBy,
+                     CreateDate = skill.CreateDate,
+                     UpdateDate = skill.UpdateDate,
+                     CategoryId = skill.CategoryId,
+                     CategoryName = categoryGroup.Key.CategoryName,
+                     SubSkills = skill.SubSkills.Where(sub => sub.IsActive == (int)Status.IS_ACTIVE).ToList()
+                 }).ToList()
+             }).ToListAsync();
 
             return categoryWiseSkills;
 
@@ -227,7 +231,7 @@ namespace DF_EvolutionAPI.Services
             return model;
         }
 
-       
+
         public async Task<List<Resource>> SearchBySkills(SearchSkill skillModel)
         {
             var query = _dbContext.Resources.AsQueryable();
@@ -235,13 +239,13 @@ namespace DF_EvolutionAPI.Services
             if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
                 // Join with ResourceSkills, Skills, and SubSkills to filter by SearchKey
-               query = from r in _dbContext.Resources
-                join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
-                join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
-                join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
-                where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
-                group r by r.ResourceId into groupedResources
-                select groupedResources.FirstOrDefault();
+                query = from r in _dbContext.Resources
+                        join rs in _dbContext.ResourceSkills on r.ResourceId equals rs.ResourceId
+                        join skill in _dbContext.Skills on rs.SkillId equals skill.SkillId
+                        join subskill in _dbContext.SubSkills on rs.SubSkillId equals subskill.SubSkillId
+                        where skill.Name.Contains(skillModel.SearchKey) || subskill.Name.Contains(skillModel.SearchKey)
+                        group r by r.ResourceId into groupedResources
+                        select groupedResources.FirstOrDefault();
 
             }
             else
@@ -255,9 +259,8 @@ namespace DF_EvolutionAPI.Services
                 {
                     query = query.Where(resource =>
                     resource.ResourceSkills.Any(resourceSkill =>
-                      skillModel.SubSkillIds.Contains(resourceSkill.SubSkillId.Value) // Check if the SubSkillId matches
-    )
-);
+                    skillModel.SubSkillIds.Contains(resourceSkill.SubSkillId.Value))); // Check if the SubSkillId matches
+
                 }
             }
 

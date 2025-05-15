@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Text;
 using System.Linq;
 using DF_PA_API.Models;
-using System.Data.Entity;
+//using System.Data.Entity;
 using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
@@ -13,8 +12,7 @@ using DF_EvolutionAPI.Services.KRA;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Services.Email;
 using DF_EvolutionAPI.Models.Response;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.Resources;
+using Microsoft.Extensions.Logging;
 
 
 namespace DF_EvolutionAPI.Services
@@ -25,13 +23,15 @@ namespace DF_EvolutionAPI.Services
         private readonly IEmailService _emailService;
         private readonly DFEvolutionDBContext _dbcontext;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ILogger<UserKRAService> _logger;
 
-        public UserKRAService(DFEvolutionDBContext dbContext, IWebHostEnvironment hostingEnvironment, IEmailService emailService, FileUtil fileUtil)
+        public UserKRAService(DFEvolutionDBContext dbContext, IWebHostEnvironment hostingEnvironment, IEmailService emailService, FileUtil fileUtil, ILogger<UserKRAService> logger)
         {
             _fileUtil = fileUtil;
             _dbcontext = dbContext;
             _emailService = emailService;
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
 
         public async Task<List<UserKRA>> GetAllUserKRAList()
@@ -46,8 +46,9 @@ namespace DF_EvolutionAPI.Services
             {
                 userKRA = await _dbcontext.UserKRA.Where(c => c.IsActive == (int)Status.IS_ACTIVE && c.Id == userKRAId).FirstOrDefaultAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -73,9 +74,10 @@ namespace DF_EvolutionAPI.Services
 
                 return query.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw; ;
             }
         }
 
@@ -100,8 +102,9 @@ namespace DF_EvolutionAPI.Services
 
                 return query.ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -155,8 +158,9 @@ namespace DF_EvolutionAPI.Services
                 {
                     //To restrict the duplicate entries of kras for particular quarter and user. 'var kralist'
                     var kralist = _dbcontext.UserKRA.Where(kra =>
-                     kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
-
+                     //kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
+                     kra.QuarterId == item.QuarterId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
+                    
                     if (kralist.Count == 0)
                     {
                         item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
@@ -179,8 +183,9 @@ namespace DF_EvolutionAPI.Services
 
                 await _dbcontext.SaveChangesAsync();
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -200,8 +205,9 @@ namespace DF_EvolutionAPI.Services
 
                 return notificationMap;
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -422,7 +428,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                // Log the exception properly (you can add logging here)
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));                
                 throw;
             }
         }
@@ -531,8 +537,9 @@ namespace DF_EvolutionAPI.Services
 
                 return notificationMap;
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -564,7 +571,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -630,8 +637,8 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-
-                throw new Exception("Error fetching KRAs by UserId", ex);
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
             }
 
             return userKRADetails;
@@ -672,9 +679,10 @@ namespace DF_EvolutionAPI.Services
 
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return new List<UserKRARatingList>();
             }
         }
 
@@ -713,10 +721,30 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
         }
+
+        /// Get the list of Resources whoes kras are released.
+        public async Task<List<UserKRA>> GetReleasedKraUsers(int quarterId, int managerId)
+        {
+            try
+            {
+                var userKRAList = await _dbcontext.UserKRA
+                    .Where(c => c.IsActive == (int)Status.IS_ACTIVE
+                                && c.QuarterId == quarterId
+                                && c.CreateBy == managerId)
+                    .ToListAsync();
+
+                return userKRAList;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
