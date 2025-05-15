@@ -566,7 +566,7 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
-        private async Task<QuarterDetails> GetCurrentQuarter()
+        public async Task<QuarterDetails> GetCurrentQuarter()
         {
             var currentDate = DateTime.Now;
             return await _dbcontext.QuarterDetails
@@ -765,7 +765,8 @@ namespace DF_EvolutionAPI.Services
                       && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                       && userKras.FinalRating == null
                       && userKras.IsActive == (int)Status.IS_ACTIVE
-                      && (userKras.DeveloperRating == null || userKras.RejectedBy == null)                      
+                      && (userKras.DeveloperRating == null)
+                      && (userKras.RejectedBy == null)
                       && userKras.IsApproved == 0
                       && userKras.QuarterId == currentQuarter.Id
                     select new

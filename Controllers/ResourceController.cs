@@ -244,8 +244,26 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message );
-            }                        
+                return BadRequest(ex.Message);
+            }
+        }
+        ///<summary>
+        /// Gets the Current  quarter.
+        /// </summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCurrentQuarter()
+        {
+            try
+            {
+                var resourceList = await _resourceService.GetCurrentQuarter();
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

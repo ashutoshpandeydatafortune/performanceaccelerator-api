@@ -20,6 +20,7 @@ namespace DF_EvolutionAPI.Services
         Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId);
         Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId);
         Task<ResourceEvaluationResponse> GetPendingSelfEvaluations(int? userId);
+        Task<QuarterDetails> GetCurrentQuarter();
 
     }
 }
