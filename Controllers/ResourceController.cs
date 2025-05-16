@@ -1,10 +1,12 @@
 ﻿using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Services;
 using DF_PA_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -13,10 +15,12 @@ namespace DF_EvolutionAPI.Controllers
     public class ResourceController : ControllerBase
     {
         private IResourceService _resourceService;
+        private readonly ILogger<ResourceController> _logger;
 
-        public ResourceController(IResourceService resourceService)
+        public ResourceController(IResourceService resourceService, ILogger<ResourceController> logger)
         {
             _resourceService = resourceService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -29,11 +33,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var resources = await _resourceService.GetAllResources();
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -48,11 +56,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 List<Resource> resources = await _resourceService.GetAllResourceDetailsByResourceId(resourceId);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -67,11 +79,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 string data = await _resourceService.GetChildResources(userName);
                 return Ok(data);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -86,11 +102,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var resources = await _resourceService.GetProfileDetails(resourceId);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -105,11 +125,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 string data = await _resourceService.GetMyTeamDetails(userId);
                 return Ok(data);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -124,11 +148,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var resources = await _resourceService.GetDesignationsByFunctionId(functionId);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -143,11 +171,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var resources = await _resourceService.GetDesignatedRolesByFunctionId(functionId);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -163,11 +195,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var resources = await _resourceService.GetResourcesKrasStatus(searchKraStatus);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -182,13 +218,117 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var resources = await _resourceService.GetUserManagerName(userId);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
+
+        ///<Summary>
+        /// // Gets the list of resources whose evaluation is pending by the manager.
+        /// </Summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingResourceEvaluations(int? userId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetPendingResourceEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        ///<summary>
+        /// // Gets the list of resources whose evaluations are completed.
+        ///</summary>
+        ///<return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCompletedResourceEvaluations(int? userId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetCompletedResourceEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        ///<summary>
+        /// Gets the list of resources whose self-evaluation is pending.
+        /// </summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingSelfEvaluations(int? userId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetPendingSelfEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+        ///<summary>
+        /// Gets the Current  quarter.
+        /// </summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCurrentQuarter()
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetCurrentQuarter();
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

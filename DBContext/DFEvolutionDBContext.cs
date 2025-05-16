@@ -553,8 +553,6 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.RejectedComment).HasColumnName("RejectedComment");
                 e.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
 
-
-
             });
 
             modelBuilder.Entity<Category>(e =>

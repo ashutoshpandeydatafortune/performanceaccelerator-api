@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Utils;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-//using System.Reflection.Metadata;
-using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Logging;
+
 
 namespace DF_EvolutionAPI.Services
 {
     public class BusinessUnitService : IBusinessUnitService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<BusinessUnitService> _logger;
 
-        public BusinessUnitService(DFEvolutionDBContext dbContext)
+        public BusinessUnitService(DFEvolutionDBContext dbContext, ILogger<BusinessUnitService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<BusinessUnit>> GetAllBusinessUnits()
@@ -56,7 +60,6 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-
         public async Task<List<BusinessUnit>> GetAllClientsBusinessUnits(int? businessUnitId)
         {
             var businessUnits = new List<BusinessUnit>();
@@ -78,8 +81,9 @@ namespace DF_EvolutionAPI.Services
                         ClientsList = clients
                     }).ToListAsync();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -94,8 +98,9 @@ namespace DF_EvolutionAPI.Services
             {
                 clients = await _dbcontext.Clients.Where(x => (x.IsActive == (int)Status.IS_ACTIVE) && (x.BusinessUnitId == businessUnitId)).ToListAsync();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
