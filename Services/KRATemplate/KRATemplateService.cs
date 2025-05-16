@@ -10,6 +10,7 @@ using DF_EvolutionAPI.ViewModels;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
+using Sprache;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -26,18 +27,18 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         //For inserting the templates of KRA's
         public async Task<ResponseModel> CreateKraTemplate(PATemplate paTemplates)
         {
-            
+
             ResponseModel model = new ResponseModel();
 
             try
             {
-              
+
                 var existingTemplate = _dbContext.PATemplates.FirstOrDefault(template => template.Name == paTemplates.Name && template.IsActive == (int)Status.IS_ACTIVE);
 
                 if (existingTemplate == null)
                 {
                     _logger.LogInformation("{Class}.{Method} - No existing template found. Creating new template.", nameof(ResponseModel), nameof(CreateKraTemplate));
-                   
+
                     paTemplates.IsActive = (int)Status.IS_ACTIVE;
                     paTemplates.CreateDate = DateTime.Now;
 
@@ -46,12 +47,12 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
                     await _dbContext.SaveChangesAsync();
                     model.IsSuccess = true;
-                  
+
                 }
                 else
                 {
                     model.Messsage = "Template already exist.";
-                    model.IsSuccess = false;                   
+                    model.IsSuccess = false;
                 }
             }
             catch (Exception ex)
@@ -130,7 +131,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public async Task<PATemplate> GetKraTemplateByIdDetails(int templateId)
         {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(PATemplate), nameof(GetKraTemplateByIdDetails));
-          
+
             try
             {
                 _logger.LogInformation("Entering method for template ID: {TemplateId}", templateId);
@@ -181,7 +182,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         private async Task<KRALibrary> GetKraLibrary(int id)
         {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(KRALibrary), nameof(GetKraLibrary));
-           
+
             try
             {
                 _logger.LogInformation("Fetching KRA Library with ID: {KraId}", id);
@@ -271,29 +272,70 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         }
 
         //Retrieves all templates
+        //public async Task<List<PATemplate>> GetAllTemplates()
+        //{
+        //    _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(PATemplate), nameof(GetAllTemplates));
+        //    try
+        //    {
+        //        var query = from template in _dbContext.PATemplates
+        //                    join businessUnit in _dbContext.BusinessUnits
+        //                    on template.BusinessUnitId equals businessUnit.BusinessUnitId
+        //                    where template.IsActive == (int)Status.IS_ACTIVE && template.BusinessUnitId == businessUnitId
+        //                    select new TemplateByBusinessUnit
+        //                    {
+        //                        TemplateId = template.TemplateId,
+        //                        Name = template.Name,
+        //                        IsActive = template.IsActive,
+        //                        CreateBy = template.CreateBy,
+        //                        UpdateBy = template.UpdateBy,
+        //                        CreateDate = template.CreateDate,
+        //                        UpdateDate = template.UpdateDate,
+        //                        BusinessUnitId = template.BusinessUnitId,
+        //                        BusinessUnitName = businessUnit.BusinessUnitName,
+
+        //                    };
+
+
+        //        var result = await query.OrderBy(templateName => templateName.Name).ToListAsync();
+        //        _logger.LogInformation("Retrieved {Count} active templates.", result.Count);
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+        //        throw;
+
+        //    }
+
+        //}
+
         public async Task<List<PATemplate>> GetAllTemplates()
         {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(PATemplate), nameof(GetAllTemplates));
             try
             {
+                //return await _dbContext.PATemplates.Where(c => c.IsActive == 1).ToListAsync();
                 var query = from template in _dbContext.PATemplates
+                            join function in _dbContext.TechFunctions
+                            on template.FunctionId equals function.FunctionId
                             join businessUnit in _dbContext.BusinessUnits
                             on template.BusinessUnitId equals businessUnit.BusinessUnitId
-                            where template.IsActive == (int)Status.IS_ACTIVE && template.BusinessUnitId == businessUnitId
-                            select new TemplateByBusinessUnit
+                            where template.IsActive == (int)Status.IS_ACTIVE
+                            select new PATemplate
                             {
                                 TemplateId = template.TemplateId,
                                 Name = template.Name,
+                                Description = template.Description,
                                 IsActive = template.IsActive,
                                 CreateBy = template.CreateBy,
                                 UpdateBy = template.UpdateBy,
                                 CreateDate = template.CreateDate,
                                 UpdateDate = template.UpdateDate,
+                                FunctionId = template.FunctionId,
+                                FunctionName = function.FunctionName,
                                 BusinessUnitId = template.BusinessUnitId,
                                 BusinessUnitName = businessUnit.BusinessUnitName,
-
                             };
-
 
                 var result = await query.OrderBy(templateName => templateName.Name).ToListAsync();
                 _logger.LogInformation("Retrieved {Count} active templates.", result.Count);
@@ -305,8 +347,60 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                 throw;
 
             }
+        }
+
+        //Retrieves all active templates associated with the specified function ID.
+        public async Task<List<TemplateByFunction>> GetAllTemplatesByFunctionId(int functionId)
+        {
+            var query = from template in _dbContext.PATemplates
+                        join function in _dbContext.TechFunctions
+                        on template.FunctionId equals function.FunctionId
+                        where template.IsActive == (int)Status.IS_ACTIVE && template.FunctionId == functionId
+                        select new TemplateByFunction
+                        {
+                            TemplateId = template.TemplateId,
+                            Name = template.Name,
+                            IsActive = template.IsActive,
+                            CreateBy = template.CreateBy,
+                            UpdateBy = template.UpdateBy,
+                            CreateDate = template.CreateDate,
+                            UpdateDate = template.UpdateDate,
+                            FunctionId = template.FunctionId,
+                            FunctionName = function.FunctionName,
+
+                        };
+
+            return await query.OrderBy(templateName => templateName.Name).ToListAsync();
 
         }
+
+        //Retrieves all active templates associated with the specified businessUnit ID.
+        public async Task<List<TemplateByBusinessUnit>> GetAllTemplatesByBusinessUnitId(int businessUnitId)
+        {
+            var query = from template in _dbContext.PATemplates
+                        join businessUnit in _dbContext.BusinessUnits
+                        on template.BusinessUnitId equals businessUnit.BusinessUnitId
+                        where template.IsActive == (int)Status.IS_ACTIVE && template.BusinessUnitId == businessUnitId
+                        select new TemplateByBusinessUnit
+                        {
+                            TemplateId = template.TemplateId,
+                            Name = template.Name,
+                            IsActive = template.IsActive,
+                            CreateBy = template.CreateBy,
+                            UpdateBy = template.UpdateBy,
+                            CreateDate = template.CreateDate,
+                            UpdateDate = template.UpdateDate,
+                            BusinessUnitId = template.BusinessUnitId,
+                            BusinessUnitName = businessUnit.BusinessUnitName,
+
+                        };
+
+            return await query.OrderBy(templateName => templateName.Name).ToListAsync();
+
+        }
+
+
+
 
 
 
@@ -319,7 +413,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             ResponseModel model = new ResponseModel();
             try
             {
-               
+
                 var deleteTemplate = _dbContext.PATemplates.Find(id);
                 if (deleteTemplate != null)
                 {
@@ -359,7 +453,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             try
             {
-                
+
                 var existingRecords = _dbContext.PA_TemplateDesignations.Where(template => template.TemplateId == paTemplateDesignation.TemplateId).ToList();
 
                 // Set IsActive to 0 for all existing record to mark them as inactive
@@ -368,7 +462,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     existingRecord.IsActive = (int)Status.IN_ACTIVE;
                     existingRecord.UpdateBy = paTemplateDesignation.CreateBy;
                     existingRecord.UpdateDate = DateTime.Now;
-                    _dbContext.PA_TemplateDesignations.Update(existingRecord);                   
+                    _dbContext.PA_TemplateDesignations.Update(existingRecord);
                 }
 
                 //Inserting the new reccord.
@@ -420,7 +514,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             ResponseModel model = new ResponseModel();
             try
             {
-               
+
                 var existingRecords = _dbContext.PA_TemplateKras.Where(template => template.TemplateId == paTemplateKras.TemplateId).ToList();
 
                 _logger.LogInformation("Found {Count} existing records for TemplateId: {TemplateId}", existingRecords.Count, paTemplateKras.TemplateId);
