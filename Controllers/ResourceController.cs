@@ -230,5 +230,105 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        ///<Summary>
+        /// // Gets the list of resources whose evaluation is pending by the manager.
+        /// </Summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingResourceEvaluations(int? userId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetPendingResourceEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        ///<summary>
+        /// // Gets the list of resources whose evaluations are completed.
+        ///</summary>
+        ///<return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCompletedResourceEvaluations(int? userId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetCompletedResourceEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        ///<summary>
+        /// Gets the list of resources whose self-evaluation is pending.
+        /// </summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingSelfEvaluations(int? userId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetPendingSelfEvaluations(userId);
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+        ///<summary>
+        /// Gets the Current  quarter.
+        /// </summary>
+        /// <return></return>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetCurrentQuarter()
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resourceList = await _resourceService.GetCurrentQuarter();
+                return Ok(resourceList);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
