@@ -1,25 +1,63 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
+using DF_EvolutionAPI.Utils;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
 
 namespace DF_EvolutionAPI.Services
 {
     public class BusinessUnitService : IBusinessUnitService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<BusinessUnitService> _logger;
 
-        public BusinessUnitService(DFEvolutionDBContext dbContext)
+        public BusinessUnitService(DFEvolutionDBContext dbContext, ILogger<BusinessUnitService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<BusinessUnit>> GetAllBusinessUnits()
         {
-            return await _dbcontext.BusinessUnits.ToListAsync();
+            return await _dbcontext.BusinessUnits.Where(businessunit => businessunit.IsActive == (int)Status.IS_ACTIVE && businessunit.ReferenceId == Constant.RESOURCE_BUSINESS_UNIT_ID)
+                .OrderBy(b=>b.BusinessUnitName)
+                .ToListAsync();
+        }
+
+
+        //Fetch all the businessUnit by function id
+        public async Task<List<BusinesssUnits>> GetAllBusinessUnitsById(int? functionId)
+        {
+            try
+            {
+                var businessUnit = await (
+                    from b in _dbcontext.BusinessUnits
+                    join k in _dbcontext.TechFunctions on b.TechFunctionId equals k.FunctionId
+                    where b.IsActive == (int)Status.IS_ACTIVE
+                       && k.IsActive == (int)Status.IS_ACTIVE
+                       && b.TechFunctionId == functionId && b.ReferenceId == Constant.RESOURCE_BUSINESS_UNIT_ID
+                    select new BusinesssUnits
+                    {
+                        BusinessUnitId = b.BusinessUnitId,
+                        BusinessUnitName = b.BusinessUnitName,                       
+                        IsActive = b.IsActive,
+                        TechFunctionId = b.TechFunctionId,
+                        FunctionName = k.FunctionName
+                    }
+                ).ToListAsync();
+
+                return businessUnit;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<List<BusinessUnit>> GetAllClientsBusinessUnits(int? businessUnitId)
@@ -43,8 +81,9 @@ namespace DF_EvolutionAPI.Services
                         ClientsList = clients
                     }).ToListAsync();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -59,8 +98,9 @@ namespace DF_EvolutionAPI.Services
             {
                 clients = await _dbcontext.Clients.Where(x => (x.IsActive == (int)Status.IS_ACTIVE) && (x.BusinessUnitId == businessUnitId)).ToListAsync();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 

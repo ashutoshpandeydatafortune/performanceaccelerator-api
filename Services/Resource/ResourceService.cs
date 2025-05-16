@@ -10,16 +10,20 @@ using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Utils;
 using System.Globalization;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Services
 {
     public class ResourceService : IResourceService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<ResourceService> _logger;
 
-        public ResourceService(DFEvolutionDBContext dbContext)
+
+        public ResourceService(DFEvolutionDBContext dbContext, ILogger<ResourceService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<Resource>> GetAllResources()
@@ -50,8 +54,9 @@ namespace DF_EvolutionAPI.Services
                     }
                 ).FirstOrDefaultAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -115,8 +120,9 @@ namespace DF_EvolutionAPI.Services
                 // var Reportingto = from resources in _dbcontext.Resources
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -253,8 +259,9 @@ namespace DF_EvolutionAPI.Services
 
                 return resources;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -378,8 +385,9 @@ namespace DF_EvolutionAPI.Services
 
                 return resultList;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -426,8 +434,9 @@ namespace DF_EvolutionAPI.Services
 
                 return resultList;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -479,75 +488,85 @@ namespace DF_EvolutionAPI.Services
         // Retrieves a list of resources with KRA status for each quarter   
         public async Task<List<ResourceKrasSatus>> GetResourcesKrasStatus(SearchKraStatus searchKraStatus)
         {
-            var result = await (
-                from k in _dbcontext.KRALibrary
-                join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
-                join r in _dbcontext.Resources on uk.UserId equals r.ResourceId where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
-                join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id where qd.IsActive == (int)Status.IS_ACTIVE && uk.IsActive == (int)Status.IS_ACTIVE
-                join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
-                // Join to get the ReportingTo (Manager) name
-                join reportingToResource in _dbcontext.Resources on r.ReportingTo equals reportingToResource.ResourceId into rpt
-                from manager in rpt.DefaultIfEmpty() // Left join, if no manager, it will be null
-                                                     // Join to get the ReportingTo name of the Manager (second level)
-                join managerReportingTo in _dbcontext.Resources on manager.ReportingTo equals managerReportingTo.ResourceId into managerRpt
-                from manager2 in managerRpt.DefaultIfEmpty() // Left join, if no second level manager, it will be null
-                where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
-                      && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
-                      && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
-                      && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
-                select new
-                {
-                    r.ResourceId,
-                    r.ResourceName,
-                    des.DesignatedRoleName,
-                    Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
-                    qd.QuarterName,
-                    k.Name,
-                    uk.DeveloperRating,
-                    uk.ManagerRating,
-                    uk.FinalRating,
-                    uk.RejectedBy,
-                    uk.FinalComment,
-                    uk.IsApproved,
-                    ReportingToName = manager.ResourceName, // Manager's name
-                    ManagerReportingToName = manager2.ResourceName // Manager's manager name
-                })
-                .ToListAsync();
+            try
+            {
+                var result = await (
+                    from k in _dbcontext.KRALibrary
+                    join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
+                    join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
+                    where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
+                    where qd.IsActive == (int)Status.IS_ACTIVE && uk.IsActive == (int)Status.IS_ACTIVE
+                    join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
+                    // Join to get the ReportingTo (Manager) name
+                    join reportingToResource in _dbcontext.Resources on r.ReportingTo equals reportingToResource.ResourceId into rpt
+                    from manager in rpt.DefaultIfEmpty() // Left join, if no manager, it will be null
+                                                         // Join to get the ReportingTo name of the Manager (second level)
+                    join managerReportingTo in _dbcontext.Resources on manager.ReportingTo equals managerReportingTo.ResourceId into managerRpt
+                    from manager2 in managerRpt.DefaultIfEmpty() // Left join, if no second level manager, it will be null
+                    where (searchKraStatus.FunctionId == 0 || r.FunctionId == searchKraStatus.FunctionId)
+                          && (searchKraStatus.DesignatedRoleId == 0 || r.DesignatedRoleId == searchKraStatus.DesignatedRoleId)
+                          && (searchKraStatus.FromDate == null || uk.CreateDate.Date >= searchKraStatus.FromDate)
+                          && (searchKraStatus.ToDate == null || uk.CreateDate.Date <= searchKraStatus.ToDate)
+                    select new
+                    {
+                        r.ResourceId,
+                        r.ResourceName,
+                        des.DesignatedRoleName,
+                        Quarter = $"{qd.QuarterName} {qd.QuarterYear}",
+                        qd.QuarterName,
+                        k.Name,
+                        uk.DeveloperRating,
+                        uk.ManagerRating,
+                        uk.FinalRating,
+                        uk.RejectedBy,
+                        uk.FinalComment,
+                        uk.IsApproved,
+                        ReportingToName = manager.ResourceName, // Manager's name
+                        ManagerReportingToName = manager2.ResourceName // Manager's manager name
+                    })
+                    .ToListAsync();
 
-            var flattenedResult = result
-                .GroupBy(x => new
-                {
-                    x.ResourceId,
-                    x.ResourceName,
-                    x.DesignatedRoleName
-                })
-                .Select(g => new ResourceKrasSatus
-                {
-                    ResourceId = g.Key.ResourceId,
-                    ResourceName = g.Key.ResourceName,
-                    DesignatedRole = g.Key.DesignatedRoleName,
-                    Completed = g.GroupBy(x => x.Quarter).Count(q => q.All(item => item.IsApproved != 0)), // 1 if at least one quarter has all comments not null
-                    Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
-                    Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
-                        .Select(q => new KraQuarter
-                        {
-                            Quarter = q.Key,
-                            QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
-                            Ratings = q.Select(item => new KraRating
+                var flattenedResult = result
+                    .GroupBy(x => new
+                    {
+                        x.ResourceId,
+                        x.ResourceName,
+                        x.DesignatedRoleName
+                    })
+                    .Select(g => new ResourceKrasSatus
+                    {
+                        ResourceId = g.Key.ResourceId,
+                        ResourceName = g.Key.ResourceName,
+                        DesignatedRole = g.Key.DesignatedRoleName,
+                        Completed = g.GroupBy(x => x.Quarter).Count(q => q.All(item => item.IsApproved != 0)), // 1 if at least one quarter has all comments not null
+                        Pending = g.GroupBy(x => x.Quarter).Count(q => q.Any(item => item.IsApproved == 0)), // Count the quarters with at least one null comment
+                        Kras = g.GroupBy(x => x.Quarter) // Use 'Kras' with a capital 'K'
+                            .Select(q => new KraQuarter
                             {
-                                KraName = item.Name,
-                                DeveloperRating = item.DeveloperRating,
-                                ManagerRating = item.ManagerRating,
-                                FinalRating = item.FinalRating,
-                                RejectedBy = item.RejectedBy,
-                                IsApproved = item.IsApproved,
+                                Quarter = q.Key,
+                                QuarterName = q.Select(item => item.QuarterName).FirstOrDefault(),
+                                Ratings = q.Select(item => new KraRating
+                                {
+                                    KraName = item.Name,
+                                    DeveloperRating = item.DeveloperRating,
+                                    ManagerRating = item.ManagerRating,
+                                    FinalRating = item.FinalRating,
+                                    RejectedBy = item.RejectedBy,
+                                    IsApproved = item.IsApproved,
+                                }).ToList(),
                             }).ToList(),
-                        }).ToList(),
-                    ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
-                    ManagerReportingToName = g.FirstOrDefault().ManagerReportingToName // Fetching the second-level manager's name
-                }).ToList();
+                        ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
+                        ManagerReportingToName = g.FirstOrDefault().ManagerReportingToName // Fetching the second-level manager's name
+                    }).ToList();
 
-            return flattenedResult;
+                return flattenedResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         public async Task<ReportingToName> GetUserManagerName(int userId)
@@ -566,6 +585,262 @@ namespace DF_EvolutionAPI.Services
             return result;
         }
 
+        public async Task<QuarterDetails> GetCurrentQuarter()
+        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(QuarterDetails), nameof(GetCurrentQuarter));
+            try
+            {
+                var currentDate = DateTime.Now;
+                return await _dbcontext.QuarterDetails
+                    .FirstOrDefaultAsync(q =>
+                        q.QuarterYear == currentDate.Year
+                        && q.IsActive == 1
+                        && q.IsDeleted == 0
+                        && (
+                            (q.QuarterName == "Jan-Mar" && currentDate.Month >= 1 && currentDate.Month <= 3) ||
+                            (q.QuarterName == "Apr-Jun" && currentDate.Month >= 4 && currentDate.Month <= 6) ||
+                            (q.QuarterName == "Jul-Sep" && currentDate.Month >= 7 && currentDate.Month <= 9) ||
+                            (q.QuarterName == "Oct-Dec" && currentDate.Month >= 10 && currentDate.Month <= 12)
+                        ));
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+        }
+
+        // Gets the list of resources whose evaluation is pending by the manager.
+        public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
+        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetPendingResourceEvaluations));
+            try
+            {
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    _logger.LogWarning("Current quarter not found for userId: {UserId}", userId);
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId
+                        && resource.IsActive == (int)Status.IS_ACTIVE
+                        && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                        && userKras.FinalRating == null
+                        && userKras.IsActive == (int)Status.IS_ACTIVE
+                        && (userKras.DeveloperRating != null || userKras.RejectedBy != null)   
+                        && userKras.QuarterId == currentQuarter.Id
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();               
+                
+                // Group and format data in memory
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
+                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                    })
+                    .ToList();
+                             
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
+
+        // Gets the list of resources whose evaluations are completed.
+        public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId)
+        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetCompletedResourceEvaluations));
+            try
+            {
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    _logger.LogWarning("Current quarter not found for userId: {UserId}", userId);
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId
+                          && resource.IsActive == (int)Status.IS_ACTIVE 
+                          && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                          && userKras.FinalRating != 0
+                          && userKras.IsActive == (int)Status.IS_ACTIVE
+                          && (userKras.DeveloperRating != null)
+                          && (userKras.RejectedBy == null)
+                          && userKras.IsApproved == 1
+                          && userKras.QuarterId == currentQuarter.Id
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();
+                
+                // Group and format data in memory
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
+                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                    })
+                    .ToList();
+               
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
+
+        // Gets the list of resources whose self-evaluation is pending.
+        public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId)
+       {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetPendingSelfEvaluations));
+            try
+            {
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
+
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId                     
+                      && resource.IsActive == (int)Status.IS_ACTIVE
+                      && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                      && userKras.FinalRating == null
+                      && userKras.IsActive == (int)Status.IS_ACTIVE
+                      && (userKras.DeveloperRating == null)
+                      && (userKras.RejectedBy == null)
+                      && userKras.IsApproved == 0
+                      && userKras.QuarterId == currentQuarter.Id
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();
+                
+                // Group and format data in memory
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
+                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                    })
+                    .ToList();
+               
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
         //Get the list of the resources whoes kras final rating is given.
         public async Task<List<ApprovalResources>> GetPendingKrasApprovalResources(int userId, int quarterId)
         {

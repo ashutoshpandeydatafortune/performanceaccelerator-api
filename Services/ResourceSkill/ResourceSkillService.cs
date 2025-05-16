@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using System.Threading.Tasks;
 using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 
 namespace DF_EvolutionAPI.Services
@@ -14,10 +16,12 @@ namespace DF_EvolutionAPI.Services
 
     {
         private readonly DFEvolutionDBContext _dbContext;
+        private readonly ILogger<ResourceSkillService> _logger;
 
-        public ResourceSkillService(DFEvolutionDBContext dbContext)
+        public ResourceSkillService(DFEvolutionDBContext dbContext, ILogger<ResourceSkillService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
       
@@ -88,7 +92,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
@@ -241,7 +245,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }   
@@ -651,7 +655,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -746,7 +750,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
