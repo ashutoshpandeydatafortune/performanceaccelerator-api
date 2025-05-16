@@ -100,7 +100,6 @@ namespace DF_EvolutionAPI.Models
     {       
         public List<ResourceEvaluation> ResourceEvaluationList { get; set; }
         public int totalCount { get; set; }
-
     }
 
 }

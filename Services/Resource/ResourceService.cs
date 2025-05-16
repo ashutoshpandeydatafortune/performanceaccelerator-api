@@ -587,31 +587,41 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<QuarterDetails> GetCurrentQuarter()
         {
-            var currentDate = DateTime.Now;
-            return await _dbcontext.QuarterDetails
-                .FirstOrDefaultAsync(q =>
-                    q.QuarterYear == currentDate.Year
-                    && q.IsActive == 1
-                    && q.IsDeleted == 0
-                    && (
-                        (q.QuarterName == "Jan-Mar" && currentDate.Month >= 1 && currentDate.Month <= 3) ||
-                        (q.QuarterName == "Apr-Jun" && currentDate.Month >= 4 && currentDate.Month <= 6) ||
-                        (q.QuarterName == "Jul-Sep" && currentDate.Month >= 7 && currentDate.Month <= 9) ||
-                        (q.QuarterName == "Oct-Dec" && currentDate.Month >= 10 && currentDate.Month <= 12)
-                    )
-                );
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(QuarterDetails), nameof(GetCurrentQuarter));
+            try
+            {
+                var currentDate = DateTime.Now;
+                return await _dbcontext.QuarterDetails
+                    .FirstOrDefaultAsync(q =>
+                        q.QuarterYear == currentDate.Year
+                        && q.IsActive == 1
+                        && q.IsDeleted == 0
+                        && (
+                            (q.QuarterName == "Jan-Mar" && currentDate.Month >= 1 && currentDate.Month <= 3) ||
+                            (q.QuarterName == "Apr-Jun" && currentDate.Month >= 4 && currentDate.Month <= 6) ||
+                            (q.QuarterName == "Jul-Sep" && currentDate.Month >= 7 && currentDate.Month <= 9) ||
+                            (q.QuarterName == "Oct-Dec" && currentDate.Month >= 10 && currentDate.Month <= 12)
+                        ));
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
-
 
         // Gets the list of resources whose evaluation is pending by the manager.
         public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
         {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetPendingResourceEvaluations));
             try
             {
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
                 var currentQuarter = await GetCurrentQuarter();
 
                 if (currentQuarter == null)
                 {
+                    _logger.LogWarning("Current quarter not found for userId: {UserId}", userId);
                     // Handle case where current quarter is not found
                     return new ResourceEvaluationResponse
                     {
@@ -619,7 +629,6 @@ namespace DF_EvolutionAPI.Services
                         ResourceEvaluationList = new List<ResourceEvaluation>()
                     };
                 }
-
 
                 // Fetch raw matching data
                 var rawData = await (
@@ -644,8 +653,8 @@ namespace DF_EvolutionAPI.Services
                         quarters.Id,
                         quarters.QuarterName
                     }
-                ).ToListAsync();
-
+                ).ToListAsync();               
+                
                 // Group and format data in memory
                 var resourceEvaluationList = rawData
                     .GroupBy(x => new { x.ResourceId, x.ResourceName })
@@ -657,7 +666,7 @@ namespace DF_EvolutionAPI.Services
                         QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
                     })
                     .ToList();
-
+                             
                 // Build and return the response
                 return new ResourceEvaluationResponse
                 {
@@ -667,6 +676,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 // Optionally log the exception
                 return new ResourceEvaluationResponse
                 {
@@ -679,12 +689,15 @@ namespace DF_EvolutionAPI.Services
         // Gets the list of resources whose evaluations are completed.
         public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId)
         {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetCompletedResourceEvaluations));
             try
             {
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
                 var currentQuarter = await GetCurrentQuarter();
 
                 if (currentQuarter == null)
                 {
+                    _logger.LogWarning("Current quarter not found for userId: {UserId}", userId);
                     // Handle case where current quarter is not found
                     return new ResourceEvaluationResponse
                     {
@@ -719,7 +732,7 @@ namespace DF_EvolutionAPI.Services
                         quarters.QuarterName
                     }
                 ).ToListAsync();
-
+                
                 // Group and format data in memory
                 var resourceEvaluationList = rawData
                     .GroupBy(x => new { x.ResourceId, x.ResourceName })
@@ -731,7 +744,7 @@ namespace DF_EvolutionAPI.Services
                         QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
                     })
                     .ToList();
-
+               
                 // Build and return the response
                 return new ResourceEvaluationResponse
                 {
@@ -741,6 +754,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 // Optionally log the exception
                 return new ResourceEvaluationResponse
                 {
@@ -750,13 +764,13 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-
         // Gets the list of resources whose self-evaluation is pending.
         public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId)
        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetPendingSelfEvaluations));
             try
             {
-
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
                 var currentQuarter = await GetCurrentQuarter();
 
                 if (currentQuarter == null)
@@ -796,7 +810,7 @@ namespace DF_EvolutionAPI.Services
                         quarters.QuarterName
                     }
                 ).ToListAsync();
-
+                
                 // Group and format data in memory
                 var resourceEvaluationList = rawData
                     .GroupBy(x => new { x.ResourceId, x.ResourceName })
@@ -808,7 +822,7 @@ namespace DF_EvolutionAPI.Services
                         QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
                     })
                     .ToList();
-
+               
                 // Build and return the response
                 return new ResourceEvaluationResponse
                 {
@@ -818,6 +832,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 // Optionally log the exception
                 return new ResourceEvaluationResponse
                 {

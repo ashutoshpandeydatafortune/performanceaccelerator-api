@@ -241,12 +241,18 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var resourceList = await _resourceService.GetPendingResourceEvaluations(userId);
                 return Ok(resourceList);
             }
-            catch ( Exception ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message );
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
             }
         }
 
@@ -260,12 +266,18 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var resourceList = await _resourceService.GetCompletedResourceEvaluations(userId);
                 return Ok(resourceList);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message );
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
             }
         }
 
@@ -279,11 +291,17 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var resourceList = await _resourceService.GetPendingSelfEvaluations(userId);
                 return Ok(resourceList);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
                 return BadRequest(ex.Message);
             }
         }
@@ -297,11 +315,17 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var resourceList = await _resourceService.GetCurrentQuarter();
                 return Ok(resourceList);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
                 return BadRequest(ex.Message);
             }
         }
