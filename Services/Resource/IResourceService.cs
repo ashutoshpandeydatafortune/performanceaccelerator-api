@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DF_PA_API.Models;
 using DF_EvolutionAPI.Models;
+using System.Data;
 
 namespace DF_EvolutionAPI.Services
 {
@@ -21,6 +22,7 @@ namespace DF_EvolutionAPI.Services
         Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId);
         Task<ResourceEvaluationResponse> GetPendingSelfEvaluations(int? userId);
         Task<QuarterDetails> GetCurrentQuarter();
-
+        Task<List<ApprovalResources>> GetPendingKrasApprovalResources( int quarteId, int userId);
+        Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate);
     }
 }

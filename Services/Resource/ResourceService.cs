@@ -841,6 +841,68 @@ namespace DF_EvolutionAPI.Services
                 };
             }
         }
+        //Get the list of the resources whoes kras final rating is given.
+        public async Task<List<ApprovalResources>> GetPendingKrasApprovalResources(int userId, int quarterId)
+        {
+            var reportingIds = await _dbcontext.Resources
+                .Where(r => r.ReportingTo == userId
+                            && r.IsActive == (int)Status.IS_ACTIVE
+                            && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID)
+                .Select(r => r.ResourceId)
+                .ToListAsync();
+
+            var result = await (from resource in _dbcontext.Resources
+                                join userKras in _dbcontext.UserKRA on resource.ResourceId equals userKras.UserId
+                                where userKras.FinalRating != null
+                                      && resource.IsActive == (int)Status.IS_ACTIVE
+                                      && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                                      && userKras.QuarterId == quarterId
+                                      && userKras.IsActive == (int)Status.IS_ACTIVE
+                                      && reportingIds.Contains(resource.ReportingTo ?? 0)
+                                group new { resource, userKras } by new
+                                {
+                                    resource.ResourceId,
+                                    resource.ResourceName
+                                } into g
+                                select new ApprovalResources
+                                {
+                                    ResourceID = g.Key.ResourceId,
+                                    ResourceName = g.Key.ResourceName,
+                                    QuarterId = quarterId,
+                                    userId = userId,
+                                    approvedBy = g.Select(x => x.userKras.ApprovedBy).FirstOrDefault(),
+                                    updateBy = g.Select(x => x.userKras.UpdateBy).FirstOrDefault(),
+                                    IsApproved = g.Select(x => x.userKras.IsApproved).FirstOrDefault()
+                                }).ToListAsync();
+
+            return result;
+        }
+
+        // Approve the resources whoes kras final rating is given.
+        public async Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate)
+        {
+            if (resourceKraApprovalUpdate == null || !resourceKraApprovalUpdate.Any())
+                return false;
+
+            foreach (var item in resourceKraApprovalUpdate)
+            {
+                var userKras = await _dbcontext.UserKRA
+                    .Where(kra => kra.UserId == item.ResourceId
+                                  && kra.QuarterId == item.QuarterId
+                                  && kra.IsActive == (int)Status.IS_ACTIVE)
+                    .ToListAsync();
+
+                foreach (var kra in userKras)
+                {
+                    kra.ApprovedBy = item.ApprovedBy;
+                    kra.UpdateBy = item.UpdatedBy;
+                    kra.IsApproved = (byte?)(item.IsApproved ? 1 : 0);
+                }
+            }
+
+            await _dbcontext.SaveChangesAsync();
+            return true;
+        }
 
     }
 }
