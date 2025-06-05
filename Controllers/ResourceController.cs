@@ -341,11 +341,17 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var resources = await _resourceService.GetPendingKrasApprovalResources(userId, quarterId);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                
                 return BadRequest(ex.Message);
             }
         }
