@@ -344,10 +344,16 @@ namespace DF_EvolutionAPI.Services.KRA
 
         // Get the all kras functionwise.
         public async Task<List<KRAList>> GetAllKRAsByFunction(int functionId)
-        {      
+        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(KRAList), nameof(GetAllKRAsByFunction));
+            try
+            {
                 var query = from kraLibrary in _dbcontext.KRALibrary
                             join function in _dbcontext.TechFunctions
                             on kraLibrary.FunctionId equals function.FunctionId
+                            join businessUnit in _dbcontext.BusinessUnits
+                            on kraLibrary.BusinessUnitId equals businessUnit.BusinessUnitId into businessUnitGroup
+                            from businessUnit in businessUnitGroup.DefaultIfEmpty() // left join
                             where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.FunctionId == functionId
                             orderby kraLibrary.Name // OrderBy KraName ascending.
                             select new KRAList
@@ -360,35 +366,59 @@ namespace DF_EvolutionAPI.Services.KRA
                                 IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
                                 MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
                                 FunctionId = kraLibrary.FunctionId ?? null,
-                                FunctionName = function.FunctionName ?? null
+                                IsSpecial = kraLibrary.IsSpecial,
+                                FunctionName = function.FunctionName ?? null,                               
+                                BusinessUnitId = businessUnit != null ? businessUnit.BusinessUnitId : (int?)null,
+                                BusinessUnitName = businessUnit.BusinessUnitName,
                             };
+                _logger.LogDebug("Executing query for KRAs with FunctionId: {FunctionId}", functionId);
 
                 return await query.ToListAsync();
+            }catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
         // Get the all kras businessUnitWise.
         public async Task<List<KRAList>> GetAllKRAsByBusinessUnit(int businessUnitId)
         {
-            var query = from kraLibrary in _dbcontext.KRALibrary
-                        join function in _dbcontext.TechFunctions
-                        on kraLibrary.FunctionId equals function.FunctionId
-                        where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.BusinessUnitId == businessUnitId
-                        orderby kraLibrary.Name // OrderBy KraName ascending.
-                        select new KRAList
-                        {
-                            Id = kraLibrary.Id,
-                            Name = kraLibrary.Name,
-                            DisplayName = kraLibrary.DisplayName,
-                            Description = kraLibrary.Description,
-                            Weightage = kraLibrary.Weightage,
-                            IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
-                            MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
-                            FunctionId = kraLibrary.FunctionId ?? null,
-                            FunctionName = function.FunctionName ?? null
-                        };
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(KRAList), nameof(GetAllKRAsByBusinessUnit));
+            try
+            {
+                var query = from kraLibrary in _dbcontext.KRALibrary
+                            join function in _dbcontext.TechFunctions
+                            on kraLibrary.FunctionId equals function.FunctionId
+                            join businessUnit in _dbcontext.BusinessUnits
+                            on kraLibrary.BusinessUnitId equals businessUnit.BusinessUnitId
+                            where kraLibrary.IsActive == (int)Status.IS_ACTIVE && kraLibrary.BusinessUnitId == businessUnitId
+                            orderby kraLibrary.Name // OrderBy KraName ascending.
+                            select new KRAList
+                            {
+                                Id = kraLibrary.Id,
+                                Name = kraLibrary.Name,
+                                DisplayName = kraLibrary.DisplayName,
+                                Description = kraLibrary.Description,
+                                Weightage = kraLibrary.Weightage,
+                                IsDescriptionRequired = kraLibrary.IsDescriptionRequired,
+                                MinimumRatingForDescription = kraLibrary.MinimumRatingForDescription,
+                                FunctionId = kraLibrary.FunctionId ?? null,
+                                FunctionName = function.FunctionName ?? null,
+                                BusinessUnitId = businessUnit.BusinessUnitId,
+                                BusinessUnitName = businessUnit.BusinessUnitName,
+                            };
 
-            return await query.ToListAsync();
-        }
+                _logger.LogDebug("Executing query for KRAs with BusinessUnitId: {BusinessUnitId}", businessUnitId);
+
+                return await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+        } 
 
         // Gets the KRAs assigned to resources based on KRA ID and Function ID.
         public async Task<List<AssignedUserKraDetail>> GetAssignedUserKras(int kraId, int functionId)
