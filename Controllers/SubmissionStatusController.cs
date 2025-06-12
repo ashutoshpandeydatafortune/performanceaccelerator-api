@@ -1,9 +1,10 @@
 ﻿using System;
-using Microsoft.AspNetCore.Mvc;
-
+using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
-using DF_EvolutionAPI.Services.Submission;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Services.Submission;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -12,10 +13,12 @@ namespace DF_EvolutionAPI.Controllers
     public class SubmissionStatusController : Controller
     {
         private ISubmissionStatusService _submissionStatusService;
+        private readonly ILogger<SubmissionStatusController> _logger;
 
-        public SubmissionStatusController(ISubmissionStatusService submissionStatusService)
+        public SubmissionStatusController(ISubmissionStatusService submissionStatusService, ILogger<SubmissionStatusController> logger)
         {
             _submissionStatusService = submissionStatusService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,6 +31,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var submissionstatuses = await _submissionStatusService.GetAllSubmissionStatusList();
                 return Ok(submissionstatuses);
             }
@@ -48,6 +53,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var submissionstatus = await _submissionStatusService.GetSubmissionStatusById(submissionStatusId);
                 
                 if (submissionstatus == null) return NotFound();
@@ -71,6 +78,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _submissionStatusService.CreateorUpdateSubmissionStatus(submissionStatusModel);
                 return Ok(model);
             }
@@ -91,6 +100,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _submissionStatusService.DeleteSubmissionStatus(submissionStatusId);
                 return Ok(model);
             }
