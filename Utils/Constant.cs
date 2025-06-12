@@ -39,6 +39,9 @@ namespace DF_EvolutionAPI.Utils
         public static string ROLE_NAME = "Developer";        
         public static List<string> NO_MAIL_DESIGNATION = new List<string>();
         public static string EMPLOYEE_PREFIX = "VDF";//Contract to hire employees, employeeid start with VDF
+        public static int RESOURCE_BUSINESS_UNIT_ID = 2; // In Prms ReferenceId '2' is set for 'Resource Business Unit'
+        public static string ERROR_MESSAGE = "{0} {1}";
+        public static int LOG_DELETION_DAYS= 10;
 
         public static int DAYS_TO_LOOK_BACK = -7;
     }

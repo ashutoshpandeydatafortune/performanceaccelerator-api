@@ -1,10 +1,12 @@
-﻿using DF_EvolutionAPI.Models;
+﻿using System;
+using DF_EvolutionAPI.Utils;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -13,10 +15,12 @@ namespace DF_EvolutionAPI.Controllers
     public class UserApprovalController : Controller
     {
         private IUserApprovalService _userApprovalService;
+        private readonly ILogger<UserApprovalController> _logger;
 
-        public UserApprovalController(IUserApprovalService userApprovalService)
+        public UserApprovalController(IUserApprovalService userApprovalService, ILogger<UserApprovalController> logger)
         {
             _userApprovalService = userApprovalService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -29,11 +33,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var approvals = await _userApprovalService.GetAllApprovalList();
                 return Ok(approvals);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -49,6 +57,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var status = await _userApprovalService.GetApprovalById(userApprovalId);
 
                 if (status == null) return NotFound();
@@ -57,6 +67,8 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -72,6 +84,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 ResponseModel model = new ResponseModel();
                 foreach (var item in userApprovalModel)
                 {
@@ -82,6 +96,8 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -97,11 +113,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _userApprovalService.DeleteApproval(userApprovalId);
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }

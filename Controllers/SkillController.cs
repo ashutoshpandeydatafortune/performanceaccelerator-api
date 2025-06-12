@@ -1,8 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
+﻿using System;
+using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using System;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -11,10 +13,12 @@ namespace DF_EvolutionAPI.Controllers
     public class SkillController : Controller
     {
         private ISkillService _skillService;
+        private readonly ILogger<SkillController> _logger;
        
-        public SkillController(ISkillService skillService)
+        public SkillController(ISkillService skillService, ILogger<SkillController> logger)
         {
             _skillService = skillService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,6 +32,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.CreateSkill(skillModel);
                 return Ok(response);
             }
@@ -49,12 +55,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.UpdateBySkillId(skillModel);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -70,12 +80,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.GetAllSkills();
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -91,12 +105,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.GetSkillById(id);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -112,12 +130,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.DeleteSkillById(id);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -133,12 +155,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.SearchBySkills(searchSkillModel);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -154,12 +180,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _skillService.GetSkillByCategoryId(id);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
