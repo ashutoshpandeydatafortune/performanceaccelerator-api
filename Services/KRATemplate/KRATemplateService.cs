@@ -271,44 +271,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                  .FirstOrDefaultAsync();
         }
 
-        //Retrieves all templates
-        //public async Task<List<PATemplate>> GetAllTemplates()
-        //{
-        //    _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(PATemplate), nameof(GetAllTemplates));
-        //    try
-        //    {
-        //        var query = from template in _dbContext.PATemplates
-        //                    join businessUnit in _dbContext.BusinessUnits
-        //                    on template.BusinessUnitId equals businessUnit.BusinessUnitId
-        //                    where template.IsActive == (int)Status.IS_ACTIVE && template.BusinessUnitId == businessUnitId
-        //                    select new TemplateByBusinessUnit
-        //                    {
-        //                        TemplateId = template.TemplateId,
-        //                        Name = template.Name,
-        //                        IsActive = template.IsActive,
-        //                        CreateBy = template.CreateBy,
-        //                        UpdateBy = template.UpdateBy,
-        //                        CreateDate = template.CreateDate,
-        //                        UpdateDate = template.UpdateDate,
-        //                        BusinessUnitId = template.BusinessUnitId,
-        //                        BusinessUnitName = businessUnit.BusinessUnitName,
-
-        //                    };
-
-
-        //        var result = await query.OrderBy(templateName => templateName.Name).ToListAsync();
-        //        _logger.LogInformation("Retrieved {Count} active templates.", result.Count);
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-        //        throw;
-
-        //    }
-
-        //}
-
+       
         public async Task<List<PATemplate>> GetAllTemplates()
         {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(PATemplate), nameof(GetAllTemplates));
@@ -360,12 +323,13 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         {
                             TemplateId = template.TemplateId,
                             Name = template.Name,
+                            Description = template.Description,
                             IsActive = template.IsActive,
                             CreateBy = template.CreateBy,
                             UpdateBy = template.UpdateBy,
                             CreateDate = template.CreateDate,
                             UpdateDate = template.UpdateDate,
-                            FunctionId = template.FunctionId,
+                            FunctionId = template.FunctionId?? null,
                             FunctionName = function.FunctionName,
 
                         };
@@ -385,6 +349,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         {
                             TemplateId = template.TemplateId,
                             Name = template.Name,
+                            Description = template.Description,
                             IsActive = template.IsActive,
                             CreateBy = template.CreateBy,
                             UpdateBy = template.UpdateBy,
