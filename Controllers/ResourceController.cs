@@ -330,5 +330,50 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Get the list of the resources whoes kras final rating is given.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetPendingKrasApprovalResources(int userId, int quarterId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resources = await _resourceService.GetPendingKrasApprovalResources(userId, quarterId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Approve the resources whoes kras final rating is given.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate)
+        {
+            try
+            {
+                var resources = await _resourceService.ResourceUpdateKraApproval(resourceKraApprovalUpdate);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

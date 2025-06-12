@@ -51,4 +51,22 @@ namespace DF_PA_API.Models
         [NotMapped]
         public string ManagerName { get; set; }
     }
+    public class ApprovalResources
+    {
+        public int? ResourceID { get; set; }
+        public string ResourceName { get; set; }
+        public int? QuarterId { get; set; }
+        public int? userId { get; set; }
+        public int? approvedBy { get; set; }
+        public int? updateBy { get; set; }
+        public int? IsApproved { get; set; }
+    }
+    public class ResourceKraApprovalUpdate
+    {
+        public int? ResourceId { get; set; }
+        public int? QuarterId { get; set; }
+        public int? ApprovedBy { get; set; }
+        public int? UpdatedBy { get; set; }
+        public bool IsApproved { get; set; }
+    }
 }
