@@ -100,6 +100,57 @@ namespace DF_PA_API.Services.DesignatedRoles
             }
         }
 
+        //Displayed all designatedRole by businessunit id.
+        public async Task<List<DesignatedRole>> GetDesignatedRolesByBusinessunitId(int? businessUnitId)
+        {
+            {
+                try
+                {
+                    return await (from designatedRole in _dbcontext.DesignatedRoles
+                                  join resource in _dbcontext.Resources
+                                      on designatedRole.DesignatedRoleId equals resource.DesignatedRoleId
+                                  where resource.BusinessUnitId == businessUnitId
+                                        && resource.IsActive == (int)Status.IS_ACTIVE
+                                        // Exclude those Designations that are already assigned to an active template
+                                        && !_dbcontext.PA_TemplateDesignations
+                                            .Any(templateDesignation => templateDesignation.DesignatedRoleId == designatedRole.DesignatedRoleId && templateDesignation.IsActive == 1
+                                             // Check if there exists any active template (PA_Templates)
+                                             && _dbcontext.PATemplates.Any(template => template.TemplateId == templateDesignation.TemplateId && template.BusinessUnitId == businessUnitId && template.IsActive == 1))
+                                  // Group by the relevant columns from the Designation table
+                                  group new { designatedRole, resource } by new
+                                  {
+                                      designatedRole.DesignatedRoleId,
+                                      designatedRole.DesignatedRoleName,
+                                      designatedRole.Description,
+                                      designatedRole.IsActive,
+                                      designatedRole.CreateBy,
+                                      designatedRole.UpdateBy,
+                                      designatedRole.CreateDate,
+                                      designatedRole.UpdateDate
+                                  } into grouped
+                                  // Order the grouped data by DesignationName in ascending order
+                                  orderby grouped.Key.DesignatedRoleName ascending
+                                  // Project the grouped data into a new Designation object
+                                  select new DesignatedRole
+                                  {
+                                      DesignatedRoleId = grouped.Key.DesignatedRoleId,
+                                      DesignatedRoleName = grouped.Key.DesignatedRoleName,
+                                      Description = grouped.Key.Description,
+                                      IsActive = grouped.Key.IsActive,
+                                      CreateBy = grouped.Key.CreateBy,
+                                      UpdateBy = grouped.Key.UpdateBy,
+                                      CreateDate = grouped.Key.CreateDate,
+                                      UpdateDate = grouped.Key.UpdateDate
+
+                                  }).ToListAsync();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+        }
+
         public async Task<List<DesignatedRole>> GetReportingDesignatedRoles(string userName)
         {
             List<DesignatedRole> designations = new List<DesignatedRole>();
