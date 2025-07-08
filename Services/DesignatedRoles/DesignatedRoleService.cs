@@ -9,6 +9,8 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Utils;
 using Microsoft.Extensions.Logging;
 using DF_EvolutionAPI.Services.Submission;
+using NuGet.LibraryModel;
+using System.Resources;
 
 namespace DF_PA_API.Services.DesignatedRoles
 {
@@ -171,19 +173,126 @@ namespace DF_PA_API.Services.DesignatedRoles
             return resources;
         }
 
+        //Fetch Resource according to the Reportee to
+        public async Task<List<ResourceReportee>> GetReporteesByManagerId(int resourceId)
+        {
+            List<ResourceReportee> resources = new List<ResourceReportee>();
+
+            try
+            {
+                // Join Resources with DesignatedRoles and filter based on the given manager ID
+                resources = await (
+                    from resource in _dbcontext.Resources
+                    join designation in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designation.DesignatedRoleId
+                    where resource.ReportingTo == resourceId
+                        && resource.IsActive == (int)Status.IS_ACTIVE
+                        && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                        && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    select new ResourceReportee
+                    {
+                        ResourceId = resource.ResourceId,
+                        ResourceName = resource.ResourceName,
+                        DesignationId = resource.DesignatedRoleId,
+                        DesignationName = designation.DesignatedRoleName
+                    }
+                ).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
+            return resources;
+        }
+
+        //Fetch Resource according to the Reportee to
+        public async Task<List<ResourceReportee>> GetReporteesByDesignationRole(int resourceId, string designationName)
+        {
+            List<ResourceReportee> resources = new List<ResourceReportee>();
+
+            try
+            {
+                // Base query for reportees under the given manager ID
+                var query = from resource in _dbcontext.Resources
+                            join designation in _dbcontext.DesignatedRoles
+                                on resource.DesignatedRoleId equals designation.DesignatedRoleId
+                            where resource.ReportingTo == resourceId
+                                && resource.IsActive == (int)Status.IS_ACTIVE
+                                && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                                && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                            select new ResourceReportee
+                            {
+                                ResourceId = resource.ResourceId,
+                                ResourceName = resource.ResourceName,
+                                DesignationId = resource.DesignatedRoleId,
+                                DesignationName = designation.DesignatedRoleName
+                            };
+
+                // Apply optional filter on DesignationName if provided
+                if (!string.IsNullOrEmpty(designationName))
+                {
+                    query = query.Where(r => r.DesignationName == designationName);
+                }
+
+                resources = await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
+            return resources;
+        }
+
         // GetAssignedSpecialKRAs is made for displaying the special kra for particular resource.
         private List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
         {
-            var specialKra = (from userKras in _dbcontext.UserKRA
-                              join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
-                              where kraLibrary.IsSpecial == 1 && userKras.UserId == resourceId
-                              select new AssignedSpecialKRA
-                              {
-                                  KRAId = kraLibrary.Id,
-                                  KraName = kraLibrary.Name,
-                              });
 
-            return specialKra.ToList();
+            try
+            {
+                var specialKra = (from userKras in _dbcontext.UserKRA
+                                  join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                                  where kraLibrary.IsSpecial == 1 && userKras.UserId == resourceId
+                                  select new AssignedSpecialKRA
+                                  {
+                                      KRAId = kraLibrary.Id,
+                                      KraName = kraLibrary.Name,
+                                  });
+
+                return specialKra.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
+        }
+
+        // Get AssignedKRAs of resource.
+        private List<AssignedSpecialKRA> GetAssignedKRAs(int resourceId)
+        {
+            try
+            {
+                var specialKra = (from userKras in _dbcontext.UserKRA
+                                  join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                                  where userKras.UserId == resourceId
+                                  select new AssignedSpecialKRA
+                                  {
+                                      KRAId = kraLibrary.Id,
+                                      KraName = kraLibrary.Name,
+                                  });
+
+                return specialKra.ToList();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
     }

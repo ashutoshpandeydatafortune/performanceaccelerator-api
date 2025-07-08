@@ -490,13 +490,15 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                     .Select(k => new
                     {
                         kraIds = k.KraLibrary.Id,
-                        kraNames = k.KraLibrary.Name
+                        kraNames = k.KraLibrary.Name,
+                        weightages = k.KraLibrary.Weightage
                     }))
-                    .GroupBy(k => new { k.kraIds, k.kraNames })
+                    .GroupBy(k => new { k.kraIds, k.kraNames,k.weightages })
                     .Select(group => new
                     {
                         kraId = group.Key.kraIds,
-                        kraName = group.Key.kraNames
+                        kraName = group.Key.kraNames,
+                        weightage = group.Key.weightages
                     })
                 .ToListAsync();
 
@@ -510,7 +512,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                return new List<object>();
+                throw;
             }
 
         }
