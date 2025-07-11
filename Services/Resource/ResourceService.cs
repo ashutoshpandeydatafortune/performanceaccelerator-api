@@ -1007,13 +1007,14 @@ namespace DF_EvolutionAPI.Services
                     {
                         ClientName = c.ClientName,
                         ProjectName = p.ProjectName,
-                        AssignmentDate = pr.AssignmentDate,
-                        ProjectEndDate = pr.EndDate
+                        AssignmentDate = pr.StartDate,
+                        ProjectEndDate = pr.EndDate ,
+                        quarterEndDate = quarterEnd
                     }
                 )
-                .OrderBy(x => x.ClientName)
-                .ThenBy(x => x.ProjectName)
-                .ThenBy(x => x.AssignmentDate)
+                .OrderByDescending(x => x.AssignmentDate)
+                .ThenByDescending(x => x.ProjectEndDate)
+                .ThenBy(x => x.ClientName)
                 .ToListAsync();
 
                 return assignments;

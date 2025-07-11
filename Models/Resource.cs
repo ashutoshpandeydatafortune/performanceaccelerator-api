@@ -119,6 +119,8 @@ namespace DF_EvolutionAPI.Models
         public string ProjectName { get; set; }
         public DateTime? AssignmentDate { get; set; }
         public DateTime? ProjectEndDate { get; set; }
+        [NotMapped]
+        public DateTime? quarterEndDate { get; set; }
     }
 
 
