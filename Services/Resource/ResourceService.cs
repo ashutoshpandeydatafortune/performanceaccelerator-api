@@ -922,9 +922,9 @@ namespace DF_EvolutionAPI.Services
 
 
         //Get the dates of the current quarter
-        public async Task<QuarterPeriod> GetCurrentQuarterAsync()
+        public async Task<QuarterPeriod> GetCurrentQuarterDates()
         {
-            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(QuarterDetails), nameof(GetCurrentQuarterAsync));
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(QuarterDetails), nameof(GetCurrentQuarterDates));
             try
             {
                 var currentDate = DateTime.Now;
@@ -987,7 +987,7 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
-                QuarterPeriod quarter = await GetCurrentQuarterAsync();
+                QuarterPeriod quarter = await GetCurrentQuarterDates();
                 if (quarter == null)
                     return new List<ResourceProjectAssignment>();
 
