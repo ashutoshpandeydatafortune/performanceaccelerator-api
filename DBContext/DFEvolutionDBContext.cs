@@ -110,6 +110,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.UpdateBy).HasColumnName("UpdateBy");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.DesignatedRoleId).HasColumnName("DesignatedRoleId");
+                e.Property(e => e.BusinessUnitId).HasColumnName("BusinessUnitId");
                 e.Ignore(e => e.ProjectList);
                 e.Ignore(e => e.ResourceProjectList);
                 e.Ignore(e => e.ClientList);
@@ -465,6 +466,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CreateDate).HasColumnName("CreateDate");
                 e.Property(e => e.UpdateDate).HasColumnName("UpdateDate");
                 e.Property(e => e.FunctionId).HasColumnName("FunctionId");
+                e.Property(e => e.BusinessUnitId).HasColumnName("BusinessUnitId");
                 
 
             });
