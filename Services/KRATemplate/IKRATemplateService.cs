@@ -18,8 +18,6 @@ namespace DF_EvolutionAPI.Services.KRATemplate
         public Task<ResponseModel> AssignKRAs(PATtemplateKrasList paTemplateKras);
         public Task<List<object>> GetAssignedKRAsByDesignationId(int designationId);
         public Task<List<UserKraResult>> GetAssignedUserKrasByDesignationId(int designationId);
-        public Task<List<TemplateByFunction>> GetAllTemplatesByFunctionId(int functionId);
-        public Task<List<TemplateByBusinessUnit>> GetAllTemplatesByBusinessUnitId(int businessUnitId);
 
     }
 }
