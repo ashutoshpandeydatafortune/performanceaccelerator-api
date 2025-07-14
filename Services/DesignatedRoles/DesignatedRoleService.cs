@@ -207,7 +207,7 @@ namespace DF_PA_API.Services.DesignatedRoles
             return resources;
         }
 
-        //Fetch Resource according to the Reportee to
+        //Fetch Resource according to the designationated role
         public async Task<List<ResourceReportee>> GetReporteesByDesignationRole(int resourceId, string designationName)
         {
             List<ResourceReportee> resources = new List<ResourceReportee>();
@@ -248,7 +248,7 @@ namespace DF_PA_API.Services.DesignatedRoles
         }
 
         // GetAssignedSpecialKRAs is made for displaying the special kra for particular resource.
-        private List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
+        public List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
         {
 
             try
@@ -273,7 +273,7 @@ namespace DF_PA_API.Services.DesignatedRoles
         }
 
         // Get AssignedKRAs of resource.
-        private List<AssignedSpecialKRA> GetAssignedKRAs(int resourceId)
+        public List<AssignedSpecialKRA> GetAssignedKRAs(int resourceId)
         {
             try
             {

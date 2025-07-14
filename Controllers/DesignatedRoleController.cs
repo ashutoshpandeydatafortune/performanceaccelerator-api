@@ -150,7 +150,7 @@ namespace DF_PA_API.Controllers
         }
 
         /// <summary>
-        /// get mangers reportees
+        /// get mangers reportees by designated role
         /// </summary>
         /// <param name="resourceId" designatedRole="designationName"></param>
         /// <returns></returns>
