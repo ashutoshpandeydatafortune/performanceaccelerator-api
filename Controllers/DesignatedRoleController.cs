@@ -173,24 +173,5 @@ namespace DF_PA_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        /// <summary>
-        /// Get all the active designated role by businessunit id. 
-        /// </summary>
-        /// <param name="businessUnitId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetDesignatedRolesByBusinessunitId/{businessUnitId}")]
-        public async Task<IActionResult> GetDesignatedRolesByBusinessunitId(int? businessUnitId)
-        {
-            try
-            {
-                return Ok(await _designatedRoleService.GetDesignatedRolesByBusinessunitId(businessUnitId));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
     }
 }

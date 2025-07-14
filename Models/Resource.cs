@@ -9,7 +9,6 @@ namespace DF_EvolutionAPI.Models
     {
 
         public int ResourceId { get; set; }
-        public int? BusinessUnitId { get; set; }
         public int? FunctionId { get; set; }
         public string EmployeeId { get; set; }
         public string ResourceName { get; set; }
