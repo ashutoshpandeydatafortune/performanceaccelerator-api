@@ -11,7 +11,6 @@ namespace DF_PA_API.Services.DesignatedRoles
         public Task<List<DesignatedRole>> GetDesignatedRoleByFunctionId(int functionId);
         public Task<List<DesignatedRole>> GetReportingDesignatedRoles(string userName);
         public Task<List<Resource>> GetResourcesByDesignatedRoleReporter(string designation, int resourceId);
-        public Task<List<ResourceReportee>> GetReporteesByManagerId(int resourceId);
-        public Task<List<ResourceReportee>> GetReporteesByDesignationRole(int resourceId, string designationName);
+        public Task<List<DesignatedRole>> GetDesignatedRolesByBusinessunitId(int? businessUnitId);
     }
 }

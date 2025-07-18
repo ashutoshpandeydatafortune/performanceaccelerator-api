@@ -70,13 +70,5 @@ namespace DF_EvolutionAPI.Models
         public string UserAchievement { get; set; }
         public string ManagerQuartelyComment { get; set; }
     }
-
-    public class AssignedKras
-    {
-        public string KRAName { get; set; }
-        public string DisplayName { get; set; }
-        public string Description { get; set; }
-        public int? Weightage { get; set; }
-    }
   
 }

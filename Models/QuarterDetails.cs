@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DF_EvolutionAPI.Models
+﻿namespace DF_EvolutionAPI.Models
 {
     public class QuarterDetails : BaseEntity
     {
@@ -13,14 +11,4 @@ namespace DF_EvolutionAPI.Models
         public byte? IsDeleted { get; set; }
         public int? StatusId { get; set; }
     }
-
-    public class QuarterPeriod
-    {
-        public int QuarterId { get; set; }
-        public string QuarterName { get; set; }
-        public int QuarterYear { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-    }
-
 }

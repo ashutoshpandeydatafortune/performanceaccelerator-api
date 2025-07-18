@@ -603,13 +603,12 @@ namespace DF_EvolutionAPI.Services
                             (q.QuarterName == "Oct-Dec" && currentDate.Month >= 10 && currentDate.Month <= 12)
                         ));
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
-        }      
-
+        }
 
         // Gets the list of resources whose evaluation is pending by the manager.
         public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
@@ -918,112 +917,5 @@ namespace DF_EvolutionAPI.Services
             return true;
         }
 
-
-
-
-        //Get the dates of the current quarter
-        public async Task<QuarterPeriod> GetCurrentQuarterDates()
-        {
-            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(QuarterDetails), nameof(GetCurrentQuarterDates));
-            try
-            {
-                var currentDate = DateTime.Now;
-
-                var quarter = await _dbcontext.QuarterDetails
-                    .FirstOrDefaultAsync(q =>
-                        q.QuarterYear == currentDate.Year
-                        && q.IsActive == 1
-                        && q.IsDeleted == 0
-                        && (
-                            (q.QuarterName == "Jan-Mar" && currentDate.Month >= 1 && currentDate.Month <= 3) ||
-                            (q.QuarterName == "Apr-Jun" && currentDate.Month >= 4 && currentDate.Month <= 6) ||
-                            (q.QuarterName == "Jul-Sep" && currentDate.Month >= 7 && currentDate.Month <= 9) ||
-                            (q.QuarterName == "Oct-Dec" && currentDate.Month >= 10 && currentDate.Month <= 12)
-                        ));
-
-                if (quarter == null)
-                    return null;
-
-                // Calculate start and end dates
-                DateTime startDate, endDate;
-                switch (quarter.QuarterName)
-                {
-                    case "Jan-Mar":
-                        startDate = new DateTime((int)quarter.QuarterYear, 1, 1);
-                        endDate = new DateTime((int)quarter.QuarterYear, 3, 31);
-                        break;
-                    case "Apr-Jun":
-                        startDate = new DateTime((int)quarter.QuarterYear, 4, 1);
-                        endDate = new DateTime((int)quarter.QuarterYear, 6, 30);
-                        break;
-                    case "Jul-Sep":
-                        startDate = new DateTime((int)quarter.QuarterYear, 7, 1);
-                        endDate = new DateTime((int)quarter.QuarterYear, 9, 30);
-                        break;
-                    case "Oct-Dec":
-                        startDate = new DateTime((int)quarter.QuarterYear, 10, 1);
-                        endDate = new DateTime((int)quarter.QuarterYear, 12, 31);
-                        break;
-                    default:
-                        startDate = endDate = DateTime.MinValue;
-                        break;
-                }
-
-                return new QuarterPeriod
-                {                    
-                    QuarterName = quarter.QuarterName,                    
-                    StartDate = startDate,
-                    EndDate = endDate                    
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;
-            }
-        }
-        // Retrieves a list of active client-project assignments for a specific resource within a given quarter.
-        public async Task<List<ResourceProjectAssignment>> ResourceProjectAssignment(int resourceId)
-        {
-            try
-            {
-                QuarterPeriod quarter = await GetCurrentQuarterDates();
-                if (quarter == null)
-                    return new List<ResourceProjectAssignment>();
-
-                DateTime quarterStart = quarter.StartDate;
-                DateTime quarterEnd = quarter.EndDate;
-
-                var assignments = await (
-                    from pr in _dbcontext.ProjectResources
-                    join p in _dbcontext.Projects on pr.ProjectId equals p.ProjectId
-                    join c in _dbcontext.Clients on p.ClientId equals c.ClientId
-                    where pr.ResourceId == resourceId
-                          && pr.IsActive == 1
-                          && c.IsActive == 1
-                          && pr.AssignmentDate <= quarterEnd
-                          && pr.EndDate >= quarterStart
-                    select new ResourceProjectAssignment
-                    {
-                        ClientName = c.ClientName,
-                        ProjectName = p.ProjectName,
-                        AssignmentDate = pr.StartDate,
-                        ProjectEndDate = pr.EndDate ,
-                        quarterEndDate = quarterEnd
-                    }
-                )
-                .OrderByDescending(x => x.AssignmentDate)
-                .ThenByDescending(x => x.ProjectEndDate)
-                .ThenBy(x => x.ClientName)
-                .ToListAsync();
-
-                return assignments;
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;
-            }
-        }
     }
 }
