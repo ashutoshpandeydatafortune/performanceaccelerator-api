@@ -21,7 +21,6 @@ namespace DF_EvolutionAPI.Services.KRA
         public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange);
         public Task<ResponseModel> AssignUnassignKra(int userKraId, byte IsActive);
         public Task<List<UserKRA>> GetReleasedKraUsers(int quarterId, int managerId);
-        public Task<List<AssignedKras>> GetResourceReleasedKras(int quarterId, int userId);
 
 
     }

@@ -9,6 +9,7 @@ namespace DF_EvolutionAPI.Models
     {
 
         public int ResourceId { get; set; }
+        public int? BusinessUnitId { get; set; }
         public int? FunctionId { get; set; }
         public string EmployeeId { get; set; }
         public string ResourceName { get; set; }
@@ -18,7 +19,7 @@ namespace DF_EvolutionAPI.Models
         [Required]
         public string EmailId { get; set; }
 
-
+        
         #region Address
         public string Address { get; set; }
         public string CountryId { get; set; }
@@ -54,11 +55,11 @@ namespace DF_EvolutionAPI.Models
         #endregion
 
         public byte IsActive { get; set; }
-
+       
         [NotMapped]
         public string Function { get; set; }
         [NotMapped]
-        public string Designation { get; set; }
+        public string Designation { get; set; }       
 
         [NotMapped]
         public List<ProjectResource> ResourceProjectList { get; set; }
@@ -71,7 +72,7 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public List<BusinessUnit> BusinessUnits { get; set; }
-
+                
         [NotMapped]
         public string ReporterName { get; set; }
 
@@ -79,11 +80,11 @@ namespace DF_EvolutionAPI.Models
         public string DesignationName { get; set; }
 
         [NotMapped]
-        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
+        public List<AssignedSpecialKRA> SpecialKRAs { get; set; }       
     }
 
     public class AssignedSpecialKRA
-    {
+    { 
         public int KRAId { get; set; }
         public string KraName { get; set; }
     }
@@ -97,31 +98,9 @@ namespace DF_EvolutionAPI.Models
     }
 
     public class ResourceEvaluationResponse
-    {
+    {       
         public List<ResourceEvaluation> ResourceEvaluationList { get; set; }
         public int totalCount { get; set; }
     }
-
-    public class ResourceReportee
-    {
-        public int ResourceId { get; set; }       
-        public string ResourceName { get; set; }
-        public string DesignationName { get; set; }
-        public int? DesignationId { get; set; }
-
-    }
-
-    public class ResourceProjectAssignment
-    {
-        public int ClientId { get; set; }
-        public string ClientName { get; set; }
-        public int ProjectId { get; set; }
-        public string ProjectName { get; set; }
-        public DateTime? AssignmentDate { get; set; }
-        public DateTime? ProjectEndDate { get; set; }
-        [NotMapped]
-        public DateTime? quarterEndDate { get; set; }
-    }
-
 
 }
