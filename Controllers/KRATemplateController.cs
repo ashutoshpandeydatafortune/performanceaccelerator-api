@@ -245,45 +245,5 @@ namespace DF_EvolutionAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        /// <summary>
-        /// Displaying templates list function wise..
-        /// </summary>
-        /// <param functionId=""></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetAllTemplatesByFunctionId/{functionId}")]
-        public async Task<IActionResult> GetAllTemplatesByFunctionId(int functionId)
-        {
-            try
-            {
-                var result = await _kraTemplateService.GetAllTemplatesByFunctionId(functionId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Displaying templates list businessUnit wise..
-        /// </summary>
-        /// <param businessUnitId=""></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("GetAllTemplatesByBusinessUnitId/{businessUnitId}")]
-        public async Task<IActionResult> GetAllTemplatesByBusinessUnitId(int businessUnitId)
-        {
-            try
-            {
-                var result = await _kraTemplateService.GetAllTemplatesByBusinessUnitId(businessUnitId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
     }
 }

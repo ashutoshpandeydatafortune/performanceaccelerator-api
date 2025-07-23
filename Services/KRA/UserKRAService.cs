@@ -160,7 +160,7 @@ namespace DF_EvolutionAPI.Services
                     var kralist = _dbcontext.UserKRA.Where(kra =>
                      //kra.QuarterId == item.QuarterId && kra.KRAId == item.KRAId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
                      kra.QuarterId == item.QuarterId && kra.UserId == item.UserId && kra.IsActive == (int)Status.IS_ACTIVE).ToList();
-                    
+
                     if (kralist.Count == 0)
                     {
                         item.ManagerComment = string.IsNullOrEmpty(item.DeveloperComment) ? "" : item.DeveloperComment;
@@ -288,7 +288,7 @@ namespace DF_EvolutionAPI.Services
             // Combine email content
             string emailContent = $"{headerContent}{footerContent}";
 
-           
+
             await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
 
             return true;
@@ -428,7 +428,7 @@ namespace DF_EvolutionAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));                
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -465,7 +465,7 @@ namespace DF_EvolutionAPI.Services
                 Notification notification = new Notification
                 {
                     ResourceId = userKRA.UserId.Value,
-                  // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
+                    // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
                     Description = userKRA.KRAName,     // store kra name
                     IsRead = 0,
                     IsActive = (int)Status.IS_ACTIVE,
@@ -477,11 +477,11 @@ namespace DF_EvolutionAPI.Services
 
                     //Fetching the manager details.                    
                     var userName = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
-                    var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();                   
+                    var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();
                     var srManagerDetails = (from r in _dbcontext.Resources
                                             join d in _dbcontext.Designations
                                             on r.DesignationId equals d.DesignationId
-                                            where r.ResourceId == managerDetails.ReportingTo.Value &&                                           
+                                            where r.ResourceId == managerDetails.ReportingTo.Value &&
                                             !Constant.NO_MAIL_DESIGNATION.Contains(d.DesignationName)
                                             select new { r.ResourceName, r.EmailId })
                                             .FirstOrDefault();
@@ -737,11 +737,41 @@ namespace DF_EvolutionAPI.Services
                                 && c.QuarterId == quarterId
                                 && c.CreateBy == managerId)
                     .ToListAsync();
+               
+                return userKRAList;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+        }
+
+        /// Get the list of Release kras for the resource quarterwise .
+        public async Task<List<AssignedKras>> GetResourceReleasedKras(int quarterId, int userId)
+        {
+            try
+            {
+                var userKRAList = await (
+                    from userKras in _dbcontext.UserKRA
+                    join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                    where userKras.IsActive == (int)Status.IS_ACTIVE && kraLibrary.IsActive == (int)Status.IS_ACTIVE
+                          && userKras.QuarterId == quarterId
+                          && userKras.UserId == userId
+                    select new AssignedKras
+                    {
+                        KRAName = kraLibrary.Name,
+                        DisplayName = kraLibrary.DisplayName,
+                        Description = kraLibrary.Description,
+                        Weightage = kraLibrary.Weightage
+                    }
+                ).ToListAsync();
 
                 return userKRAList;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }

@@ -366,11 +366,42 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var resources = await _resourceService.ResourceUpdateKraApproval(resourceKraApprovalUpdate);
                 return Ok(resources);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a list of active client-project assignments for a specific resource within a given quarter.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> ResourceProjectAssignment(int resourceId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resources = await _resourceService.ResourceProjectAssignment(resourceId);
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
                 return BadRequest(ex.Message);
             }
         }
