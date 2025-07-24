@@ -6,6 +6,7 @@ using System;
 using DF_EvolutionAPI.Controllers;
 using Microsoft.Extensions.Logging;
 using DF_EvolutionAPI.Utils;
+using DF_EvolutionAPI.Models;
 
 namespace DF_PA_API.Controllers
 {
@@ -120,6 +121,20 @@ namespace DF_PA_API.Controllers
                 // Log detailed error information including exception message and stack trace
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
 
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetDesignatedRolesByBusinessunitId/{businessUnitId}")]
+        public async Task<IActionResult> GetDesignatedRolesByBusinessunitId(int? businessUnitId)
+        {
+            try
+            {
+                return Ok(await _designatedRoleService.GetDesignatedRolesByBusinessunitId(businessUnitId));
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
