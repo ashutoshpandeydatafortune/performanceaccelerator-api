@@ -70,5 +70,8 @@ namespace DF_EvolutionAPI.Models.Response
         public DateTime CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; } // Nullable DateTime for UpdateDate  
         public string Description { get; set; }
+        public int? FunctionId { get; set; }
+        [NotMapped]
+        public string FunctionName { get; set; }
     }
 }
