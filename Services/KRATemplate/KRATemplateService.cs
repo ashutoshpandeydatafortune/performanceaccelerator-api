@@ -318,6 +318,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             var query = from template in _dbContext.PATemplates
                         join function in _dbContext.TechFunctions
                         on template.FunctionId equals function.FunctionId
+                        join businessId in _dbContext.BusinessUnits
+                        on template.BusinessUnitId  equals businessId.BusinessUnitId
                         where template.IsActive == (int)Status.IS_ACTIVE && template.FunctionId == functionId
                         select new TemplateByFunction
                         {
@@ -331,6 +333,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             UpdateDate = template.UpdateDate,
                             FunctionId = template.FunctionId ?? null,
                             FunctionName = function.FunctionName,
+                            BusinessUnitId = businessId.BusinessUnitId,
+                            BusinessUnitName = businessId.BusinessUnitName,
 
                         };
 
@@ -343,6 +347,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
             var query = from template in _dbContext.PATemplates
                         join businessUnit in _dbContext.BusinessUnits
                         on template.BusinessUnitId equals businessUnit.BusinessUnitId
+                        join function in _dbContext.TechFunctions
+                        on template.FunctionId equals function.FunctionId
                         where template.IsActive == (int)Status.IS_ACTIVE && template.BusinessUnitId == businessUnitId
                         select new TemplateByBusinessUnit
                         {
@@ -356,6 +362,8 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                             UpdateDate = template.UpdateDate,
                             BusinessUnitId = template.BusinessUnitId,
                             BusinessUnitName = businessUnit.BusinessUnitName,
+                            FunctionId = template.FunctionId ?? null,
+                            FunctionName = function.FunctionName,
 
                         };
 
