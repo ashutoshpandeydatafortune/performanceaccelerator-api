@@ -24,5 +24,7 @@ namespace DF_EvolutionAPI.Services
         Task<QuarterDetails> GetCurrentQuarter();
         Task<List<ApprovalResources>> GetPendingKrasApprovalResources( int quarteId, int userId);
         Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate);
+
+        Task<List<ResourceProjectAssignment>> ResourceProjectAssignment(int resourceId);
     }
 }
