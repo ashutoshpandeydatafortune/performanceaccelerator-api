@@ -112,6 +112,12 @@ namespace DF_EvolutionAPI.Models
         public int ResourceId { get; set; }
         public List<UpdateApprovalStatus> ApprovalUpdates { get; set; }
     }
+    public class FetchResourceSkills
+    {
+        public int ResourceId { get; set; }
+        public string ResourceName { get; set; }
+        public List<SkillModel> Skills { get; set; }
+    }
 
 }
 
