@@ -566,9 +566,11 @@ namespace DF_EvolutionAPI.Services
             return finalResult;
         }
 
-        //Fetch Top 3 highly experience resources
+        //Get skill and subskills for particular resource
         public async Task<List<FetchResourceSkill>> SearchTopResourcesBySkillOrSubSkill(SearchSkill skillModel)
         {
+            var normalizedSearchKey = skillModel.SearchKey?.Trim().ToLower();
+
             var query = from rs in _dbContext.ResourceSkills.Where(rs => rs.IsActive == 1)
                         join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
                         join s in _dbContext.Skills.Where(s => s.IsActive == 1) on rs.SkillId equals s.SkillId into skillGroup
@@ -601,7 +603,7 @@ namespace DF_EvolutionAPI.Services
             if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
                 matchedResourceIds = query
-                    .Where(r => r.SkillName.Contains(skillModel.SearchKey) || r.SubSkillName.Contains(skillModel.SearchKey))
+                    .Where(r => r.SkillName.ToLower() == normalizedSearchKey || r.SubSkillName.ToLower() == normalizedSearchKey)
                     .Select(r => r.ResourceId);
                 filterApplied = true;
             }
@@ -666,17 +668,16 @@ namespace DF_EvolutionAPI.Services
                             SubSkillDescription = r.SubSkillDescription,
                         }).ToList();
 
-                    // Match flags
                     bool isSkillIdMatched = skillModel.SkillIds?.Contains(skillGroup.Key) == true;
-                    bool isSkillMatchedBySearchKey = !string.IsNullOrEmpty(skillModel.SearchKey) &&
-                        skillGroup.First().SkillName?.Contains(skillModel.SearchKey, StringComparison.OrdinalIgnoreCase) == true;
+                    bool isSkillMatchedBySearchKey = !string.IsNullOrEmpty(normalizedSearchKey) &&
+                        skillGroup.First().SkillName?.ToLower() == normalizedSearchKey;
 
                     bool isSubSkillIdMatched = skillModel.SubSkillIds != null &&
                         originalSubSkills.Any(s => s.SubSkillId.HasValue &&
                                                    skillModel.SubSkillIds.Contains(s.SubSkillId.Value));
 
-                    bool isSubSkillMatchedBySearchKey = !string.IsNullOrEmpty(skillModel.SearchKey) &&
-                        originalSubSkills.Any(s => s.SubSkillName?.Contains(skillModel.SearchKey, StringComparison.OrdinalIgnoreCase) == true);
+                    bool isSubSkillMatchedBySearchKey = !string.IsNullOrEmpty(normalizedSearchKey) &&
+                        originalSubSkills.Any(s => s.SubSkillName?.ToLower() == normalizedSearchKey);
 
                     bool isAnyMatch = isSkillIdMatched || isSkillMatchedBySearchKey || isSubSkillIdMatched || isSubSkillMatchedBySearchKey;
 
@@ -707,9 +708,8 @@ namespace DF_EvolutionAPI.Services
                         subSkills.AddRange(matched.Where(ms => !subSkills.Any(s => s.SubSkillId == ms.SubSkillId)));
                     }
 
-                    if (isSubSkillIdMatched && !isSkillIdMatched && !isSkillMatchedBySearchKey && string.IsNullOrEmpty(skillModel.SearchKey))
+                    if (isSubSkillIdMatched && !isSkillIdMatched && !isSkillMatchedBySearchKey && string.IsNullOrEmpty(normalizedSearchKey))
                     {
-                        // Subskill matched from SubSkillIds directly, and not part of broader skill match
                         var matched = originalSubSkills
                             .Where(s => s.SubSkillId.HasValue &&
                                         skillModel.SubSkillIds.Contains(s.SubSkillId.Value))
@@ -718,7 +718,6 @@ namespace DF_EvolutionAPI.Services
                         subSkills.AddRange(matched);
                     }
 
-                    // Don't include skill if no matching subskills and it wasn't directly matched
                     if (!subSkills.Any() && !isSkillIdMatched && !isSkillMatchedBySearchKey)
                         continue;
 
@@ -746,18 +745,13 @@ namespace DF_EvolutionAPI.Services
                 });
             }
 
-            // Sort final list
             finalResult = finalResult
-                .OrderByDescending(r => r.Skills.Max(s =>
-                    s.SubSkills.Any()
-                        ? s.SubSkills.Max(ss => ss.SubSkillExperience ?? 0)
-                        : s.SkillExperience ?? 0))
-                .ToList();
+              .OrderByDescending(r => r.Skills.Max(s => s.SkillExperience ?? 0))
+              .ToList();
 
             return finalResult;
         }
 
-        //Get skill and subskills for particular resource
         public async Task<List<FetchResourceSkills>> GetResourceSkills(int resourceId)
         {
             var result = await (
