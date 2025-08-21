@@ -244,18 +244,26 @@ namespace DF_EvolutionAPI.Services
                    join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                    join resourcefunction in _dbcontext.TechFunctions on resource.FunctionId equals resourcefunction.FunctionId
                    where resource.ResourceId == resourceId && resource.IsActive == (int)Status.IS_ACTIVE
-                   select new Resource
-                   {
+                    select new Resource
+                    {
                        ResourceId = resource.ResourceId,
                        ResourceName = resource.ResourceName,
                        EmailId = resource.EmailId,
                        EmployeeId = resource.EmployeeId,
-                       ReporterName = reportingName.ResourceName,
-                       Function = resourcefunction.FunctionName,
-                       Designation = designation.DesignationName,
-                       TotalYears = resource.TotalYears,
+                        ReporterName = reportingName.ResourceName,
+                        Function = resourcefunction.FunctionName,
+                        Designation = designation.DesignationName,
+                        TotalYears = resource.TotalYears,
+                        TenureInMonths = resource.TenureInMonths,    // Include to calculate total experience
+                        DateOfJoin = resource.DateOfJoin               // Include to calculate total experience
+                    }).FirstOrDefaultAsync();
 
-                   }).FirstOrDefaultAsync();
+                if (resources != null)
+                {
+                    var experience = CalculateTotalExperience((int)resources.TenureInMonths, resources.DateOfJoin);
+                    resources.TotalExperienceYears = experience.Years;
+                    resources.TotalExperienceMonths = experience.Months;
+                }
 
                 return resources;
             }
@@ -264,7 +272,30 @@ namespace DF_EvolutionAPI.Services
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
+        }
 
+        //Method to calculate total experiencc
+        private (int Years, int Months) CalculateTotalExperience(int tenureInMonths, DateTime? dateOfJoin)
+        {
+            if (!dateOfJoin.HasValue)
+                return (0, 0);
+
+            DateTime today = DateTime.Today;
+            DateTime joinDate = dateOfJoin.Value;
+
+            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;
+
+            if (today.Day < joinDate.Day)
+            {
+                monthsSinceJoin -= 1;
+            }
+
+            int totalMonthsExperience = tenureInMonths + monthsSinceJoin;
+
+            int years = totalMonthsExperience / 12;
+            int months = totalMonthsExperience % 12;
+
+            return (years, months);
         }
 
         // Gets the team members details
@@ -277,12 +308,13 @@ namespace DF_EvolutionAPI.Services
                     select new TeamDetails
                     {
 
-                        EmailId = resource.EmailId,
-                        Experience = resource.TotalYears,
+                        EmailId = resource.EmailId,                        
                         ResourceId = resource.ResourceId,
                         ReportingTo = resource.ReportingTo,
                         ResourceName = resource.ResourceName,
                         DesignationName = designation.DesignationName,
+                        TenureInMonths = (int)resource.TenureInMonths, // Add this field
+                        DateOfJoin = resource.DateOfJoin,
                     }
                 ).ToListAsync();
 
@@ -292,6 +324,10 @@ namespace DF_EvolutionAPI.Services
             var currentQuarter = await _dbcontext.QuarterDetails.FirstOrDefaultAsync(quarter => quarter.Id == 1);
             foreach (var resource in currentUser)
             {
+                //calculating the experience.
+                var experience = CalculateTotalExperience(resource.TenureInMonths, resource.DateOfJoin);
+                resource.Experience = $"{experience.Years}.{experience.Months}";
+
                 var userKraScoreYear = await GetUserKraScoreYear(resource.ResourceId, currentQuarter.QuarterYearRange);
                 resource.AverageScoreYear = userKraScoreYear.Select(r => r.Rating).FirstOrDefault();
                 var userKraScoreCurrent = GetUserKraScoreCurrent(resource.ResourceId, currentQuarter.Id, currentQuarter.QuarterYearRange);
