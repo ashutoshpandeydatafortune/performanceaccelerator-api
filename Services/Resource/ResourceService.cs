@@ -274,7 +274,7 @@ namespace DF_EvolutionAPI.Services
             }
         }
 
-        //Method to calculate total experiencc
+        //Method to calculate total experience
         private (int Years, int Months) CalculateTotalExperience(int tenureInMonths, DateTime? dateOfJoin)
         {
             if (!dateOfJoin.HasValue)
@@ -307,7 +307,6 @@ namespace DF_EvolutionAPI.Services
                     where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     select new TeamDetails
                     {
-
                         EmailId = resource.EmailId,                        
                         ResourceId = resource.ResourceId,
                         ReportingTo = resource.ReportingTo,
@@ -327,7 +326,6 @@ namespace DF_EvolutionAPI.Services
                 //calculating the experience.
                 var experience = CalculateTotalExperience(resource.TenureInMonths, resource.DateOfJoin);
                 resource.Experience = $"{experience.Years}.{experience.Months}";
-
                 var userKraScoreYear = await GetUserKraScoreYear(resource.ResourceId, currentQuarter.QuarterYearRange);
                 resource.AverageScoreYear = userKraScoreYear.Select(r => r.Rating).FirstOrDefault();
                 var userKraScoreCurrent = GetUserKraScoreCurrent(resource.ResourceId, currentQuarter.Id, currentQuarter.QuarterYearRange);
