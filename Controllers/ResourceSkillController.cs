@@ -201,5 +201,49 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// It is used to search top three  resources by its skill/subskill.
+        /// </summary>
+        /// <param name="searchSkillModel"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public async Task<IActionResult> SearchTopResourcesBySkillOrSubSkill(SearchSkill searchSkillModel)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+                var response = await _resourceSkillService.SearchTopResourcesBySkillOrSubSkill(searchSkillModel);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// This method checks if the skills of a resource have been updated, including approval or rejection status.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[Action]")]
+        public async Task<IActionResult> GetResourceSkills(int resourceId)
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+                var response = await _resourceSkillService.GetResourceSkills(resourceId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
