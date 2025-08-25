@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DF_EvolutionAPI.Models.Response
 {
@@ -14,7 +15,6 @@ namespace DF_EvolutionAPI.Models.Response
         public string DesignationName { get; set; }
         public double? AverageScoreYear { get; set; }
         public double? AverageScoreCurrent { get; set; }
-
     }
 
     public class TeamDetails
@@ -24,23 +24,23 @@ namespace DF_EvolutionAPI.Models.Response
         public int EmployeeId { get; set; }
         public string ResourceName { get; set; }
         public string DesignationName { get; set; }
-        public double? Experience { get; set; }
+        public string Experience { get; set; }
         public double? AverageScoreYear { get; set; }
         public double? AverageScoreCurrent { get; set; }
         public int PendingEvaluation { get; set; }
         public int? ReportingTo { get; set; }
-      
-
+        public int TenureInMonths { get; set; }
+        public DateTime? DateOfJoin { get; set; }
     }
+
     public class UserKRARatingLists
 
     {
         // public int? QuarterYear { get; set; }
         public string QuarterYearRange { get; set; }
-       // public string? QuarterName { get; set; }  
+        // public string? QuarterName { get; set; }  
         public double Rating { get; set; }
         public double Score { get; set; }
-       
-
     }
+
 }
