@@ -48,6 +48,7 @@ namespace DF_EvolutionAPI.Models
         public int ResourceSkillId { get; set; }
         public string ResourceName { get; set; }
         public double? TotalYears { get; set; }
+        public string ResourceExp { get; set; }
         public DateTime? DateOfJoin { get; set; }       
         public List<SkillModel> Skills { get; set; }
     }
@@ -116,6 +117,7 @@ namespace DF_EvolutionAPI.Models
     {
         public int ResourceId { get; set; }
         public string ResourceName { get; set; }
+         public string ResourceExp {  get; set; }
         public List<SkillModel> Skills { get; set; }
     }
 
