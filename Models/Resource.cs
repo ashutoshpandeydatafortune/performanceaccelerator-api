@@ -81,6 +81,10 @@ namespace DF_EvolutionAPI.Models
 
         [NotMapped]
         public List<AssignedSpecialKRA> SpecialKRAs { get; set; }
+        [NotMapped]
+        public int TotalExperienceYears { get; set; }
+        [NotMapped]
+        public int TotalExperienceMonths { get; set; }
     }
 
     public class AssignedSpecialKRA
