@@ -466,6 +466,7 @@ namespace DF_EvolutionAPI.Services
                             rs.SubSkillDescription,
                             r.DateOfJoin,
                             r.TotalYears,
+                            r.TenureInMonths,
                             rs.IsActive,
                             rs.IsDeleted,
                             NewSkillId = skill.SkillId,
@@ -528,7 +529,7 @@ namespace DF_EvolutionAPI.Services
                 {
                     // Get all subskills for each skill
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != 0 & r.IsDeleted ==0) // Ensure no invalid subskills
+                        .Where(r => r.NewSubSkillId != 0 & r.IsDeleted == 0) // Ensure no invalid subskills
                         .Select(r => new SubSkillModel
                         {
                             SubSkillId = r.NewSubSkillId,
@@ -548,17 +549,21 @@ namespace DF_EvolutionAPI.Services
                         SubSkills = subSkills // Add the subskills for each skill
                     };
 
-                    skills.Add(skillModels);
+                    skills.Add(skillModels);                
                 }
 
+                //Calculate total experience dynamically
+                var firstRecord = group.First();
+                var (years, months) = CalculateTotalExperience((int)firstRecord.TenureInMonths, firstRecord.DateOfJoin);
                 // Create the FetchResourceSkill object for each resource
                 var fetchResourceSkill = new FetchResourceSkill
                 {
                     ResourceId = group.Key,
-                    ResourceName = group.First().ResourceName,
-                    DateOfJoin = group.First().DateOfJoin,
-                    TotalYears = group.First().TotalYears,
-                    Skills = skills // Add the skills (with subskills) for the resource
+                    ResourceName = firstRecord.ResourceName,
+                    DateOfJoin = firstRecord.DateOfJoin,
+                    // Instead of DB value, use calculated experience
+                    ResourceExp = $"{years}.{ months}", // or just years
+                    Skills = skills
                 };
 
                 finalResult.Add(fetchResourceSkill);
@@ -567,6 +572,24 @@ namespace DF_EvolutionAPI.Services
             return finalResult;
         }
 
+        // Your CalculateTotalExperience method is unchanged
+        private (int Years, int Months) CalculateTotalExperience(int tenureInMonths, DateTime? dateOfJoin)
+        {
+            if (!dateOfJoin.HasValue)
+                return (0, 0);
+            DateTime today = DateTime.Today;
+            DateTime joinDate = dateOfJoin.Value;
+            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;
+            if (today.Day < joinDate.Day)
+            {
+                monthsSinceJoin -= 1;
+            }
+            int totalMonthsExperience = tenureInMonths + monthsSinceJoin;
+            int years = totalMonthsExperience / 12;
+            int months = totalMonthsExperience % 12;
+            return (years, months);
+        }
+      
         //Get skill and subskills for particular resource
         public async Task<List<FetchResourceSkill>> SearchTopResourcesBySkillOrSubSkill(SearchSkill skillModel)
         {
@@ -590,6 +613,7 @@ namespace DF_EvolutionAPI.Services
                             rs.SubSkillDescription,
                             r.DateOfJoin,
                             r.TotalYears,
+                            r.TenureInMonths,
                             rs.IsActive,
                             rs.IsDeleted,
                             NewSkillId = skill.SkillId,
@@ -736,12 +760,18 @@ namespace DF_EvolutionAPI.Services
                 if (!skills.Any())
                     continue;
 
+                // Calculate total experience dynamically
+                var firstRecord = group.First();
+                var (years, months) = CalculateTotalExperience((int)firstRecord.TenureInMonths, firstRecord.DateOfJoin);
+
                 finalResult.Add(new FetchResourceSkill
                 {
                     ResourceId = group.Key,
                     ResourceName = group.First().ResourceName,
                     DateOfJoin = group.First().DateOfJoin,
                     TotalYears = group.First().TotalYears,
+                    // Instead of DB value, use calculated experience
+                    ResourceExp = $"{years}.{months}", // or just years
                     Skills = skills
                 });
             }
@@ -767,6 +797,8 @@ namespace DF_EvolutionAPI.Services
                 {
                     r.ResourceId,
                     r.ResourceName,
+                    r.TenureInMonths,
+                    r.DateOfJoin,
                     rs.SkillExperience,
                     rs.SkillVersion,
                     rs.SkillDescription,
@@ -818,10 +850,14 @@ namespace DF_EvolutionAPI.Services
                             }).ToList()
                     }).ToList();
 
+                var firstRecord = group.First();
+                var (years, months) = CalculateTotalExperience((int)firstRecord.TenureInMonths, firstRecord.DateOfJoin);
+
                 finalResult.Add(new FetchResourceSkills
                 {
                     ResourceId = group.Key,
                     ResourceName = group.First().ResourceName,
+                    ResourceExp = $"{years}.{months}",
                     Skills = skills // Without category grouping
                 });
             }
