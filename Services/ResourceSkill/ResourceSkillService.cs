@@ -143,7 +143,7 @@ namespace DF_EvolutionAPI.Services
 
                                     if (existingSubSkill != null)
                                     {
-                                        // Update existing subskill entry
+                                        // Update existing subskill entry                                       
                                         existingSubSkill.SkillExperience = skill.SkillExperience;
                                         existingSubSkill.SkillVersion = skill.SkillVersion;
                                         existingSubSkill.SkillDescription = skill.SkillDescription;
@@ -416,17 +416,18 @@ namespace DF_EvolutionAPI.Services
                                 SkillDescription = skillGroup.First().SkillDescription,
 
                                 SubSkills = skillGroup
-                                    .Where(r => r.NewSubSkillId != null)
-                                    .Select(r => new SubSkillModel
-                                    {
-                                        SkillId = r.NewSkillId,
-                                        SubSkillId = r.NewSubSkillId,
-                                        SubSkillName = r.SubSkillName,
-                                        SubSkillExperience = r.SubSkillExperience,
-                                        SubSkillVersion = r.SubSkillVersion,
-                                        SubSkillDescription = r.SubSkillDescription,
-                                        IsDeleted = r.IsDeleted
-                                    }).ToList()
+                                .Where(r => r.NewSubSkillId != null && (r.IsDeleted == null || r.IsDeleted != 1))
+                                .GroupBy(r => r.NewSubSkillId) // group by SubSkillId to avoid duplicates
+                                .Select(subGroup => new SubSkillModel
+                                {
+                                    SkillId = subGroup.First().NewSkillId,
+                                    SubSkillId = subGroup.Key.Value,
+                                    SubSkillName = subGroup.First().SubSkillName,
+                                    SubSkillExperience = subGroup.First().SubSkillExperience,
+                                    SubSkillVersion = subGroup.First().SubSkillVersion,
+                                    SubSkillDescription = subGroup.First().SubSkillDescription,
+                                    IsDeleted = subGroup.First().IsDeleted
+                                }).ToList()
                             }).ToList()
                     }).ToList();
 
