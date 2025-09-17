@@ -589,9 +589,9 @@ namespace DF_EvolutionAPI.Services
             int months = totalMonthsExperience % 12;
             return (years, months);
         }
-      
-        //Get skill and subskills for particular resource
-        public async Task<List<FetchResourceSkill>> SearchTopResourcesBySkillOrSubSkill(SearchSkill skillModel)
+
+        //Get three resources whoes skill and subskill have the highest experience.  
+         public async Task<List<FetchResourceSkill>> SearchTopResourcesBySkillOrSubSkill(SearchSkill skillModel)
         {
             var normalizedSearchKey = skillModel.SearchKey?.Trim().ToLower();
 
@@ -622,167 +622,69 @@ namespace DF_EvolutionAPI.Services
                             SubSkillName = subSkill != null ? subSkill.Name : null
                         };
 
-            IQueryable<int> matchedResourceIds = query.Select(q => q.ResourceId);
-            bool filterApplied = false;
-            // Apply filter based on SearchKey, SkillIds or SubSkillIds
-            if (!string.IsNullOrEmpty(skillModel.SearchKey))
+            // Corrected filtering logic
+            if (!string.IsNullOrEmpty(normalizedSearchKey))
             {
-                matchedResourceIds = query
-                    .Where(r => r.SkillName.ToLower() == normalizedSearchKey || r.SubSkillName.ToLower() == normalizedSearchKey)
-                    .Select(r => r.ResourceId);
-                filterApplied = true;
+                query = query.Where(r => r.SkillName.ToLower().Contains(normalizedSearchKey) ||
+                                         r.SubSkillName.ToLower().Contains(normalizedSearchKey));
             }
             else
             {
-                if (skillModel.SkillIds?.Count > 0)
-                {
-                    matchedResourceIds = query
-                        .Where(r => skillModel.SkillIds.Contains(r.NewSkillId))
-                        .Select(r => r.ResourceId);
-                    filterApplied = true;
-                }
-
                 if (skillModel.SubSkillIds?.Count > 0)
                 {
-                    matchedResourceIds = query
-                        .Where(r => r.NewSubSkillId.HasValue && skillModel.SubSkillIds.Contains(r.NewSubSkillId.Value))
-                        .Select(r => r.ResourceId);
-                    filterApplied = true;
+                    query = query.Where(r => r.NewSubSkillId.HasValue && skillModel.SubSkillIds.Contains(r.NewSubSkillId.Value));
+                }
+                // This condition should only be applied if there's no SubSkillId selected.
+                // If both are selected, the SubSkillIds filter should take precedence.
+                else if (skillModel.SkillIds?.Count > 0)
+                {
+                    query = query.Where(r => skillModel.SkillIds.Contains(r.NewSkillId));
                 }
             }
 
-            var filteredQuery = query.Where(r => matchedResourceIds.Contains(r.ResourceId));
+            // Explicitly execute the query to fetch data from the database
+            var topResources = await query.ToListAsync();
 
-            // Get top 3 by experience
-            if (filterApplied)
-            {
-                var topResources = await filteredQuery
-                    .GroupBy(r => r.ResourceId)
-                    .Select(g => new
+            // Perform the grouping, ordering, and taking the top 3 on the in-memory list
+            var finalResult = topResources
+                .GroupBy(r => r.ResourceId)
+                .Select(g =>
+                {
+                    var firstRecord = g.First();
+                    var (years, months) = CalculateTotalExperience((int)firstRecord.TenureInMonths, firstRecord.DateOfJoin);
+
+                    return new FetchResourceSkill
                     {
                         ResourceId = g.Key,
-                        MaxExperience = g.Max(x => x.SubSkillExperience ?? x.SkillExperience ?? 0)
-                    })
-                    .OrderByDescending(x => x.MaxExperience)
-                    .Take(3)
-                    .ToListAsync();
-
-                var topIds = topResources.Select(t => t.ResourceId).ToList();
-                filteredQuery = query.Where(r => topIds.Contains(r.ResourceId));
-            }
-
-            var result = await filteredQuery.ToListAsync();
-            var groupedResults = result.GroupBy(r => r.ResourceId);
-            var finalResult = new List<FetchResourceSkill>();
-
-            foreach (var group in groupedResults)
-            {
-                var skills = new List<SkillModel>();
-                var skillGroups = group.GroupBy(r => r.NewSkillId);
-
-                foreach (var skillGroup in skillGroups)
-                {
-                    var originalSubSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != 0 && r.IsDeleted == 0)
-                        .Select(r => new SubSkillModel
+                        ResourceName = firstRecord.ResourceName,
+                        DateOfJoin = firstRecord.DateOfJoin,
+                        ResourceExp = $"{years}.{months}",
+                        Skills = g.GroupBy(s => s.NewSkillId)
+                        .Select(skillGroup => new SkillModel
                         {
-                            SubSkillId = r.NewSubSkillId,
-                            SubSkillName = r.SubSkillName,
-                            SubSkillExperience = r.SubSkillExperience,
-                            SubSkillVersion = r.SubSkillVersion,
-                            SubSkillDescription = r.SubSkillDescription,
-                        }).ToList();
-
-                    bool isSkillIdMatched = skillModel.SkillIds?.Contains(skillGroup.Key) == true;
-                    bool isSkillMatchedBySearchKey = !string.IsNullOrEmpty(normalizedSearchKey) &&
-                        skillGroup.First().SkillName?.ToLower() == normalizedSearchKey;
-
-                    bool isSubSkillIdMatched = skillModel.SubSkillIds != null &&
-                        originalSubSkills.Any(s => s.SubSkillId.HasValue &&
-                                                   skillModel.SubSkillIds.Contains(s.SubSkillId.Value));
-
-                    bool isSubSkillMatchedBySearchKey = !string.IsNullOrEmpty(normalizedSearchKey) &&
-                        originalSubSkills.Any(s => s.SubSkillName?.ToLower() == normalizedSearchKey);
-
-                    bool isAnyMatch = isSkillIdMatched || isSkillMatchedBySearchKey || isSubSkillIdMatched || isSubSkillMatchedBySearchKey;
-
-                    if (filterApplied && !isAnyMatch)
-                        continue;
-
-                    var subSkills = new List<SubSkillModel>();
-
-                    // Skill ID or Skill name match (SearchKey)
-                    if (isSkillIdMatched || isSkillMatchedBySearchKey)
-                    {
-                        var top = originalSubSkills
-                            .OrderByDescending(s => s.SubSkillExperience ?? 0)
-                            .Take(1)
-                            .ToList();
-
-                        subSkills.AddRange(top.Where(ts => !subSkills.Any(s => s.SubSkillId == ts.SubSkillId)));
-                    }
-
-                    // SubSkill ID match
-                    if (isSubSkillIdMatched)
-                    {
-                        var matched = originalSubSkills
-                            .Where(s => s.SubSkillId.HasValue &&
-                                        skillModel.SubSkillIds.Contains(s.SubSkillId.Value))
-                            .ToList();
-
-                        subSkills.AddRange(matched.Where(ms => !subSkills.Any(s => s.SubSkillId == ms.SubSkillId)));
-                    }
-
-                    if (isSubSkillIdMatched && !isSkillIdMatched && !isSkillMatchedBySearchKey && string.IsNullOrEmpty(normalizedSearchKey))
-                    {
-                        var matched = originalSubSkills
-                            .Where(s => s.SubSkillId.HasValue &&
-                                        skillModel.SubSkillIds.Contains(s.SubSkillId.Value))
-                            .ToList();
-
-                        subSkills.AddRange(matched);
-                    }
-
-                    if (!subSkills.Any() && !isSkillIdMatched && !isSkillMatchedBySearchKey)
-                        continue;
-
-                    skills.Add(new SkillModel
-                    {
-                        SkillId = skillGroup.Key,
-                        SkillName = skillGroup.First().SkillName,
-                        SkillExperience = skillGroup.First().SkillExperience,
-                        SkillVersion = skillGroup.First().SkillVersion,
-                        SkillDescription = skillGroup.First().SkillDescription,
-                        SubSkills = subSkills
-                    });
-                }
-
-                if (!skills.Any())
-                    continue;
-
-                // Calculate total experience dynamically
-                var firstRecord = group.First();
-                var (years, months) = CalculateTotalExperience((int)firstRecord.TenureInMonths, firstRecord.DateOfJoin);
-
-                finalResult.Add(new FetchResourceSkill
-                {
-                    ResourceId = group.Key,
-                    ResourceName = group.First().ResourceName,
-                    DateOfJoin = group.First().DateOfJoin,
-                    TotalYears = group.First().TotalYears,
-                    // Instead of DB value, use calculated experience
-                    ResourceExp = $"{years}.{months}", // or just years
-                    Skills = skills
-                });
-            }
-
-            finalResult = finalResult
-              .OrderByDescending(r => r.Skills.Max(s => s.SkillExperience ?? 0))
-              .ToList();
+                            SkillId = skillGroup.Key,
+                            SkillName = skillGroup.First().SkillName,
+                            SkillExperience = skillGroup.First().SkillExperience,
+                            SkillVersion = skillGroup.First().SkillVersion,
+                            SkillDescription = skillGroup.First().SkillDescription,
+                            SubSkills = skillGroup.Where(ss => ss.NewSubSkillId.HasValue)
+                            .Select(ss => new SubSkillModel
+                            {
+                                SubSkillId = ss.NewSubSkillId,
+                                SubSkillName = ss.SubSkillName,
+                                SubSkillExperience = ss.SubSkillExperience,
+                                SubSkillVersion = ss.SubSkillVersion,
+                                SubSkillDescription = ss.SubSkillDescription
+                            }).ToList()
+                        }).ToList()
+                    };
+                })
+                .OrderByDescending(r => r.Skills.Max(s => s.SkillExperience ?? 0))
+                .Take(3)
+                .ToList();
 
             return finalResult;
         }
-
         public async Task<List<FetchResourceSkills>> GetResourceSkills(int resourceId)
         {
             var result = await (
