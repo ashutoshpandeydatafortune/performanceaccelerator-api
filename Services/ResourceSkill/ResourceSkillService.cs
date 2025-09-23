@@ -625,8 +625,8 @@ namespace DF_EvolutionAPI.Services
             // Corrected filtering logic
             if (!string.IsNullOrEmpty(normalizedSearchKey))
             {
-                query = query.Where(r => r.SkillName.ToLower().Contains(normalizedSearchKey) ||
-                                         r.SubSkillName.ToLower().Contains(normalizedSearchKey));
+                query = query.Where(r => r.SkillName.ToLower() == (normalizedSearchKey) ||
+                                         r.SubSkillName.ToLower() == (normalizedSearchKey));
             }
             else
             {
