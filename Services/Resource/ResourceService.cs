@@ -1033,31 +1033,32 @@ namespace DF_EvolutionAPI.Services
                     join p in _dbcontext.Projects on pr.ProjectId equals p.ProjectId
                     join c in _dbcontext.Clients on p.ClientId equals c.ClientId
                     where pr.ResourceId == resourceId
-                          && pr.IsActive == 1
-                          && c.IsActive == 1
-                          && pr.AssignmentDate <= quarterEnd
-                          && pr.EndDate >= quarterStart
+                        && pr.IsActive == 1
+                        && c.IsActive == 1
+                        && pr.AssignmentDate <= quarterEnd
+                        && pr.EndDate >= quarterStart
+                    group pr by new { p.ProjectId, p.ProjectName, c.ClientName } into g
                     select new ResourceProjectAssignment
                     {
-                        ClientName = c.ClientName,
-                        ProjectName = p.ProjectName,
-                        AssignmentDate = pr.StartDate,
-                        ProjectEndDate = pr.EndDate ,
+                        ClientName = g.Key.ClientName,
+                        ProjectName = g.Key.ProjectName,
+                        AssignmentDate = g.Max(x => x.StartDate),
+                        ProjectEndDate = g.Max(x => x.EndDate),
                         quarterEndDate = quarterEnd
                     }
                 )
-                .OrderByDescending(x => x.AssignmentDate)
-                .ThenByDescending(x => x.ProjectEndDate)
+                .OrderByDescending(x => x.ProjectEndDate)
                 .ThenBy(x => x.ClientName)
                 .ToListAsync();
 
                 return assignments;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
+
     }
 }
