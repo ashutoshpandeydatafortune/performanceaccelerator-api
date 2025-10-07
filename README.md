@@ -76,3 +76,36 @@ Merge main into production, Github will push code to Lightsail server.
 Copy .env file from www root directory to performance accelerator directory.
 Start the IIS site.
 
+### To run Sonar Qube
+
+docker compose -f .\docker-compose-sonarqube.yml up -d
+
+1. Create a new project in sonar qube
+   http://localhost:9000
+
+2. Generate token by going to:
+```
+   My account -> Security -> Generate Tokens   
+```
+
+Give it a name and choose `Project Analysis Token` in
+`Type`
+
+3. Update values in `sonar-project.properties`
+
+4. Now run:
+```
+dotnet sonarscanner begin `
+  /k:"df-velocity-api" `
+  /d:sonar.host.url="http://localhost:9000" `
+  /d:sonar.token="GENERATED__SONAR_TOKEN" `
+  /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml"
+```
+
+```
+dotnet build --no-incremental
+```
+
+```
+dotnet sonarscanner end /d:sonar.token="GENERATED__SONAR_TOKEN"
+```
