@@ -245,14 +245,14 @@ namespace DF_EvolutionAPI.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> AssignUnassignKra(int userKraId, byte IsActive)
+        public async Task<IActionResult> AssignUnassignKra(int userKraId, byte IsActive, byte IsDeleted)
         {
             try
             {
                // Log the API endpoint path being hit for request tracing and monitoring
                 _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
 
-                var model = await _userKRAService.AssignUnassignKra(userKraId, IsActive);
+                var model = await _userKRAService.AssignUnassignKra(userKraId, IsActive, IsDeleted);
                 return Ok(model);
             }
             catch (Exception ex)
