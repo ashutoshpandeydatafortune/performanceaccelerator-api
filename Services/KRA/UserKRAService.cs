@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
-//using System.Data.Entity;
 using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
@@ -601,8 +600,8 @@ namespace DF_EvolutionAPI.Services
                 from managerComment in managerCommentJoin.Where(m => m.IsActive == (int)Status.IS_ACTIVE).DefaultIfEmpty()
                 //where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE && userKra.IsActive == (int)Status.IS_ACTIVE
                 where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE && (
-    (userKra.IsActive == (int)Status.IN_ACTIVE && userKra.IsDeleted == (int)Status.IS_ACTIVE) ||
-    (userKra.IsActive == (int)Status.IS_ACTIVE && userKra.IsDeleted == null)
+                (userKra.IsActive == (int)Status.IN_ACTIVE && userKra.IsDeleted == (int)Status.IS_ACTIVE) ||
+                (userKra.IsActive == (int)Status.IS_ACTIVE && (userKra.IsDeleted == null || userKra.IsDeleted == 0))
 )
                 select new UserKRADetails
                 {
