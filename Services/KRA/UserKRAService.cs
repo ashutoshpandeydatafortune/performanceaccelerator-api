@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using DF_PA_API.Models;
-//using System.Data.Entity;
 using DF_EvolutionAPI.Utils;
 using DF_EvolutionAPI.Models;
 using System.Threading.Tasks;
@@ -599,7 +598,11 @@ namespace DF_EvolutionAPI.Services
                     on new { userKra.UserId, userKra.QuarterId } equals new { managerComment.UserId, managerComment.QuarterId }
                     into managerCommentJoin
                 from managerComment in managerCommentJoin.Where(m => m.IsActive == (int)Status.IS_ACTIVE).DefaultIfEmpty()
-                where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE && userKra.IsActive == (int)Status.IS_ACTIVE
+                //where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE && userKra.IsActive == (int)Status.IS_ACTIVE
+                where userKra.UserId == UserId && kraLibrary.IsActive == (int)Status.IS_ACTIVE && (
+                (userKra.IsActive == (int)Status.IN_ACTIVE && userKra.IsDeleted == (int)Status.IS_ACTIVE) ||
+                (userKra.IsActive == (int)Status.IS_ACTIVE && (userKra.IsDeleted == null || userKra.IsDeleted == 0))
+)
                 select new UserKRADetails
                 {
                     Id = userKra.Id,
@@ -687,7 +690,7 @@ namespace DF_EvolutionAPI.Services
         }
 
         //UnassignKra is used to removed the assigned kras from resources.
-        public async Task<ResponseModel> AssignUnassignKra(int userKraId, byte IsActive)
+        public async Task<ResponseModel> AssignUnassignKra(int userKraId, byte IsActive, byte IsDeleted) // Is Deleted flag to unassign the kras so that the It can be assigned again.
         {
             ResponseModel model = new ResponseModel();
             UserKRA userKra = null;
@@ -697,12 +700,13 @@ namespace DF_EvolutionAPI.Services
                 if (userKra != null)
                 {
                     userKra.IsActive = IsActive;
+                    userKra.IsDeleted = IsDeleted;
 
                     _dbcontext.Update(userKra);
                     _dbcontext.SaveChanges();
 
                     model.IsSuccess = true;
-                    if (userKra.IsActive == (int)Status.IN_ACTIVE)
+                    if (userKra.IsActive == (int)Status.IN_ACTIVE && userKra.IsDeleted == (int)Status.IN_ACTIVE)
                     {
                         model.Messsage = "User KRA Unassigned Successfully";
                     }
