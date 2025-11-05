@@ -248,7 +248,7 @@ namespace DF_EvolutionAPI.Services
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
-        }   
+        }
 
         public async Task<List<FetchResourceSkill>> GetAllResourceSkills()
         {
@@ -259,13 +259,13 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0
+                where rs.IsActive == (int)Status.IS_ACTIVE && rs.SkillId != 0
                 select new
                 {
                     r.ResourceId,
                     r.ResourceName,
-                    r.TotalYears,
                     r.DateOfJoin,
+                    r.TenureInMonths,
                     rs.SkillExperience,
                     rs.SkillVersion,
                     rs.SkillDescription,
@@ -278,10 +278,10 @@ namespace DF_EvolutionAPI.Services
                     rs.RejectedComment,
                     rs.ResourceSkillId,
                     rs.IsDeleted,
-                    NewSkillId = skill != null ? skill.SkillId : 0, // Ensure default value
-                    SkillName = skill != null ? skill.Name : null, // Default name if null
-                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0, // Default value
-                    SubSkillName = subSkill != null ? subSkill.Name : null // Default name
+                    NewSkillId = skill != null ? skill.SkillId : 0,
+                    SkillName = skill != null ? skill.Name : null,
+                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0,
+                    SubSkillName = subSkill != null ? subSkill.Name : null
                 }
             ).ToListAsync();
 
@@ -295,8 +295,6 @@ namespace DF_EvolutionAPI.Services
             foreach (var group in groupedResults)
             {
                 var skills = new List<SkillModel>();
-
-                // Group skills and subskills
                 var skillGroups = group.GroupBy(r => r.NewSkillId);
 
                 foreach (var skillGroup in skillGroups)
@@ -311,9 +309,6 @@ namespace DF_EvolutionAPI.Services
                             SubSkillExperience = r.SubSkillExperience,
                             SubSkillVersion = r.SubSkillVersion,
                             SubSkillDescription = r.SubSkillDescription,
-                            
-
-
                         }).ToList();
 
                     var skillModel = new SkillModel
@@ -333,14 +328,21 @@ namespace DF_EvolutionAPI.Services
                     skills.Add(skillModel);
                 }
 
+                var firstRecord = group.First();
+
+                // Calculate total experience using your method
+                var (years, months) = CalculateTotalExperience(
+                    (int)(firstRecord.TenureInMonths ?? 0),
+                    firstRecord.DateOfJoin
+                );
+
                 var fetchResourceSkill = new FetchResourceSkill
                 {
                     ResourceId = group.Key,
-                    ResourceSkillId= group.First().ResourceSkillId,
-                    ResourceName = group.First().ResourceName,
-                    TotalYears= group.First().TotalYears,
-                    DateOfJoin= group.First().DateOfJoin,
-
+                    ResourceSkillId = firstRecord.ResourceSkillId,
+                    ResourceName = firstRecord.ResourceName,
+                    ResourceExp = $"{years}.{months}", //Formatted experience
+                    DateOfJoin = firstRecord.DateOfJoin,
                     Skills = skills
                 };
 
@@ -349,7 +351,7 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult.OrderBy(r => r.ResourceName).ToList();
         }
-        
+
         public async Task<List<FetchResourceCategorySkills>> GetResourceSkillsById(int resourceId)
         {
             var result = await (
