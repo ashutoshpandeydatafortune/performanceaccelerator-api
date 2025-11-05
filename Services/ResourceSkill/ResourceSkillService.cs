@@ -248,7 +248,108 @@ namespace DF_EvolutionAPI.Services
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
-        }   
+        }
+
+        //public async Task<List<FetchResourceSkill>> GetAllResourceSkills()
+        //{
+        //    var result = await (
+        //        from rs in _dbContext.ResourceSkills
+        //        join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
+        //        join s in _dbContext.Skills on rs.SkillId equals s.SkillId into skillGroup
+        //        from skill in skillGroup.DefaultIfEmpty()
+        //        join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+        //        from subSkill in subSkillGroup.DefaultIfEmpty()
+        //        where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0
+        //        select new
+        //        {
+        //            r.ResourceId,
+        //            r.ResourceName,
+        //            r.TotalYears,
+        //            r.DateOfJoin,
+        //            rs.SkillExperience,
+        //            rs.SkillVersion,
+        //            rs.SkillDescription,
+        //            rs.SubSkillExperience,
+        //            rs.SubSkillVersion,
+        //            rs.SubSkillDescription,
+        //            rs.ApprovedBy,
+        //            rs.RejectedBy,
+        //            rs.IsApproved,
+        //            rs.RejectedComment,
+        //            rs.ResourceSkillId,
+        //            rs.IsDeleted,
+        //            NewSkillId = skill != null ? skill.SkillId : 0, // Ensure default value
+        //            SkillName = skill != null ? skill.Name : null, // Default name if null
+        //            NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0, // Default value
+        //            SubSkillName = subSkill != null ? subSkill.Name : null // Default name
+        //        }
+        //    ).ToListAsync();
+
+        //    // Group the results by ResourceId
+        //    var groupedResults = result.GroupBy(r => r.ResourceId);
+
+        //    // Create a list to hold the final FetchResourceSkill objects
+        //    var finalResult = new List<FetchResourceSkill>();
+
+        //    // Iterate over each group and create the FetchResourceSkill objects
+        //    foreach (var group in groupedResults)
+        //    {
+        //        var skills = new List<SkillModel>();
+
+        //        // Group skills and subskills
+        //        var skillGroups = group.GroupBy(r => r.NewSkillId);
+
+        //        foreach (var skillGroup in skillGroups)
+        //        {
+        //            var subSkills = skillGroup
+        //                .Where(r => r.NewSubSkillId != 0 && r.IsDeleted != 1)
+        //                .Select(r => new SubSkillModel
+        //                {
+        //                    SkillId=skillGroup.Key,
+        //                    SubSkillId = r.NewSubSkillId,
+        //                    SubSkillName = r.SubSkillName,
+        //                    SubSkillExperience = r.SubSkillExperience,
+        //                    SubSkillVersion = r.SubSkillVersion,
+        //                    SubSkillDescription = r.SubSkillDescription,
+
+
+
+        //                }).ToList();
+
+        //            var skillModel = new SkillModel
+        //            {
+        //                SkillId = skillGroup.Key,
+        //                SkillName = skillGroup.First().SkillName,
+        //                SkillExperience = skillGroup.First().SkillExperience,
+        //                SkillVersion = skillGroup.First().SkillVersion,
+        //                SkillDescription = skillGroup.First().SkillDescription,
+        //                IsApproved = skillGroup.First().IsApproved ?? 0,
+        //                ApprovedBy = skillGroup.First().ApprovedBy ?? 0,
+        //                RejectedBy = skillGroup.First().RejectedBy ?? 0,
+        //                RejectedComment = skillGroup.First().RejectedComment,
+        //                SubSkills = subSkills
+        //            };
+
+        //            skills.Add(skillModel);
+        //        }
+
+        //        var fetchResourceSkill = new FetchResourceSkill
+        //        {
+        //            ResourceId = group.Key,
+        //            ResourceSkillId= group.First().ResourceSkillId,
+        //            ResourceName = group.First().ResourceName,
+        //            TotalYears= group.First().TotalYears,
+        //            DateOfJoin= group.First().DateOfJoin,
+
+        //            Skills = skills
+        //        };
+
+        //        finalResult.Add(fetchResourceSkill);
+        //    }
+
+        //    return finalResult.OrderBy(r => r.ResourceName).ToList();
+        //}
+
 
         public async Task<List<FetchResourceSkill>> GetAllResourceSkills()
         {
@@ -259,13 +360,13 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0
+                where rs.IsActive == (int)Status.IS_ACTIVE && rs.SkillId != 0
                 select new
                 {
                     r.ResourceId,
                     r.ResourceName,
-                    r.TotalYears,
                     r.DateOfJoin,
+                    r.TenureInMonths, // ✅ Added this
                     rs.SkillExperience,
                     rs.SkillVersion,
                     rs.SkillDescription,
@@ -278,10 +379,10 @@ namespace DF_EvolutionAPI.Services
                     rs.RejectedComment,
                     rs.ResourceSkillId,
                     rs.IsDeleted,
-                    NewSkillId = skill != null ? skill.SkillId : 0, // Ensure default value
-                    SkillName = skill != null ? skill.Name : null, // Default name if null
-                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0, // Default value
-                    SubSkillName = subSkill != null ? subSkill.Name : null // Default name
+                    NewSkillId = skill != null ? skill.SkillId : 0,
+                    SkillName = skill != null ? skill.Name : null,
+                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0,
+                    SubSkillName = subSkill != null ? subSkill.Name : null
                 }
             ).ToListAsync();
 
@@ -295,8 +396,6 @@ namespace DF_EvolutionAPI.Services
             foreach (var group in groupedResults)
             {
                 var skills = new List<SkillModel>();
-
-                // Group skills and subskills
                 var skillGroups = group.GroupBy(r => r.NewSkillId);
 
                 foreach (var skillGroup in skillGroups)
@@ -311,9 +410,6 @@ namespace DF_EvolutionAPI.Services
                             SubSkillExperience = r.SubSkillExperience,
                             SubSkillVersion = r.SubSkillVersion,
                             SubSkillDescription = r.SubSkillDescription,
-                            
-
-
                         }).ToList();
 
                     var skillModel = new SkillModel
@@ -333,14 +429,21 @@ namespace DF_EvolutionAPI.Services
                     skills.Add(skillModel);
                 }
 
+                var firstRecord = group.First();
+
+                // Calculate total experience using your method
+                var (years, months) = CalculateTotalExperience(
+                    (int)(firstRecord.TenureInMonths ?? 0),
+                    firstRecord.DateOfJoin
+                );
+
                 var fetchResourceSkill = new FetchResourceSkill
                 {
                     ResourceId = group.Key,
-                    ResourceSkillId= group.First().ResourceSkillId,
-                    ResourceName = group.First().ResourceName,
-                    TotalYears= group.First().TotalYears,
-                    DateOfJoin= group.First().DateOfJoin,
-
+                    ResourceSkillId = firstRecord.ResourceSkillId,
+                    ResourceName = firstRecord.ResourceName,
+                    ResourceExp = $"{years}.{months}", // ✅ formatted experience
+                    DateOfJoin = firstRecord.DateOfJoin,
                     Skills = skills
                 };
 
@@ -349,7 +452,10 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult.OrderBy(r => r.ResourceName).ToList();
         }
-        
+
+
+
+
         public async Task<List<FetchResourceCategorySkills>> GetResourceSkillsById(int resourceId)
         {
             var result = await (
