@@ -265,7 +265,7 @@ namespace DF_EvolutionAPI.Services
                     r.ResourceId,
                     r.ResourceName,
                     r.DateOfJoin,
-                    r.TenureInMonths, // ✅ Added this
+                    r.TenureInMonths,
                     rs.SkillExperience,
                     rs.SkillVersion,
                     rs.SkillDescription,
@@ -341,7 +341,7 @@ namespace DF_EvolutionAPI.Services
                     ResourceId = group.Key,
                     ResourceSkillId = firstRecord.ResourceSkillId,
                     ResourceName = firstRecord.ResourceName,
-                    ResourceExp = $"{years}.{months}", // ✅ formatted experience
+                    ResourceExp = $"{years}.{months}", //Formatted experience
                     DateOfJoin = firstRecord.DateOfJoin,
                     Skills = skills
                 };
@@ -351,9 +351,6 @@ namespace DF_EvolutionAPI.Services
 
             return finalResult.OrderBy(r => r.ResourceName).ToList();
         }
-
-
-
 
         public async Task<List<FetchResourceCategorySkills>> GetResourceSkillsById(int resourceId)
         {
