@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
 using Sprache;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
@@ -319,7 +320,7 @@ namespace DF_EvolutionAPI.Services.KRATemplate
                         join function in _dbContext.TechFunctions
                         on template.FunctionId equals function.FunctionId
                         join businessId in _dbContext.BusinessUnits
-                        on template.BusinessUnitId  equals businessId.BusinessUnitId
+                        on template.BusinessUnitId equals businessId.BusinessUnitId
                         where template.IsActive == (int)Status.IS_ACTIVE && template.FunctionId == functionId
                         select new TemplateByFunction
                         {
@@ -340,6 +341,37 @@ namespace DF_EvolutionAPI.Services.KRATemplate
 
             return await query.OrderBy(templateName => templateName.Name).ToListAsync();
         }
+        //It will be use resolve a issue of function id 0
+        //public async Task<List<TemplateByFunction>> GetAllTemplatesByFunctionId(int functionId)
+        //{
+        //    int? funcId = functionId == 0 ? (int?)null : functionId;
+
+        //    var query = from template in _dbContext.PATemplates
+        //                join function in _dbContext.TechFunctions
+        //                    on template.FunctionId equals function.FunctionId
+        //                join businessId in _dbContext.BusinessUnits
+        //                    on template.BusinessUnitId equals businessId.BusinessUnitId
+        //                where template.IsActive == (int)Status.IS_ACTIVE
+        //                      && (funcId == null || template.FunctionId == funcId)
+        //                select new TemplateByFunction
+        //                {
+        //                    TemplateId = template.TemplateId,
+        //                    Name = template.Name,
+        //                    Description = template.Description,
+        //                    IsActive = template.IsActive,
+        //                    CreateBy = template.CreateBy,
+        //                    UpdateBy = template.UpdateBy,
+        //                    CreateDate = template.CreateDate,
+        //                    UpdateDate = template.UpdateDate,
+        //                    FunctionId = template.FunctionId,
+        //                    FunctionName = function.FunctionName,
+        //                    BusinessUnitId = businessId.BusinessUnitId,
+        //                    BusinessUnitName = businessId.BusinessUnitName,
+        //                };
+
+        //    return await query.OrderBy(templateName => templateName.Name).ToListAsync();
+        //}
+
 
         //Retrieves all active templates associated with the specified businessUnit ID.
         public async Task<List<TemplateByBusinessUnit>> GetAllTemplatesByBusinessUnitId(int businessUnitId)
