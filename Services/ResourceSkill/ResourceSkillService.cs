@@ -139,7 +139,7 @@ namespace DF_EvolutionAPI.Services
                                     var existingSubSkill = _dbContext.ResourceSkills
                                         .FirstOrDefault(rs => rs.ResourceId == resourceId
                                             && rs.SkillId == skill.SkillId
-                                            && rs.SubSkillId == subSkill.SubSkillId && rs.IsActive == 1 && rs.IsDeleted == 0);
+                                            && rs.SubSkillId == subSkill.SubSkillId && rs.IsActive == 1 && rs.IsDeleted != 1);
 
                                     if (existingSubSkill != null)
                                     {
@@ -259,7 +259,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE && rs.SkillId != 0
+                where rs.IsActive == (int)Status.IS_ACTIVE && rs.SkillId != 0 && r.StatusId==8
                 select new
                 {
                     r.ResourceId,
@@ -581,11 +581,7 @@ namespace DF_EvolutionAPI.Services
                 return (0, 0);
             DateTime today = DateTime.Today;
             DateTime joinDate = dateOfJoin.Value;
-            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;
-            if (today.Day < joinDate.Day)
-            {
-                monthsSinceJoin -= 1;
-            }
+            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;           
             int totalMonthsExperience = tenureInMonths + monthsSinceJoin;
             int years = totalMonthsExperience / 12;
             int months = totalMonthsExperience % 12;

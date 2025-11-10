@@ -283,12 +283,7 @@ namespace DF_EvolutionAPI.Services
             DateTime today = DateTime.Today;
             DateTime joinDate = dateOfJoin.Value;
 
-            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;
-
-            if (today.Day < joinDate.Day)
-            {
-                monthsSinceJoin -= 1;
-            }
+            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;           
 
             int totalMonthsExperience = tenureInMonths + monthsSinceJoin;
 
