@@ -156,8 +156,7 @@ namespace DF_EvolutionAPI.Services
                                         existingSubSkill.RejectedBy = 0;
                                         existingSubSkill.RejectedComment = null;
                                         existingSubSkill.IsApproved = 0;
-                                        existingSubSkill.ApprovedBy = 0;
-                                        existingSkill.IsDeleted = 0;
+                                        existingSubSkill.ApprovedBy = 0;                                       
 
                                         _dbContext.ResourceSkills.Update(existingSubSkill);
                                     }
@@ -181,8 +180,7 @@ namespace DF_EvolutionAPI.Services
                                             RejectedBy = 0,
                                             RejectedComment = null,
                                             IsApproved = 0,
-                                            ApprovedBy = 0,
-                                            IsDeleted = 0,
+                                            ApprovedBy = 0,                                          
                                         };
                                         _dbContext.ResourceSkills.Add(newSubSkill);
                                     }
