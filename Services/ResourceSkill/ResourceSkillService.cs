@@ -236,7 +236,7 @@ namespace DF_EvolutionAPI.Services
                 }
 
                 await _dbContext.SaveChangesAsync(); // Commit changes
-
+                //log
                 model.IsSuccess = true;
                 model.Messsage = "Resource skills and subskills updated successfully.";
             }
