@@ -24,7 +24,7 @@ namespace DF_EvolutionAPI.Services
             _logger = logger;
         }
 
-      
+
         public async Task<ResponseModel> InsertResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             ResponseModel model = new ResponseModel(); try
@@ -76,7 +76,7 @@ namespace DF_EvolutionAPI.Services
                                     IsApproved=0,
                                     ApprovedBy = 0,
                                     IsDeleted = 0
-                                    
+
                                 };
                                 _dbContext.ResourceSkills.Add(newResourceSkill);
                             }
@@ -96,7 +96,7 @@ namespace DF_EvolutionAPI.Services
             }
             return model;
         }
-                   
+
         public async Task<ResponseModel> UpdateResourceSkill(ResourceSkillRequestModel resourceSkillRequestModel)
         {
             ResponseModel model = new ResponseModel();
@@ -176,7 +176,7 @@ namespace DF_EvolutionAPI.Services
                                             SubSkillDescription = subSkill.SubSkillDescription,
                                             IsActive = (int)Status.IS_ACTIVE,
                                             CreateBy = resourceSkillRequestModel.CreateBy,
-                                            CreateDate = DateTime.Now,                                            
+                                            CreateDate = DateTime.Now,
                                             RejectedBy = 0,
                                             RejectedComment = null,
                                             IsApproved = 0,
@@ -206,7 +206,7 @@ namespace DF_EvolutionAPI.Services
                                 existingMainSkill.ApprovedBy = 0;
                                 existingMainSkill.RejectedComment = null;
                                 existingMainSkill.UpdateDate = DateTime.Now;
-                                
+
 
                                 _dbContext.ResourceSkills.Update(existingMainSkill);
                             }
@@ -409,7 +409,7 @@ namespace DF_EvolutionAPI.Services
                                 RejectedComment= skillGroup.First().RejectedComment,
                                 RejectedBy = skillGroup.First().RejectedBy ?? 0,
                                 IsApproved = skillGroup.First().IsApproved ?? 0,
-                                ApprovedBy = skillGroup.First().ApprovedBy ?? 0,                              
+                                ApprovedBy = skillGroup.First().ApprovedBy ?? 0,
                                 SkillName = skillGroup.First().SkillName,
                                 SkillExperience = skillGroup.First().SkillExperience,
                                 SkillVersion = skillGroup.First().SkillVersion,
@@ -435,7 +435,7 @@ namespace DF_EvolutionAPI.Services
                 {
                     ResourceId = group.Key,
                     ResourceName = group.First().ResourceName,
-                    
+
                     CategoryWiseSkills = categoryWiseSkills
                 };
 
@@ -448,12 +448,13 @@ namespace DF_EvolutionAPI.Services
         public async Task<List<FetchResourceSkill>> GetResourcesBySkill(SearchSkill skillModel)
         {
             // Base query for resource, skills, and subskills
-            var query = from rs in _dbContext.ResourceSkills.Where(rs => rs.IsActive == 1)
+            var query = from rs in _dbContext.ResourceSkills
                         join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
-                        join s in _dbContext.Skills.Where(s=> s.IsActive == 1) on rs.SkillId equals s.SkillId into skillGroup
+                        join s in _dbContext.Skills.Where(s => s.IsActive == (int)Status.IS_ACTIVE) on rs.SkillId equals s.SkillId into skillGroup
                         from skill in skillGroup.DefaultIfEmpty()
-                        join sub in _dbContext.SubSkills.Where(subskill => subskill.IsActive == 1) on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
+                        join sub in _dbContext.SubSkills.Where(subskill => subskill.IsActive == (int)Status.IS_ACTIVE) on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                         from subSkill in subSkillGroup.DefaultIfEmpty()
+                        where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && rs.IsActive == (int)Status.IS_ACTIVE
                         select new
                         {
                             r.ResourceId,
@@ -469,70 +470,62 @@ namespace DF_EvolutionAPI.Services
                             r.TenureInMonths,
                             rs.IsActive,
                             rs.IsDeleted,
-                            NewSkillId = skill.SkillId,
-                            SkillName = skill.Name,
-                            NewSubSkillId = subSkill != null ? subSkill.SubSkillId : (int?)null, // Allow null SubSkillId
-                            SubSkillName = subSkill != null ? subSkill.Name : null // Allow null SubSkillName
-
+                            NewSkillId = skill != null ? (int?)skill.SkillId : null,
+                            SkillName = skill != null ? skill.Name : null,
+                            NewSubSkillId = subSkill != null ? (int?)subSkill.SubSkillId : null,
+                            SubSkillName = subSkill != null ? subSkill.Name : null
                         };
-
             // Step 1: Identify matching resources based on SearchKey, SkillIds, or SubSkillIds
             IQueryable<int> matchedResourceIds = query.Select(q => q.ResourceId);
-
             // If SearchKey is provided, find resources that match the SearchKey
             if (!string.IsNullOrEmpty(skillModel.SearchKey))
             {
                 matchedResourceIds = query
-                    .Where(r => r.SkillName.Contains(skillModel.SearchKey) ||
-                                r.SubSkillName.Contains(skillModel.SearchKey))
-                    .Select(r => r.ResourceId);
+                .Where(r => (r.SkillName != null && r.SkillName.ToLower() == skillModel.SearchKey.ToLower()) ||
+                 (r.SubSkillName != null && r.SubSkillName.ToLower() == skillModel.SearchKey.ToLower()))
+                .Select(r => r.ResourceId);
             }
             else
             {
-                // If SkillIds are provided, find resources that have matching SkillIds or SubSkillIds
                 if (skillModel.SkillIds != null && skillModel.SkillIds.Count > 0)
                 {
                     matchedResourceIds = query
-                        .Where(r => skillModel.SkillIds.Contains(r.NewSkillId))
+                        .Where(r => r.NewSkillId.HasValue && skillModel.SkillIds.Contains(r.NewSkillId.Value))
                         .Select(r => r.ResourceId);
                 }
 
-                // If SubSkillIds are provided, find resources that have matching SubSkillIds
                 if (skillModel.SubSkillIds != null && skillModel.SubSkillIds.Count > 0)
                 {
                     matchedResourceIds = query
-                        .Where(r => skillModel.SubSkillIds.Contains((int)r.NewSubSkillId))
+                        .Where(r => r.NewSubSkillId.HasValue && skillModel.SubSkillIds.Contains(r.NewSubSkillId.Value))
                         .Select(r => r.ResourceId);
                 }
             }
             // Step 2: Fetch all skills for matched resources
             var filteredQuery = query.Where(r => matchedResourceIds.Contains(r.ResourceId));
-
             // Execute the filtered query
             var result = await filteredQuery.ToListAsync();
-
             // Group the results by ResourceId
             var groupedResults = result.GroupBy(r => r.ResourceId);
-
             // Create a list to hold the final FetchResourceSkill objects
             var finalResult = new List<FetchResourceSkill>();
-
             // Step 3: Iterate over each group and create the FetchResourceSkill objects
             foreach (var group in groupedResults)
             {
                 var skills = new List<SkillModel>();
 
-                // Group skills and subskills
-                var skillGroups = group.GroupBy(r => r.NewSkillId);
+                // Filter out null SkillIds before grouping
+                var skillGroups = group
+                    .Where(r => r.NewSkillId.HasValue)
+                    .GroupBy(r => r.NewSkillId.Value);
 
                 foreach (var skillGroup in skillGroups)
                 {
-                    // Get all subskills for each skill
                     var subSkills = skillGroup
-                        .Where(r => r.NewSubSkillId != 0 & r.IsDeleted == 0) // Ensure no invalid subskills
+                        .Where(r => r.NewSubSkillId.HasValue && r.NewSubSkillId.Value != 0 && r.IsDeleted == 0)
                         .Select(r => new SubSkillModel
                         {
-                            SubSkillId = r.NewSubSkillId,
+                            SubSkillId = r.NewSubSkillId.Value,
                             SubSkillName = r.SubSkillName,
                             SubSkillExperience = r.SubSkillExperience,
                             SubSkillVersion = r.SubSkillVersion,
@@ -546,13 +539,12 @@ namespace DF_EvolutionAPI.Services
                         SkillExperience = skillGroup.First().SkillExperience,
                         SkillVersion = skillGroup.First().SkillVersion,
                         SkillDescription = skillGroup.First().SkillDescription,
-                        SubSkills = subSkills // Add the subskills for each skill
+                        SubSkills = subSkills
                     };
 
-                    skills.Add(skillModels);                
+                    skills.Add(skillModels);
                 }
 
-                //Calculate total experience dynamically
                 var firstRecord = group.First();
                 var (years, months) = CalculateTotalExperience((int)firstRecord.TenureInMonths, firstRecord.DateOfJoin);
                 // Create the FetchResourceSkill object for each resource
@@ -587,16 +579,17 @@ namespace DF_EvolutionAPI.Services
         }
 
         //Get three resources whoes skill and subskill have the highest experience.  
-         public async Task<List<FetchResourceSkill>> SearchTopResourcesBySkillOrSubSkill(SearchSkill skillModel)
+        public async Task<List<FetchResourceSkill>> SearchTopResourcesBySkillOrSubSkill(SearchSkill skillModel)
         {
             var normalizedSearchKey = skillModel.SearchKey?.Trim().ToLower();
 
-            var query = from rs in _dbContext.ResourceSkills.Where(rs => rs.IsActive == 1)
+            var query = from rs in _dbContext.ResourceSkills
                         join r in _dbContext.Resources on rs.ResourceId equals r.ResourceId
                         join s in _dbContext.Skills.Where(s => s.IsActive == 1) on rs.SkillId equals s.SkillId into skillGroup
                         from skill in skillGroup.DefaultIfEmpty()
                         join sub in _dbContext.SubSkills.Where(subskill => subskill.IsActive == 1) on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                         from subSkill in subSkillGroup.DefaultIfEmpty()
+                        where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && rs.IsActive == (int)Status.IS_ACTIVE
                         select new
                         {
                             r.ResourceId,
@@ -761,7 +754,7 @@ namespace DF_EvolutionAPI.Services
             }
 
             return finalResult;
-        }        
+        }
 
         //It checks if a resource has updated skills within the current quarter, fetching the resource name and returning the updated skills, or an empty list if no updates are found.
         public async Task<List<FetchResourceSkill>> CheckResourceSkillsUpdated(int resourceId)
@@ -841,7 +834,7 @@ namespace DF_EvolutionAPI.Services
                             // Save changes for each update
                             await _dbContext.SaveChangesAsync();
                         }
-                      
+
                     }
                 }
 
@@ -954,9 +947,9 @@ namespace DF_EvolutionAPI.Services
 
     }
 }
-    
 
-        
 
-    
+
+
+
 
