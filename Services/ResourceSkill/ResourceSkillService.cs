@@ -139,7 +139,7 @@ namespace DF_EvolutionAPI.Services
                                     var existingSubSkill = _dbContext.ResourceSkills
                                         .FirstOrDefault(rs => rs.ResourceId == resourceId
                                             && rs.SkillId == skill.SkillId
-                                            && rs.SubSkillId == subSkill.SubSkillId && rs.IsActive == 1 && rs.IsDeleted == 0);
+                                            && rs.SubSkillId == subSkill.SubSkillId && rs.IsActive == 1 && rs.IsDeleted != 1);
 
                                     if (existingSubSkill != null)
                                     {
@@ -156,8 +156,7 @@ namespace DF_EvolutionAPI.Services
                                         existingSubSkill.RejectedBy = 0;
                                         existingSubSkill.RejectedComment = null;
                                         existingSubSkill.IsApproved = 0;
-                                        existingSubSkill.ApprovedBy = 0;
-                                        existingSkill.IsDeleted = 0;
+                                        existingSubSkill.ApprovedBy = 0;                                       
 
                                         _dbContext.ResourceSkills.Update(existingSubSkill);
                                     }
@@ -181,8 +180,7 @@ namespace DF_EvolutionAPI.Services
                                             RejectedBy = 0,
                                             RejectedComment = null,
                                             IsApproved = 0,
-                                            ApprovedBy = 0,
-                                            IsDeleted = 0,
+                                            ApprovedBy = 0,                                          
                                         };
                                         _dbContext.ResourceSkills.Add(newSubSkill);
                                     }
@@ -238,7 +236,7 @@ namespace DF_EvolutionAPI.Services
                 }
 
                 await _dbContext.SaveChangesAsync(); // Commit changes
-
+                //log
                 model.IsSuccess = true;
                 model.Messsage = "Resource skills and subskills updated successfully.";
             }
@@ -259,13 +257,13 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0
+                where rs.IsActive == (int)Status.IS_ACTIVE && rs.SkillId != 0 && r.StatusId==8
                 select new
                 {
                     r.ResourceId,
                     r.ResourceName,
-                    r.TotalYears,
                     r.DateOfJoin,
+                    r.TenureInMonths,
                     rs.SkillExperience,
                     rs.SkillVersion,
                     rs.SkillDescription,
@@ -278,10 +276,10 @@ namespace DF_EvolutionAPI.Services
                     rs.RejectedComment,
                     rs.ResourceSkillId,
                     rs.IsDeleted,
-                    NewSkillId = skill != null ? skill.SkillId : 0, // Ensure default value
-                    SkillName = skill != null ? skill.Name : null, // Default name if null
-                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0, // Default value
-                    SubSkillName = subSkill != null ? subSkill.Name : null // Default name
+                    NewSkillId = skill != null ? skill.SkillId : 0,
+                    SkillName = skill != null ? skill.Name : null,
+                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0,
+                    SubSkillName = subSkill != null ? subSkill.Name : null
                 }
             ).ToListAsync();
 
@@ -295,8 +293,6 @@ namespace DF_EvolutionAPI.Services
             foreach (var group in groupedResults)
             {
                 var skills = new List<SkillModel>();
-
-                // Group skills and subskills
                 var skillGroups = group.GroupBy(r => r.NewSkillId);
 
                 foreach (var skillGroup in skillGroups)
@@ -311,9 +307,6 @@ namespace DF_EvolutionAPI.Services
                             SubSkillExperience = r.SubSkillExperience,
                             SubSkillVersion = r.SubSkillVersion,
                             SubSkillDescription = r.SubSkillDescription,
-
-
-
                         }).ToList();
 
                     var skillModel = new SkillModel
@@ -333,14 +326,21 @@ namespace DF_EvolutionAPI.Services
                     skills.Add(skillModel);
                 }
 
+                var firstRecord = group.First();
+
+                // Calculate total experience using your method
+                var (years, months) = CalculateTotalExperience(
+                    (int)(firstRecord.TenureInMonths ?? 0),
+                    firstRecord.DateOfJoin
+                );
+
                 var fetchResourceSkill = new FetchResourceSkill
                 {
                     ResourceId = group.Key,
-                    ResourceSkillId= group.First().ResourceSkillId,
-                    ResourceName = group.First().ResourceName,
-                    TotalYears= group.First().TotalYears,
-                    DateOfJoin= group.First().DateOfJoin,
-
+                    ResourceSkillId = firstRecord.ResourceSkillId,
+                    ResourceName = firstRecord.ResourceName,
+                    ResourceExp = $"{years}.{months}", //Formatted experience
+                    DateOfJoin = firstRecord.DateOfJoin,
                     Skills = skills
                 };
 
@@ -571,11 +571,7 @@ namespace DF_EvolutionAPI.Services
                 return (0, 0);
             DateTime today = DateTime.Today;
             DateTime joinDate = dateOfJoin.Value;
-            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;
-            if (today.Day < joinDate.Day)
-            {
-                monthsSinceJoin -= 1;
-            }
+            int monthsSinceJoin = ((today.Year - joinDate.Year) * 12) + today.Month - joinDate.Month;           
             int totalMonthsExperience = tenureInMonths + monthsSinceJoin;
             int years = totalMonthsExperience / 12;
             int months = totalMonthsExperience % 12;
