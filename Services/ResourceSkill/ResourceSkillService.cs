@@ -266,6 +266,7 @@ namespace DF_EvolutionAPI.Services
                     r.ResourceName,
                     r.TotalYears,
                     r.DateOfJoin,
+                    r.TenureInMonths, // ✅ Added this
                     rs.SkillExperience,
                     rs.SkillVersion,
                     rs.SkillDescription,
@@ -278,10 +279,10 @@ namespace DF_EvolutionAPI.Services
                     rs.RejectedComment,
                     rs.ResourceSkillId,
                     rs.IsDeleted,
-                    NewSkillId = skill != null ? skill.SkillId : 0, // Ensure default value
-                    SkillName = skill != null ? skill.Name : null, // Default name if null
-                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0, // Default value
-                    SubSkillName = subSkill != null ? subSkill.Name : null // Default name
+                    NewSkillId = skill != null ? skill.SkillId : 0,
+                    SkillName = skill != null ? skill.Name : null,
+                    NewSubSkillId = subSkill != null ? subSkill.SubSkillId : 0,
+                    SubSkillName = subSkill != null ? subSkill.Name : null
                 }
             ).ToListAsync();
 
@@ -333,13 +334,19 @@ namespace DF_EvolutionAPI.Services
                     skills.Add(skillModel);
                 }
 
+                var firstRecord = group.First();
+
+                // Calculate total experience using your method
+                var (years, months) = CalculateTotalExperience(
+                    (int)(firstRecord.TenureInMonths ?? 0),
+                    firstRecord.DateOfJoin
+                );
                 var fetchResourceSkill = new FetchResourceSkill
                 {
-                    ResourceId = group.Key,
-                    ResourceSkillId= group.First().ResourceSkillId,
-                    ResourceName = group.First().ResourceName,
-                    TotalYears= group.First().TotalYears,
-                    DateOfJoin= group.First().DateOfJoin,
+                    ResourceSkillId = firstRecord.ResourceSkillId,
+                    ResourceName = firstRecord.ResourceName,
+                    ResourceExp = $"{years}.{months}", // ✅ formatted experience
+                    DateOfJoin = firstRecord.DateOfJoin,
 
                     Skills = skills
                 };
