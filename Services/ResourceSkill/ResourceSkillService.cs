@@ -115,7 +115,7 @@ namespace DF_EvolutionAPI.Services
                             foreach (var subSkill in skill.SubSkills)
                             {
                                 var existingSkill = _dbContext.ResourceSkills
-                                    .FirstOrDefault(rs => rs.ResourceId == resourceId && rs.SkillId == skill.SkillId && rs.IsActive == 1);
+                                    .FirstOrDefault(rs => rs.ResourceId == resourceId && rs.SkillId == skill.SkillId && rs.IsActive == 1 && rs.IsDeleted == 0);
 
                                 if (existingSkill != null && existingSkill.SubSkillId == null)
                                 {
@@ -368,7 +368,7 @@ namespace DF_EvolutionAPI.Services
                 from subSkill in subSkillGroup.DefaultIfEmpty()
                 join c in _dbContext.Categories on skill.CategoryId equals c.CategoryId into categoryGroup
                 from category in categoryGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE && r.ResourceId == resourceId
+                where rs.IsActive == (int)Status.IS_ACTIVE && r.ResourceId == resourceId && rs.IsDeleted != 1
                 select new
                 {
                     r.ResourceId,
