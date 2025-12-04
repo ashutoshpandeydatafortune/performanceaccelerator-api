@@ -26,5 +26,6 @@ namespace DF_EvolutionAPI.Services
         Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate);
 
         Task<List<ResourceProjectAssignment>> ResourceProjectAssignment(int resourceId);
+        Task<ResourceEvaluationResponseEmails> GetResourceListOfPendingSelfEvaluations();
     }
 }

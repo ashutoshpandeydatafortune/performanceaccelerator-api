@@ -99,6 +99,7 @@ namespace DF_EvolutionAPI.Models
         public string ResourceName { get; set; }
         public string QuarterId { get; set; }
         public string QuarterName { get; set; }
+        public string EmailId { get; set; }
     }
 
     public class ResourceEvaluationResponse
@@ -128,5 +129,17 @@ namespace DF_EvolutionAPI.Models
         public DateTime? quarterEndDate { get; set; }
     }
 
+    //To get the list of resources and email who have not given their rating
+    public class ResourceEvaluationEmails
+    {
+       
+        public string ResourceName { get; set; }       
+        public string EmailId { get; set; }
+    }
 
+    public class ResourceEvaluationResponseEmails
+    {
+        public List<ResourceEvaluationEmails> ResourceNotFilledRating { get; set; }
+       // public int totalCount { get; set; }
+    }
 }

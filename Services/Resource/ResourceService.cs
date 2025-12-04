@@ -841,6 +841,7 @@ namespace DF_EvolutionAPI.Services
                     {
                         resource.ResourceId,
                         resource.ResourceName,
+                        resource.EmailId,
                         quarters.Id,
                         quarters.QuarterName
                     }
@@ -1057,6 +1058,76 @@ namespace DF_EvolutionAPI.Services
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
+            }
+        }
+
+        // API's for getting resource list for current quarter who has not giving their rating.
+        public async Task<ResourceEvaluationResponseEmails> GetResourceListOfPendingSelfEvaluations()
+        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponseEmails), nameof(GetPendingSelfEvaluations));
+            try
+            {
+                var currentQuarter = await GetCurrentQuarter();
+                if (currentQuarter == null)
+                {
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponseEmails
+                    {
+                        ResourceNotFilledRating = new List<ResourceEvaluationEmails>()
+                    };
+                }
+
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.IsActive == (int)Status.IS_ACTIVE
+                      && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                      && userKras.FinalRating == null
+                      && userKras.IsActive == (int)Status.IS_ACTIVE
+                      && (userKras.DeveloperRating == null)
+                      && (userKras.RejectedBy == null)
+                      && userKras.IsApproved == 0
+                      && userKras.QuarterId == currentQuarter.Id
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        resource.EmailId,
+                        quarters.Id,
+                        quarters.QuarterName
+                    }
+                ).ToListAsync();
+
+                // Group and format data in memory
+                var ResourceNotFilledRating = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName, x.EmailId })
+                    .Select(grouped => new ResourceEvaluationEmails
+                    {                       
+                        ResourceName = grouped.Key.ResourceName,
+                        EmailId = grouped.Key.EmailId,
+                      
+                    })
+                    .ToList();
+
+                // Build and return the response
+                return new ResourceEvaluationResponseEmails
+                {
+                    ResourceNotFilledRating = ResourceNotFilledRating
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));                
+                return new ResourceEvaluationResponseEmails
+                {
+                    ResourceNotFilledRating = new List<ResourceEvaluationEmails>()
+                };
             }
         }
 

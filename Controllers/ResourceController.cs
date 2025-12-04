@@ -406,5 +406,27 @@ namespace DF_EvolutionAPI.Controllers
             }
         }
 
+        // API's for getting resource list for current quarter who has not giving their rating.
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetResourceListOfPendingSelfEvaluations()
+        {
+            try
+            {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
+                var resources = await _resourceService.GetResourceListOfPendingSelfEvaluations();
+                return Ok(resources);
+            }
+            catch (Exception ex)
+            {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
