@@ -130,7 +130,7 @@ namespace DF_EvolutionAPI.Services
                                     existingSkill.RejectedComment = null;
                                     existingSkill.IsApproved = 0;
                                     existingSkill.ApprovedBy = 0;
-
+                                  
                                     _dbContext.ResourceSkills.Update(existingSkill);
                                 }
                                 else
@@ -229,7 +229,8 @@ namespace DF_EvolutionAPI.Services
                                     RejectedBy = 0,
                                     RejectedComment = null,
                                     IsApproved = 0,
-                                    ApprovedBy = 0
+                                    ApprovedBy = 0,
+                                    IsDeleted = 0
                                 };
                                 _dbContext.ResourceSkills.Add(newMainSkill);
                             }
@@ -259,7 +260,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0
+                where rs.IsActive == (int)Status.IS_ACTIVE & rs.SkillId != 0 & rs.IsDeleted != 1
                 select new
                 {
                     r.ResourceId,
@@ -461,7 +462,7 @@ namespace DF_EvolutionAPI.Services
                         from skill in skillGroup.DefaultIfEmpty()
                         join sub in _dbContext.SubSkills.Where(subskill => subskill.IsActive == (int)Status.IS_ACTIVE) on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                         from subSkill in subSkillGroup.DefaultIfEmpty()
-                        where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && rs.IsActive == (int)Status.IS_ACTIVE
+                        where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && rs.IsActive == (int)Status.IS_ACTIVE && rs.IsDeleted != 1
                         select new
                         {
                             r.ResourceId,
@@ -600,7 +601,7 @@ namespace DF_EvolutionAPI.Services
                         from skill in skillGroup.DefaultIfEmpty()
                         join sub in _dbContext.SubSkills.Where(subskill => subskill.IsActive == 1) on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                         from subSkill in subSkillGroup.DefaultIfEmpty()
-                        where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && rs.IsActive == (int)Status.IS_ACTIVE
+                        where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && rs.IsActive == (int)Status.IS_ACTIVE && rs.IsDeleted != 1
                         select new
                         {
                             r.ResourceId,
@@ -694,7 +695,7 @@ namespace DF_EvolutionAPI.Services
                 from skill in skillGroup.DefaultIfEmpty()
                 join sub in _dbContext.SubSkills on rs.SubSkillId equals sub.SubSkillId into subSkillGroup
                 from subSkill in subSkillGroup.DefaultIfEmpty()
-                where rs.IsActive == (int)Status.IS_ACTIVE && r.ResourceId == resourceId
+                where rs.IsActive == (int)Status.IS_ACTIVE && r.ResourceId == resourceId && rs.IsDeleted != 1
                 select new
                 {
                     r.ResourceId,
