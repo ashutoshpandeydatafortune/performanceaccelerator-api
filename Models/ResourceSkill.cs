@@ -32,9 +32,8 @@ namespace DF_EvolutionAPI.Models
     public class ResourceSkillRequestModel
     {
         //public int ResourceSkillId { get; set; }
-        public int ResourceId { get; set; }
+        public int ResourceId { get; set; }       
         public int CreateBy { get; set; }
-        public byte? IsDeleted { get; set; }
         public List<SkillCategory> SkillCategories { get; set; }
     }
 
