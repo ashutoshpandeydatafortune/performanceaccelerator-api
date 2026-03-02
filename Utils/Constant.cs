@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DF_EvolutionAPI.Utils
 {
@@ -44,5 +45,6 @@ namespace DF_EvolutionAPI.Utils
         public static int LOG_DELETION_DAYS= 10;
 
         public static int DAYS_TO_LOOK_BACK = -7;
+        public static string DUE_DATE = DateTime.Now.ToString("dd-MM-yyyy");
     }
 }
