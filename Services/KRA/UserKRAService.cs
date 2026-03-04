@@ -278,7 +278,8 @@ namespace DF_EvolutionAPI.Services
             string headerContent = _fileUtil.GetTemplateContent(headerTemplate)
                 .Replace("{NAME}", userNotificationData.ManagerName)
                 .Replace("{UserName}", userNotificationData.UserName)
-                .Replace("{ManagerName}", userNotificationData.SrManagerName);
+                .Replace("{ManagerName}", userNotificationData.SrManagerName)
+                .Replace("{DUE_DATE}", Constant.DUE_DATE); // Use constant for due date
 
             // Fetch and format footer content
             string footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME)
@@ -646,7 +647,7 @@ namespace DF_EvolutionAPI.Services
 
             return userKRADetails;
         }
-
+     
         public List<UserKRARatingList> GetUserKraGraph(int userId, string quarterYearRange)
         {
             try
