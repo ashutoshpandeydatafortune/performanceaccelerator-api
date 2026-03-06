@@ -884,48 +884,96 @@ namespace DF_EvolutionAPI.Services
             {
                 _logger.LogInformation("Entering method for userId: {UserId}, quarterId: {QuarterId}", userId, quarterId);
 
+                // Get all resources reporting to the manager
                 var reportingIds = await _dbcontext.Resources
+                    .AsNoTracking()
                     .Where(r => r.ReportingTo == userId
                                 && r.IsActive == (int)Status.IS_ACTIVE
                                 && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID)
                     .Select(r => r.ResourceId)
                     .ToListAsync();
 
-                 _logger.LogInformation("Found {Count} reporting resources for userId: {UserId}", reportingIds.Count, userId);
+                _logger.LogInformation("Found {Count} reporting resources for userId: {UserId}", reportingIds.Count, userId);
 
-                var result = await (from resource in _dbcontext.Resources
-                                    join userKras in _dbcontext.UserKRA on resource.ResourceId equals userKras.UserId
-                                    where userKras.FinalRating != null
-                                          && resource.IsActive == (int)Status.IS_ACTIVE
-                                          && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
-                                          && userKras.QuarterId == quarterId
-                                          && userKras.IsActive == (int)Status.IS_ACTIVE
-                                          && reportingIds.Contains(resource.ReportingTo ?? 0)
-                                    group new { resource, userKras } by new
-                                    {
-                                        resource.ResourceId,
-                                        resource.ResourceName
-                                    } into g
-                                    select new ApprovalResources
-                                    {
-                                        ResourceID = g.Key.ResourceId,
-                                        ResourceName = g.Key.ResourceName,
-                                        QuarterId = quarterId,
-                                        userId = userId,
-                                        approvedBy = g.Select(x => x.userKras.ApprovedBy).FirstOrDefault(),
-                                        updateBy = g.Select(x => x.userKras.UpdateBy).FirstOrDefault(),
-                                        IsApproved = g.Select(x => x.userKras.IsApproved).FirstOrDefault()
-                                    }).ToListAsync();
-                _logger.LogInformation("Retrieved {Count} pending KRAs for approval for userId: {UserId}, quarterId: {QuarterId}", result.Count, userId, quarterId);
+                var result = await _dbcontext.Resources
+                    .AsNoTracking()
+                    .Where(resource => reportingIds.Contains(resource.ReportingTo ?? 0))
+                    .Select(resource => new ApprovalResources
+                    {
+                        ResourceID = resource.ResourceId,
+                        ResourceName = resource.ResourceName,
+                        QuarterId = quarterId,
+                        UserId = userId,
+
+                        ApprovedBy = _dbcontext.UserKRA
+                            .Where(k => k.UserId == resource.ResourceId && k.QuarterId == quarterId && k.IsActive == (int)Status.IS_ACTIVE)
+                            .Select(k => k.ApprovedBy)
+                            .FirstOrDefault(),
+
+                        UpdatedBy = _dbcontext.UserKRA
+                            .Where(k => k.UserId == resource.ResourceId && k.QuarterId == quarterId && k.IsActive == (int)Status.IS_ACTIVE)
+                            .Select(k => k.UpdateBy)
+                            .FirstOrDefault(),
+
+                        IsApproved = _dbcontext.UserKRA
+                            .Where(k => k.UserId == resource.ResourceId && k.QuarterId == quarterId && k.IsActive == (int)Status.IS_ACTIVE)
+                            .Select(k => k.IsApproved)
+                            .FirstOrDefault(),
+
+                        KRAs = (from k in _dbcontext.UserKRA.AsNoTracking()
+                                join masterKra in _dbcontext.KRALibrary.AsNoTracking()
+                                    on k.KRAId equals masterKra.Id
+                                where k.UserId == resource.ResourceId
+                                      && k.QuarterId == quarterId
+                                      && k.IsActive == (int)Status.IS_ACTIVE
+                                      && masterKra.IsActive == (int)Status.IS_ACTIVE
+                                select new UserKRADetails
+                                {
+                                    Id = k.Id,
+                                    UserId = k.UserId,
+                                    KRAId = k.KRAId,
+
+                                    DeveloperRating = k.DeveloperRating,
+                                    ManagerRating = k.ManagerRating,
+                                    FinalRating = k.FinalRating,
+
+                                    DeveloperComment = k.DeveloperComment,
+                                    ManagerComment = k.ManagerComment,
+                                    FinalComment = k.FinalComment,
+
+                                    Score = k.Score,
+                                    Status = k.Status,
+
+                                    ApprovedBy = k.ApprovedBy,
+                                    RejectedBy = k.RejectedBy,
+                                    Reason = k.Reason,
+
+                                    IsApproved = k.IsApproved,
+
+                                    KRAName = masterKra.Name,
+                                    KRADisplayName = masterKra.DisplayName,
+                                    Description = masterKra.Description,
+                                    Weightage = masterKra.Weightage,
+
+                                    IsSpecial = masterKra.IsSpecial,
+                                    IsDescriptionRequired = masterKra.IsDescriptionRequired,
+                                    MinimumRatingForDescription = masterKra.MinimumRatingForDescription
+                                }).ToList()
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("Retrieved {Count} resources with KRAs for approval for userId: {UserId}, quarterId: {QuarterId}", result.Count, userId, quarterId);
+
+                // Filter to only include resources with KRAs count > 0
+                result = result.Where(r => r.KRAs != null && r.KRAs.Count > 0).ToList();
                 return result;
             }
             catch (Exception ex)
             {
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                throw;               
+                throw;
             }
         }
-
         // Approve the resources whoes kras final rating is given.
         public async Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate)
         {
