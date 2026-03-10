@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using DF_EvolutionAPI.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Utils;
-using System.Globalization;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Services
@@ -753,30 +751,35 @@ namespace DF_EvolutionAPI.Services
                     where resource.ReportingTo == userId
                           && resource.IsActive == (int)Status.IS_ACTIVE 
                           && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
-                          && userKras.FinalRating != 0
                           && userKras.IsActive == (int)Status.IS_ACTIVE
-                          && (userKras.DeveloperRating != null)
-                          && (userKras.RejectedBy == null)
-                          && userKras.IsApproved == 1
                           && userKras.QuarterId == currentQuarter.Id
                     select new
                     {
                         resource.ResourceId,
                         resource.ResourceName,
                         quarters.Id,
-                        quarters.QuarterName
+                        quarters.QuarterName,
+                        userKras.IsApproved,
+                        userKras.FinalRating,
+                        userKras.DeveloperRating,
+                        userKras.RejectedBy
                     }
                 ).ToListAsync();
                 
-                // Group and format data in memory
+                // Group and format data in memory, only include resources where ALL KRAs have IsApproved == 1
                 var resourceEvaluationList = rawData
-                    .GroupBy(x => new { x.ResourceId, x.ResourceName })
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName, x.Id, x.QuarterName })
+                    .Where(grouped => grouped.All(kra => kra.IsApproved == 1 
+                                                      && kra.FinalRating != null 
+                                                      && kra.FinalRating != 0
+                                                      && kra.DeveloperRating != null
+                                                      && kra.RejectedBy == null))
                     .Select(grouped => new ResourceEvaluation
                     {
                         ResourceId = grouped.Key.ResourceId,
                         ResourceName = grouped.Key.ResourceName,
-                        QuarterId = string.Join(", ", grouped.Select(q => q.Id).Distinct()),
-                        QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
+                        QuarterId = grouped.Key.Id.ToString(),
+                        QuarterName = grouped.Key.QuarterName
                     })
                     .ToList();
                
