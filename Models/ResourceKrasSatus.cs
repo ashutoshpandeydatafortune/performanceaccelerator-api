@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DF_EvolutionAPI.Models;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Web;
 
@@ -51,15 +52,19 @@ namespace DF_PA_API.Models
         [NotMapped]
         public string ManagerName { get; set; }
     }
+   
+
     public class ApprovalResources
     {
-        public int? ResourceID { get; set; }
+        public int ResourceID { get; set; }
         public string ResourceName { get; set; }
-        public int? QuarterId { get; set; }
-        public int? userId { get; set; }
-        public int? approvedBy { get; set; }
-        public int? updateBy { get; set; }
-        public int? IsApproved { get; set; }
+        public int QuarterId { get; set; }
+        public int UserId { get; set; }
+        public int? ApprovedBy { get; set; }
+        public int? UpdatedBy { get; set; }
+        public byte? IsApproved { get; set; }
+
+        public List<UserKRADetails> KRAs { get; set; } //Added to hold the KRA details for each resource
     }
     public class ResourceKraApprovalUpdate
     {
