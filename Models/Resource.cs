@@ -99,6 +99,15 @@ namespace DF_EvolutionAPI.Models
         public string ResourceName { get; set; }
         public string QuarterId { get; set; }
         public string QuarterName { get; set; }
+        public List<PendingKraDetail> KraDetails { get; set; }
+    }
+
+    public class PendingKraDetail
+    {
+        public int KraId { get; set; }
+        public string KraName { get; set; }
+        public string KraDisplayName { get; set; }
+        public int? Weightage { get; set; }
     }
 
     public class ResourceEvaluationResponse
