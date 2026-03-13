@@ -640,8 +640,90 @@ namespace DF_EvolutionAPI.Services
                 _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
-        }      
+        }
 
+        // Gets the list of resources whose evaluations are completed.
+        public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId)
+        {
+            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetCompletedResourceEvaluations));
+            try
+            {
+                _logger.LogInformation("Entering method for userId: {UserId}", userId);
+                var currentQuarter = await GetCurrentQuarter();
+
+                if (currentQuarter == null)
+                {
+                    _logger.LogWarning("Current quarter not found for userId: {UserId}", userId);
+                    // Handle case where current quarter is not found
+                    return new ResourceEvaluationResponse
+                    {
+                        totalCount = 0,
+                        ResourceEvaluationList = new List<ResourceEvaluation>()
+                    };
+                }
+
+                // Fetch raw matching data
+                var rawData = await (
+                    from resource in _dbcontext.Resources
+                    join designatedRole in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
+                    join userKras in _dbcontext.UserKRA
+                        on resource.ResourceId equals userKras.UserId
+                    join quarters in _dbcontext.QuarterDetails
+                        on userKras.QuarterId equals quarters.Id
+                    where resource.ReportingTo == userId
+                          && resource.IsActive == (int)Status.IS_ACTIVE
+                          && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                          && userKras.IsActive == (int)Status.IS_ACTIVE
+                          && userKras.QuarterId == currentQuarter.Id
+                    select new
+                    {
+                        resource.ResourceId,
+                        resource.ResourceName,
+                        quarters.Id,
+                        quarters.QuarterName,
+                        userKras.IsApproved,
+                        userKras.FinalRating,
+                        userKras.DeveloperRating,
+                        userKras.RejectedBy
+                    }
+                ).ToListAsync();
+
+                // Group and format data in memory, only include resources where ALL KRAs have IsApproved == 1
+                var resourceEvaluationList = rawData
+                    .GroupBy(x => new { x.ResourceId, x.ResourceName, x.Id, x.QuarterName })
+                    .Where(grouped => grouped.All(kra => kra.IsApproved == 1
+                                                      && kra.FinalRating != null
+                                                      && kra.FinalRating != 0
+                                                      && kra.DeveloperRating != null
+                                                      && kra.RejectedBy == null))
+                    .Select(grouped => new ResourceEvaluation
+                    {
+                        ResourceId = grouped.Key.ResourceId,
+                        ResourceName = grouped.Key.ResourceName,
+                        QuarterId = grouped.Key.Id.ToString(),
+                        QuarterName = grouped.Key.QuarterName
+                    })
+                    .ToList();
+
+                // Build and return the response
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = resourceEvaluationList.Count,
+                    ResourceEvaluationList = resourceEvaluationList
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                // Optionally log the exception
+                return new ResourceEvaluationResponse
+                {
+                    totalCount = 0,
+                    ResourceEvaluationList = new List<ResourceEvaluation>()
+                };
+            }
+        }
 
         // Gets the list of resources whose evaluation is pending by the manager.
         public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
@@ -679,6 +761,7 @@ namespace DF_EvolutionAPI.Services
                         && userKras.IsActive == (int)Status.IS_ACTIVE
                         && (userKras.DeveloperRating != null || userKras.RejectedBy != null)   
                         && userKras.QuarterId == currentQuarter.Id
+                          
                     select new
                     {
                         resource.ResourceId,
@@ -686,8 +769,8 @@ namespace DF_EvolutionAPI.Services
                         quarters.Id,
                         quarters.QuarterName
                     }
-                ).ToListAsync();               
-                
+                ).ToListAsync();
+
                 // Group and format data in memory
                 var resourceEvaluationList = rawData
                     .GroupBy(x => new { x.ResourceId, x.ResourceName })
@@ -699,7 +782,7 @@ namespace DF_EvolutionAPI.Services
                         QuarterName = string.Join(", ", grouped.Select(q => q.QuarterName).Distinct())
                     })
                     .ToList();
-                             
+
                 // Build and return the response
                 return new ResourceEvaluationResponse
                 {
@@ -717,90 +800,7 @@ namespace DF_EvolutionAPI.Services
                     ResourceEvaluationList = new List<ResourceEvaluation>()
                 };
             }
-        }
-
-        // Gets the list of resources whose evaluations are completed.
-        public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId)
-        {
-            _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetCompletedResourceEvaluations));
-            try
-            {
-                _logger.LogInformation("Entering method for userId: {UserId}", userId);
-                var currentQuarter = await GetCurrentQuarter();
-
-                if (currentQuarter == null)
-                {
-                    _logger.LogWarning("Current quarter not found for userId: {UserId}", userId);
-                    // Handle case where current quarter is not found
-                    return new ResourceEvaluationResponse
-                    {
-                        totalCount = 0,
-                        ResourceEvaluationList = new List<ResourceEvaluation>()
-                    };
-                }
-
-                // Fetch raw matching data
-                var rawData = await (
-                    from resource in _dbcontext.Resources
-                    join designatedRole in _dbcontext.DesignatedRoles
-                        on resource.DesignatedRoleId equals designatedRole.DesignatedRoleId
-                    join userKras in _dbcontext.UserKRA
-                        on resource.ResourceId equals userKras.UserId
-                    join quarters in _dbcontext.QuarterDetails
-                        on userKras.QuarterId equals quarters.Id
-                    where resource.ReportingTo == userId
-                          && resource.IsActive == (int)Status.IS_ACTIVE 
-                          && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
-                          && userKras.IsActive == (int)Status.IS_ACTIVE
-                          && userKras.QuarterId == currentQuarter.Id
-                    select new
-                    {
-                        resource.ResourceId,
-                        resource.ResourceName,
-                        quarters.Id,
-                        quarters.QuarterName,
-                        userKras.IsApproved,
-                        userKras.FinalRating,
-                        userKras.DeveloperRating,
-                        userKras.RejectedBy
-                    }
-                ).ToListAsync();
-                
-                // Group and format data in memory, only include resources where ALL KRAs have IsApproved == 1
-                var resourceEvaluationList = rawData
-                    .GroupBy(x => new { x.ResourceId, x.ResourceName, x.Id, x.QuarterName })
-                    .Where(grouped => grouped.All(kra => kra.IsApproved == 1 
-                                                      && kra.FinalRating != null 
-                                                      && kra.FinalRating != 0
-                                                      && kra.DeveloperRating != null
-                                                      && kra.RejectedBy == null))
-                    .Select(grouped => new ResourceEvaluation
-                    {
-                        ResourceId = grouped.Key.ResourceId,
-                        ResourceName = grouped.Key.ResourceName,
-                        QuarterId = grouped.Key.Id.ToString(),
-                        QuarterName = grouped.Key.QuarterName
-                    })
-                    .ToList();
-               
-                // Build and return the response
-                return new ResourceEvaluationResponse
-                {
-                    totalCount = resourceEvaluationList.Count,
-                    ResourceEvaluationList = resourceEvaluationList
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
-                // Optionally log the exception
-                return new ResourceEvaluationResponse
-                {
-                    totalCount = 0,
-                    ResourceEvaluationList = new List<ResourceEvaluation>()
-                };
-            }
-        }
+        }        
 
         // Gets the list of resources whose self-evaluation is pending.
         public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId)
@@ -835,10 +835,10 @@ namespace DF_EvolutionAPI.Services
                       && resource.IsActive == (int)Status.IS_ACTIVE
                       && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                       && userKras.FinalRating == null
-                      && userKras.IsActive == (int)Status.IS_ACTIVE
+                     && userKras.IsActive == (int)Status.IS_ACTIVE
                       && (userKras.DeveloperRating == null)
                       && (userKras.RejectedBy == null)
-                      && userKras.IsApproved == 0
+                     && userKras.IsApproved == 0
                       && userKras.QuarterId == currentQuarter.Id
                     select new
                     {
@@ -879,6 +879,7 @@ namespace DF_EvolutionAPI.Services
                 };
             }
         }
+
         //Get the list of the resources whoes kras final rating is given.
         public async Task<List<ApprovalResources>> GetPendingKrasApprovalResources(int userId, int quarterId)
         {
@@ -977,6 +978,7 @@ namespace DF_EvolutionAPI.Services
                 throw;
             }
         }
+
         // Approve the resources whoes kras final rating is given.
         public async Task<bool> ResourceUpdateKraApproval(List<ResourceKraApprovalUpdate> resourceKraApprovalUpdate)
         {
