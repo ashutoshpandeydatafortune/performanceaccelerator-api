@@ -274,12 +274,15 @@ namespace DF_EvolutionAPI.Services
             string subject = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER : Constant.SUBJECT_KRA_UPDATED_MANAGER) : Constant.SUBJECT_KRA_CREATED;
             string headerTemplate = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME : Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME) : Constant.KRA_HEADER_TEMPLATE_NAME;
 
+            // Calculate due date as 3 days after current date
+            string dueDate = DateTime.Now.AddDays(3).ToString("dd-MM-yyyy");
+
             // Fetch and format header content
             string headerContent = _fileUtil.GetTemplateContent(headerTemplate)
                 .Replace("{NAME}", userNotificationData.ManagerName)
                 .Replace("{UserName}", userNotificationData.UserName)
                 .Replace("{ManagerName}", userNotificationData.SrManagerName)
-                .Replace("{DUE_DATE}", Constant.DUE_DATE); // Use constant for due date
+                .Replace("{DUE_DATE}", dueDate);
 
             // Fetch and format footer content
             string footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME)
