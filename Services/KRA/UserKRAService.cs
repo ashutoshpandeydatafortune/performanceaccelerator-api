@@ -148,6 +148,98 @@ namespace DF_EvolutionAPI.Services
             });
         }
 
+        private void SendUpdateNotificationsAsync(Dictionary<int, UserNotificationData> notificationMap)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    _logger.LogInformation("SendUpdateNotificationsAsync started. Processing {Count} users", notificationMap.Count);
+                    
+                    foreach (var entry in notificationMap)
+                    {
+                        _logger.LogInformation("Processing notifications for UserId: {UserId}, Total notifications: {Count}", 
+                            entry.Key, entry.Value.Notifications.Count);
+                        
+                        var notifications = entry.Value.Notifications;
+                        
+                        var approvalCompleteNotifications = notifications.Where(n => n.Title == Constant.SUBJECT_KRA_APPROVED_COMPLETE).ToList();
+                        var rejectionNotifications = notifications.Where(n => n.Title == Constant.SUBJECT_KRA_REJECTED).ToList();
+                        var managerNotifications = notifications.Where(n => n.Title == Constant.SUBJECT_KRA_UPDATED_MANAGER).ToList();
+                        var srManagerNotifications = notifications.Where(n => n.Title == Constant.SUBJECT_KRA_UPDATED_SRMANAGER).ToList();
+
+                        _logger.LogInformation("UserId {UserId} - Approval:{Approval}, Rejection:{Rejection}, Manager:{Manager}, SrManager:{SrManager}", 
+                            entry.Key, approvalCompleteNotifications.Count, rejectionNotifications.Count, 
+                            managerNotifications.Count, srManagerNotifications.Count);
+
+                        if (approvalCompleteNotifications.Any())
+                        {
+                            _logger.LogInformation("Sending approval complete email to {Email}", entry.Value.UserEmail);
+                            var approvalCompleteData = new UserNotificationData
+                            {
+                                Email = entry.Value.UserEmail,
+                                UserName = entry.Value.UserName,
+                                ManagerName = entry.Value.ManagerName,
+                                SrManagerName = entry.Value.SrManagerName,
+                                IsApprovalComplete = true,
+                                Notifications = approvalCompleteNotifications
+                            };
+                            await SendNotification(approvalCompleteData, Constant.KRA_HEADER_APPROVAL_COMPLETE_TEMPLATE_NAME);
+                        }
+
+                        if (rejectionNotifications.Any())
+                        {
+                            _logger.LogInformation("Sending rejection email to {Email}", entry.Value.UserEmail);
+                            var rejectionData = new UserNotificationData
+                            {
+                                Email = entry.Value.UserEmail,
+                                UserName = entry.Value.UserName,
+                                ManagerName = entry.Value.RejectedByManagerName,
+                                RejectionReason = entry.Value.RejectionReason,
+                                IsRejection = true,
+                                Notifications = rejectionNotifications
+                            };
+                            await SendNotification(rejectionData, Constant.KRA_HEADER_REJECTED_TEMPLATE_NAME);
+                        }
+
+                        if (managerNotifications.Any())
+                        {
+                            _logger.LogInformation("Sending manager notification email to {Email}", entry.Value.ManagerEmail);
+                            var managerData = new UserNotificationData
+                            {
+                                Email = entry.Value.ManagerEmail,
+                                UserName = entry.Value.UserName,
+                                ManagerName = entry.Value.ManagerName,
+                                Notifications = managerNotifications
+                            };
+                            await SendNotification(managerData, Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME);
+                        }
+
+                        if (srManagerNotifications.Any())
+                        {
+                            _logger.LogInformation("Sending SR manager notification email to {Email}", entry.Value.SrManagerEmail);
+                            var srManagerData = new UserNotificationData
+                            {
+                                Email = entry.Value.SrManagerEmail,
+                                UserName = entry.Value.UserName,
+                                ManagerName = entry.Value.ManagerName,
+                                SrManagerName = entry.Value.SrManagerName,
+                                IsForSrManager = true,
+                                Notifications = srManagerNotifications
+                            };
+                            await SendNotification(srManagerData, Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME);
+                        }
+                    }
+                    
+                    _logger.LogInformation("SendUpdateNotificationsAsync completed successfully");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in SendUpdateNotificationsAsync");
+                }
+            });
+        }
+
         public async Task<bool> CreateKraEntries(List<UserKRA> userKRAModel)
         {
             try
@@ -261,37 +353,70 @@ namespace DF_EvolutionAPI.Services
         }
         private async Task<bool> SendNotification(UserNotificationData userNotificationData, string templateName)
         {
-            if (string.IsNullOrEmpty(userNotificationData.Email))
+            try
             {
-                // Log or handle the case where the email is blank
-                Console.WriteLine("Email is blank. Notification not sent.");
-                return false; // Return false if no email is sent
+                if (string.IsNullOrEmpty(userNotificationData.Email))
+                {
+                    _logger.LogWarning("Email is blank. Notification not sent.");
+                    return false;
+                }
+
+                bool isApprovalComplete = userNotificationData.IsApprovalComplete;
+                bool isKraRejected = userNotificationData.IsRejection;
+                bool isKraUpdated = userNotificationData.Notifications
+                    .Any(n => n.Title == (userNotificationData.IsForSrManager? Constant.SUBJECT_KRA_UPDATED_SRMANAGER: Constant.SUBJECT_KRA_UPDATED_MANAGER));
+
+                string subject;
+                string headerTemplate;
+
+                if (isApprovalComplete)
+                {
+                    subject = Constant.SUBJECT_KRA_APPROVED_COMPLETE;
+                    headerTemplate = Constant.KRA_HEADER_APPROVAL_COMPLETE_TEMPLATE_NAME;
+                }
+                else if (isKraRejected)
+                {
+                    subject = Constant.SUBJECT_KRA_REJECTED;
+                    headerTemplate = Constant.KRA_HEADER_REJECTED_TEMPLATE_NAME;
+                }
+                else if (isKraUpdated)
+                {
+                    subject = userNotificationData.IsForSrManager ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER : Constant.SUBJECT_KRA_UPDATED_MANAGER;
+                    headerTemplate = userNotificationData.IsForSrManager ? Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME : Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME;
+                }
+                else
+                {
+                    subject = Constant.SUBJECT_KRA_CREATED;
+                    headerTemplate = Constant.KRA_HEADER_TEMPLATE_NAME;
+                }
+
+                _logger.LogInformation("Sending email - To: {Email}, Subject: {Subject}, Template: {Template}", 
+                    userNotificationData.Email, subject, headerTemplate);
+
+                string headerContent = _fileUtil.GetTemplateContent(headerTemplate)
+                    .Replace("{NAME}", userNotificationData.UserName ?? userNotificationData.ManagerName)
+                    .Replace("{UserName}", userNotificationData.UserName)
+                    .Replace("{ManagerName}", userNotificationData.ManagerName)
+                    .Replace("{SrManagerName}", userNotificationData.SrManagerName)
+                    .Replace("{REASON}", userNotificationData.RejectionReason ?? "No reason provided")
+                    .Replace("{DUE_DATE}", Constant.DUE_DATE);
+
+                string footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME)
+                    .Replace("{CREATE_DATE}", DateTime.Now.ToString());
+
+                string emailContent = $"{headerContent}{footerContent}";
+
+                await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
+                
+                _logger.LogInformation("Email sent successfully to {Email}", userNotificationData.Email);
+
+                return true;
             }
-
-            bool isKraUpdated = userNotificationData.Notifications
-                .Any(n => n.Title == (userNotificationData.IsForSrManager? Constant.SUBJECT_KRA_UPDATED_SRMANAGER: Constant.SUBJECT_KRA_UPDATED_MANAGER));
-
-            string subject = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER : Constant.SUBJECT_KRA_UPDATED_MANAGER) : Constant.SUBJECT_KRA_CREATED;
-            string headerTemplate = isKraUpdated ? (userNotificationData.IsForSrManager ? Constant.KRA_HEADER_SR_APPROVED_TEMPLATE_NAME : Constant.KRA_HEADER_APPROVED_TEMPLATE_NAME) : Constant.KRA_HEADER_TEMPLATE_NAME;
-
-            // Fetch and format header content
-            string headerContent = _fileUtil.GetTemplateContent(headerTemplate)
-                .Replace("{NAME}", userNotificationData.ManagerName)
-                .Replace("{UserName}", userNotificationData.UserName)
-                .Replace("{ManagerName}", userNotificationData.SrManagerName)
-                .Replace("{DUE_DATE}", Constant.DUE_DATE); // Use constant for due date
-
-            // Fetch and format footer content
-            string footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME)
-                .Replace("{CREATE_DATE}", DateTime.Now.ToString());
-
-            // Combine email content
-            string emailContent = $"{headerContent}{footerContent}";
-
-
-            await _emailService.SendEmail(userNotificationData.Email, subject, emailContent);
-
-            return true;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email to {Email}", userNotificationData.Email);
+                return false;
+            }
         }
 
         private List<int> GetUserIds(List<UserKRA> userKRAModel)
@@ -313,7 +438,7 @@ namespace DF_EvolutionAPI.Services
             if (created)
             {
                 Dictionary<int, UserNotificationData> notificationMap = await CreateUpdateNotifications(request.UserKRAModel);
-                SendNotificationsAsync(notificationMap);
+                SendUpdateNotificationsAsync(notificationMap);
 
                 model.IsSuccess = true;
             }
@@ -436,9 +561,10 @@ namespace DF_EvolutionAPI.Services
 
         private async Task<Dictionary<int, UserNotificationData>> PrepareUpdateNotifications(List<UserKRA> userKRAModel)
         {
+            _logger.LogInformation("PrepareUpdateNotifications started with {Count} KRAs", userKRAModel.Count);
+            
             Dictionary<int, UserNotificationData> notificationMap = new Dictionary<int, UserNotificationData>();
 
-            // **Check if any KRA has FinalRating == 0**
             bool hasPendingFinalRating = false;
             var finalrating = userKRAModel.Count(kra => kra.FinalRating == null || kra.FinalRating == 0);
             if( finalrating == 0 )
@@ -446,81 +572,146 @@ namespace DF_EvolutionAPI.Services
                 hasPendingFinalRating = true;
             }
 
-            foreach (UserKRA userKRA in userKRAModel)
+            _logger.LogInformation("hasPendingFinalRating: {HasPending}, KRAs without final rating: {Count}", 
+                hasPendingFinalRating, finalrating);
+
+            var groupedByUser = userKRAModel.GroupBy(k => k.UserId.Value);
+
+            foreach (var userGroup in groupedByUser)
             {
-                if (!notificationMap.ContainsKey(userKRA.UserId.Value))
+                int userId = userGroup.Key;
+                
+                _logger.LogInformation("Processing UserId: {UserId}, KRA count: {Count}", userId, userGroup.Count());
+                
+                if (!notificationMap.ContainsKey(userId))
                 {
                     UserNotificationData userNotificationData = new UserNotificationData();
                     userNotificationData.Notifications = new List<Notification>();
-
-                    notificationMap[userKRA.UserId.Value] = userNotificationData;
-
+                    notificationMap[userId] = userNotificationData;
                 }
 
-                // Find user details
-                var user = _dbcontext.Resources
-                               .Where(resource => resource.ResourceId == userKRA.UserId.Value)
-                               .FirstOrDefault();
+                var user = _dbcontext.Resources.Where(resource => resource.ResourceId == userId).FirstOrDefault();
+                var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == user.ReportingTo.Value).FirstOrDefault();
+                var srManagerDetails = (from r in _dbcontext.Resources
+                                        join d in _dbcontext.Designations
+                                        on r.DesignationId equals d.DesignationId
+                                        where r.ResourceId == managerDetails.ReportingTo.Value &&
+                                        !Constant.NO_MAIL_DESIGNATION.Contains(d.DesignationName)
+                                        select new { r.ResourceName, r.EmailId, r.ResourceId })
+                                        .FirstOrDefault();
 
-                Notification notification = new Notification
+                _logger.LogInformation("User: {User}, Manager: {Manager}, SrManager: {SrManager}, SrManagerEmail: {SrEmail}", 
+                    user?.ResourceName, managerDetails?.ResourceName, srManagerDetails?.ResourceName, srManagerDetails?.EmailId);
+
+                notificationMap[userId].UserEmail = user.EmailId;
+                notificationMap[userId].ManagerEmail = managerDetails.EmailId;
+                notificationMap[userId].SrManagerEmail = srManagerDetails?.EmailId;
+                notificationMap[userId].UserName = user.ResourceName;
+                notificationMap[userId].ManagerName = managerDetails.ResourceName;
+                notificationMap[userId].SrManagerName = srManagerDetails?.ResourceName;
+
+                var rejectedKras = userGroup.Where(k => k.isUpdated == true && k.RejectedBy != null && k.RejectedBy != 0).ToList();
+                var managerRatedKras = userGroup.Where(k => k.isUpdated == true && k.RejectedBy == null && (k.ManagerRating == null || k.ManagerRating == 0)).ToList();
+                var srManagerKras = userGroup.Where(k => k.isUpdated == true && k.RejectedBy == null && hasPendingFinalRating && (k.IsApproved == null || k.IsApproved == 0)).ToList();
+                var approvedKras = userGroup.Where(k => k.isUpdated == true && k.IsApproved == 1 && k.FinalRating != null && k.FinalRating != 0).ToList();
+
+                _logger.LogInformation("UserId {UserId} KRA breakdown - Rejected:{Rejected}, ManagerRated:{Manager}, SrManager:{SrMgr}, Approved:{Approved}", 
+                    userId, rejectedKras.Count, managerRatedKras.Count, srManagerKras.Count, approvedKras.Count);
+
+                bool allKrasApproved = approvedKras.Any() && 
+                                      !rejectedKras.Any() && 
+                                      !managerRatedKras.Any() && 
+                                      !srManagerKras.Any() &&
+                                      approvedKras.Count == userGroup.Count(k => k.isUpdated == true);
+
+                if (allKrasApproved)
                 {
-                    ResourceId = userKRA.UserId.Value,
-                    // Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
-                    Description = userKRA.KRAName,     // store kra name
-                    IsRead = 0,
-                    IsActive = (int)Status.IS_ACTIVE,
-                    CreateAt = DateTime.Now
-                };
+                    _logger.LogInformation("All KRAs approved for UserId: {UserId}", userId);
+                    notificationMap[userId].IsApprovalComplete = true;
+                    
+                    Notification completionNotification = new Notification
+                    {
+                        ResourceId = userId,
+                        Title = Constant.SUBJECT_KRA_APPROVED_COMPLETE,
+                        Description = "All KRAs approved",
+                        IsRead = 0,
+                        IsActive = (int)Status.IS_ACTIVE,
+                        CreateAt = DateTime.Now
+                    };
+                    notificationMap[userId].Notifications.Add(completionNotification);
+                }
 
-                if (userKRA.isUpdated == true)
+                foreach (var userKRA in rejectedKras)
                 {
-
-                    //Fetching the manager details.                    
-                    var userName = _dbcontext.Resources.Where(resources => resources.ResourceId == userKRA.UserId.Value).FirstOrDefault();
-                    var managerDetails = _dbcontext.Resources.Where(resources => resources.ResourceId == userName.ReportingTo.Value).FirstOrDefault();
-                    var srManagerDetails = (from r in _dbcontext.Resources
-                                            join d in _dbcontext.Designations
-                                            on r.DesignationId equals d.DesignationId
-                                            where r.ResourceId == managerDetails.ReportingTo.Value &&
-                                            !Constant.NO_MAIL_DESIGNATION.Contains(d.DesignationName)
-                                            select new { r.ResourceName, r.EmailId })
-                                            .FirstOrDefault();
-
-                    //Sending mail according to manager after user has submitted their rating.
-                    if ((userKRA.ManagerRating == null || userKRA.ManagerRating == 0)
-                        && (userKRA.RejectedBy == null || userKRA.RejectedBy == 0))
+                    _logger.LogInformation("Creating rejection notification for KRA: {KraName}", userKRA.KRAName);
+                    
+                    Notification notification = new Notification
                     {
-                        notificationMap[userKRA.UserId.Value].Email = managerDetails.EmailId;
-                        notificationMap[userKRA.UserId.Value].ManagerName = managerDetails.ResourceName;
-                        notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
-                    }
+                        ResourceId = userId,
+                        Title = Constant.SUBJECT_KRA_REJECTED,
+                        Description = userKRA.KRAName,
+                        IsRead = 0,
+                        IsActive = (int)Status.IS_ACTIVE,
+                        CreateAt = DateTime.Now
+                    };
 
-                    // For Rejection mail to user.
-                    //else if (userKRA.RejectedBy != null && userKRA.RejectedBy != 0
-                    //         && (userKRA.ManagerRating == null || userKRA.ManagerRating == 0))
-                    //{
-                    //    notificationMap[userKRA.UserId.Value].Email = user.EmailId;
-                    //    notificationMap[userKRA.UserId.Value].ManagerName = reportingTos.ResourceName;
-                    //    notificationMap[userKRA.UserId.Value].UserName = managerDetails.ResourceName;
-                    //}
-
-                    else if (hasPendingFinalRating == true && (userKRA.IsApproved == null || userKRA.IsApproved == 0))
+                    notificationMap[userId].Email = user.EmailId;
+                    notificationMap[userId].RejectionReason = userKRA.Reason;
+                    notificationMap[userId].IsRejection = true;
+                    
+                    if (userKRA.RejectedBy == srManagerDetails?.ResourceId)
                     {
-                        notificationMap[userKRA.UserId.Value].Email = srManagerDetails?.EmailId;
-                        notificationMap[userKRA.UserId.Value].ManagerName = srManagerDetails?.ResourceName;
-                        notificationMap[userKRA.UserId.Value].UserName = userName.ResourceName;
-                        notificationMap[userKRA.UserId.Value].SrManagerName = managerDetails.ResourceName;
-                        notificationMap[userKRA.UserId.Value].IsForSrManager = true;
+                        notificationMap[userId].RejectedByManagerName = srManagerDetails?.ResourceName;
+                        _logger.LogInformation("Rejected by SR Manager: {SrManager}", srManagerDetails?.ResourceName);
                     }
+                    else
+                    {
+                        notificationMap[userId].RejectedByManagerName = managerDetails.ResourceName;
+                        _logger.LogInformation("Rejected by Manager: {Manager}", managerDetails.ResourceName);
+                    }
+                    
+                    notificationMap[userId].Notifications.Add(notification);
+                }
 
-                    notification.Title = notificationMap[userKRA.UserId.Value].IsForSrManager
-                                         ? Constant.SUBJECT_KRA_UPDATED_SRMANAGER
-                                         : Constant.SUBJECT_KRA_UPDATED_MANAGER;
+                foreach (var userKRA in managerRatedKras)
+                {
+                    _logger.LogInformation("Creating manager notification for KRA: {KraName}", userKRA.KRAName);
+                    
+                    Notification notification = new Notification
+                    {
+                        ResourceId = userId,
+                        Title = Constant.SUBJECT_KRA_UPDATED_MANAGER,
+                        Description = userKRA.KRAName,
+                        IsRead = 0,
+                        IsActive = (int)Status.IS_ACTIVE,
+                        CreateAt = DateTime.Now
+                    };
 
+                    notificationMap[userId].Notifications.Add(notification);
+                }
 
-                    notificationMap[userKRA.UserId.Value].Notifications.Add(notification);
+                foreach (var userKRA in srManagerKras)
+                {
+                    _logger.LogInformation("Creating SR manager notification for KRA: {KraName}, IsApproved: {IsApproved}", 
+                        userKRA.KRAName, userKRA.IsApproved);
+                    
+                    Notification notification = new Notification
+                    {
+                        ResourceId = userId,
+                        Title = Constant.SUBJECT_KRA_UPDATED_SRMANAGER,
+                        Description = userKRA.KRAName,
+                        IsRead = 0,
+                        IsActive = (int)Status.IS_ACTIVE,
+                        CreateAt = DateTime.Now
+                    };
+
+                    notificationMap[userId].IsForSrManager = true;
+                    notificationMap[userId].Notifications.Add(notification);
                 }
             }
+            
+            _logger.LogInformation("PrepareUpdateNotifications completed. Created notifications for {Count} users", notificationMap.Count);
+            
             return notificationMap;
         }
 
