@@ -393,13 +393,17 @@ namespace DF_EvolutionAPI.Services
                 _logger.LogInformation("Sending email - To: {Email}, Subject: {Subject}, Template: {Template}", 
                     userNotificationData.Email, subject, headerTemplate);
 
+            // Calculate due date as 3 days after current date
+            string dueDate = DateTime.Now.AddDays(3).ToString("dd-MM-yyyy");
+
+            // Fetch and format header content            
                 string headerContent = _fileUtil.GetTemplateContent(headerTemplate)
                     .Replace("{NAME}", userNotificationData.UserName ?? userNotificationData.ManagerName)
                     .Replace("{UserName}", userNotificationData.UserName)
                     .Replace("{ManagerName}", userNotificationData.ManagerName)
                     .Replace("{SrManagerName}", userNotificationData.SrManagerName)
                     .Replace("{REASON}", userNotificationData.RejectionReason ?? "No reason provided")
-                    .Replace("{DUE_DATE}", Constant.DUE_DATE);
+                     .Replace("{DUE_DATE}", dueDate);
 
                 string footerContent = _fileUtil.GetTemplateContent(Constant.KRA_FOOTER_TEMPLATE_NAME)
                     .Replace("{CREATE_DATE}", DateTime.Now.ToString());
