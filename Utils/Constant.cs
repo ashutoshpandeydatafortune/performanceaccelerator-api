@@ -18,6 +18,8 @@ namespace DF_EvolutionAPI.Utils
         public static string SUBJECT_KRA_UPDATED_MANAGER = "Evaluation Completed";
         public static string SUBJECT_KRA_UPDATED_SRMANAGER = "Final Approval for Evaluation ";
         public static string SUBJECT_KRA_CREATED = "Self-Evaluation Released";
+        public static string SUBJECT_KRA_REJECTED = "KRA Evaluation Rejected - Action Required";
+        public static string SUBJECT_KRA_APPROVED_COMPLETE = "Congratulations! Your KRA Evaluation is Complete";
 
         public static string KRA_UPDATE_ADMIN_APPROVED = "Admin approved KRA";
         public static string KRA_UPDATE_ADMIN_REJECTED = "Admin rejected KRA";
@@ -33,8 +35,10 @@ namespace DF_EvolutionAPI.Utils
         public static string KRA_HEADER_TEMPLATE_NAME = "kra-header.html";
         public static string KRA_CREATED_TEMPLATE_NAME = "kra-created.html";
         public static string KRA_HEADER_REJECT_TEMPLATE_NAME = "kra-header-reject.html";
-        public static string KRA_HEADER_APPROVED_TEMPLATE_NAME = "kra-header-approved.html";
-        public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-header-sr-approval.html";
+        public static string KRA_HEADER_REJECTED_TEMPLATE_NAME = "kra-manager-rejected.html";
+        public static string KRA_HEADER_APPROVED_TEMPLATE_NAME = "kra-approved.html";
+        public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-sr-approval.html";
+        public static string KRA_HEADER_APPROVAL_COMPLETE_TEMPLATE_NAME = "kra-approval-complete.html";
 
         public static string APPLICATION_NAME = "Performance Accelerator";
         public static string ROLE_NAME = "Developer";        
