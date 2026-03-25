@@ -184,6 +184,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<string> GetChildResources(string userName)
         {
+            userName = userName.ToLowerInvariant();
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
