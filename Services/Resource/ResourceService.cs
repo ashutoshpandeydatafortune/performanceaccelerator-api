@@ -198,6 +198,7 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<string> GetChildResources(string userName)
         {
+            userName = userName.ToLowerInvariant();
             // Calculate October 1st of the previous year
             //var currentDate = DateTime.Parse("2026-04-11");
             var currentDate = DateTime.Now;
