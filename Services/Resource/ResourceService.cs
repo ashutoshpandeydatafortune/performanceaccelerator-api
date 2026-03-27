@@ -31,14 +31,6 @@ namespace DF_EvolutionAPI.Services
 
         public async Task<Resource> GetResourceByEmailId(string emailId)
         {
-            // Calculate October 1st of the previous year
-            //var currentDate = DateTime.Parse("2026-04-11");
-            var currentDate = DateTime.Now;
-            var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
-
-            // Calculate the date 6 months ago from today
-            var sixMonthsAgo = currentDate.AddMonths(-6);
-
             Resource resource;
 
             try
@@ -46,13 +38,7 @@ namespace DF_EvolutionAPI.Services
                 resource = await (
                     from r in _dbcontext.Resources
                     join designation in _dbcontext.Designations on r.DesignationId equals designation.DesignationId
-                    where r.EmailId == emailId && r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
-                    && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
-                    && (
-                            r.DateOfJoin == null
-                            || r.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
-                            || (r.DateOfJoin > previousYearOctober1st && r.DateOfJoin <= sixMonthsAgo)
-                        )
+                    where r.EmailId == emailId && r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     select new Resource
                     {
                         FunctionId = r.FunctionId,
@@ -199,23 +185,10 @@ namespace DF_EvolutionAPI.Services
         public async Task<string> GetChildResources(string userName)
         {
             userName = userName.ToLowerInvariant();
-            // Calculate October 1st of the previous year
-            //var currentDate = DateTime.Parse("2026-04-11");
-            var currentDate = DateTime.Now;
-            var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
-
-            // Calculate the date 6 months ago from today
-            var sixMonthsAgo = currentDate.AddMonths(-6);
-
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
                     where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == 8 && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)   // Allowing all active resources.
-                     && (
-                             resource.DateOfJoin == null
-                             || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
-                             || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
-                         )
                     //where resource.IsActive == 1
 
                     select new Team
@@ -327,24 +300,10 @@ namespace DF_EvolutionAPI.Services
         // Gets the team members details
         public async Task<string> GetMyTeamDetails(int userId)
         {
-            // Calculate October 1st of the previous year
-            //var currentDate = DateTime.Parse("2026-04-11");
-            var currentDate = DateTime.Now;
-            var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
-
-            // Calculate the date 6 months ago from today
-            var sixMonthsAgo = currentDate.AddMonths(-6);
-
             var resources = await (
                     from resource in _dbcontext.Resources
                     join designation in _dbcontext.Designations on resource.DesignationId equals designation.DesignationId
-                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID 
-                    && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
-                    && (
-                            resource.DateOfJoin == null
-                            || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
-                            || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
-                        )
+                    where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     select new TeamDetails
                     {
                         EmailId = resource.EmailId,                        
@@ -564,22 +523,11 @@ namespace DF_EvolutionAPI.Services
         {
             try
             {
-                // Calculate October 1st of the previous year
-                //var currentDate = DateTime.Parse("2026-04-11");
-                var currentDate = DateTime.Now;
-                var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
-
-                // Calculate the date 6 months ago from today
-                var sixMonthsAgo = currentDate.AddMonths(-6);
-
                 var result = await (
                     from k in _dbcontext.KRALibrary
                     join uk in _dbcontext.UserKRA on k.Id equals uk.KRAId
                     join r in _dbcontext.Resources on uk.UserId equals r.ResourceId
-                    where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX) && (
-                     r.DateOfJoin == null
-                     || r.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
-                     || (r.DateOfJoin > previousYearOctober1st && r.DateOfJoin <= sixMonthsAgo))
+                    where r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
                     join qd in _dbcontext.QuarterDetails on uk.QuarterId equals qd.Id
                     where qd.IsActive == (int)Status.IS_ACTIVE && uk.IsActive == (int)Status.IS_ACTIVE
                     join des in _dbcontext.DesignatedRoles on r.DesignatedRoleId equals des.DesignatedRoleId
