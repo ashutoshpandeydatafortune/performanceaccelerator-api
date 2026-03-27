@@ -157,6 +157,15 @@ namespace DF_PA_API.Services.DesignatedRoles
         {
             List<DesignatedRole> designations = new List<DesignatedRole>();
 
+            // Calculate October 1st of the previous year
+            //var currentDate = DateTime.Parse("2026-04-14");
+            var currentDate = DateTime.Now;
+            var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
+
+            // Calculate the date 6 months ago from today
+            var sixMonthsAgo = currentDate.AddMonths(-6);
+
+
             try
             {
                 designations = await (
@@ -164,6 +173,11 @@ namespace DF_PA_API.Services.DesignatedRoles
                     join resource in _dbcontext.Resources on designation.DesignatedRoleId equals resource.DesignatedRoleId
                     join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId
                     where reportingto.EmailId.Equals(userName) && resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    && (
+                            resource.DateOfJoin == null
+                            || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
+                            || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
+                        )
                     select new DesignatedRole
                     {
                         DesignatedRoleId = designation.DesignatedRoleId,
@@ -231,6 +245,14 @@ namespace DF_PA_API.Services.DesignatedRoles
 
             try
             {
+                // Calculate October 1st of the previous year
+                //var currentDate = DateTime.Parse("2026-04-14");
+                var currentDate = DateTime.Now;
+                var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
+
+                // Calculate the date 6 months ago from today
+                var sixMonthsAgo = currentDate.AddMonths(-6);
+
                 // Join Resources with DesignatedRoles and filter based on the given manager ID
                 resources = await (
                     from resource in _dbcontext.Resources
@@ -240,6 +262,12 @@ namespace DF_PA_API.Services.DesignatedRoles
                         && resource.IsActive == (int)Status.IS_ACTIVE
                         && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                         && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    && (
+                            resource.DateOfJoin == null
+                            || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
+                            || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
+                        )
+
                     select new ResourceReportee
                     {
                         ResourceId = resource.ResourceId,
@@ -265,6 +293,14 @@ namespace DF_PA_API.Services.DesignatedRoles
 
             try
             {
+                // Calculate October 1st of the previous year
+                //var currentDate = DateTime.Parse("2026-04-11");
+                var currentDate = DateTime.Now;
+                var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
+
+                // Calculate the date 6 months ago from today
+                var sixMonthsAgo = currentDate.AddMonths(-6);
+
                 // Base query for reportees under the given manager ID
                 var query = from resource in _dbcontext.Resources
                             join designation in _dbcontext.DesignatedRoles
@@ -273,6 +309,11 @@ namespace DF_PA_API.Services.DesignatedRoles
                                 && resource.IsActive == (int)Status.IS_ACTIVE
                                 && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                                 && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                                 && (
+                                        resource.DateOfJoin == null
+                                        || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
+                                        || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
+                                     )
                             select new ResourceReportee
                             {
                                 ResourceId = resource.ResourceId,
