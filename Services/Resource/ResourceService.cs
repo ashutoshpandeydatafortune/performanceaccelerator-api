@@ -696,7 +696,7 @@ namespace DF_EvolutionAPI.Services
         }
 
         // Gets the list of resources whose evaluations are completed.
-        public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId)
+        public async Task<ResourceEvaluationResponse> GetCompletedResourceEvaluations(int? userId, int? quarterId)
         {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetCompletedResourceEvaluations));
             try
@@ -728,7 +728,7 @@ namespace DF_EvolutionAPI.Services
                           && resource.IsActive == (int)Status.IS_ACTIVE
                           && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                           && userKras.IsActive == (int)Status.IS_ACTIVE
-                          && userKras.QuarterId == currentQuarter.Id
+                          && userKras.QuarterId == quarterId
                     select new
                     {
                         resource.ResourceId,
@@ -779,7 +779,7 @@ namespace DF_EvolutionAPI.Services
         }
 
         // Gets the list of resources whose evaluation is pending by the manager.
-        public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId)
+        public async Task<ResourceEvaluationResponse> GetPendingResourceEvaluations(int? userId, int? quarterId)
         {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetPendingResourceEvaluations));
             try
@@ -813,8 +813,8 @@ namespace DF_EvolutionAPI.Services
                         && userKras.FinalRating == null
                         && userKras.IsActive == (int)Status.IS_ACTIVE
                         && (userKras.DeveloperRating != null || userKras.RejectedBy != null)   
-                        && userKras.QuarterId == currentQuarter.Id
-                          
+                        && userKras.QuarterId == quarterId
+
                     select new
                     {
                         resource.ResourceId,
@@ -856,7 +856,7 @@ namespace DF_EvolutionAPI.Services
         }        
 
         // Gets the list of resources whose self-evaluation is pending.
-        public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId)
+        public async Task<ResourceEvaluationResponse> GetPendingSelfEvaluations (int? userId, int? quarterId)
        {
             _logger.LogInformation("Processing started in Class: {Class}, Method :{Method}", nameof(ResourceEvaluationResponse), nameof(GetPendingSelfEvaluations));
             try
@@ -892,7 +892,7 @@ namespace DF_EvolutionAPI.Services
                       && (userKras.DeveloperRating == null)
                       && (userKras.RejectedBy == null)
                      && userKras.IsApproved == 0
-                      && userKras.QuarterId == currentQuarter.Id
+                      && userKras.QuarterId == quarterId
                     select new
                     {
                         resource.ResourceId,
