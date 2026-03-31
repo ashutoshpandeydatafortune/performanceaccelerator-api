@@ -643,7 +643,8 @@ namespace DF_EvolutionAPI.Services
                             }).ToList(),
                         ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
                         ManagerReportingToName = g.FirstOrDefault().ManagerReportingToName // Fetching the second-level manager's name
-                    }).ToList();
+                    }).OrderBy(x=> x.ResourceName)
+                    .ToList();
 
                 return flattenedResult;
             }
