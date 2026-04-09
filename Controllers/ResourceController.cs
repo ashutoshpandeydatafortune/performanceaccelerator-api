@@ -237,14 +237,14 @@ namespace DF_EvolutionAPI.Controllers
         /// <return></return>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetPendingResourceEvaluations(int? userId, int? quarterId)
+        public async Task<IActionResult> GetPendingResourceEvaluations(int? userId)
         {
             try
             {
                 // Log the API endpoint path being hit for request tracing and monitoring
                 _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
 
-                var resourceList = await _resourceService.GetPendingResourceEvaluations(userId, quarterId);
+                var resourceList = await _resourceService.GetPendingResourceEvaluations(userId);
                 return Ok(resourceList);
             }
             catch (Exception ex)
@@ -262,14 +262,14 @@ namespace DF_EvolutionAPI.Controllers
         ///<return></return>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetCompletedResourceEvaluations(int? userId, int? quarterId)
+        public async Task<IActionResult> GetCompletedResourceEvaluations(int? userId)
         {
             try
             {
                 // Log the API endpoint path being hit for request tracing and monitoring
                 _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
 
-                var resourceList = await _resourceService.GetCompletedResourceEvaluations(userId, quarterId);
+                var resourceList = await _resourceService.GetCompletedResourceEvaluations(userId);
                 return Ok(resourceList);
             }
             catch (Exception ex)
@@ -287,14 +287,14 @@ namespace DF_EvolutionAPI.Controllers
         /// <return></return>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetPendingSelfEvaluations(int? userId, int? quarterId)
+        public async Task<IActionResult> GetPendingSelfEvaluations(int? userId)
         {
             try
             {
                 // Log the API endpoint path being hit for request tracing and monitoring
                 _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
 
-                var resourceList = await _resourceService.GetPendingSelfEvaluations(userId, quarterId);
+                var resourceList = await _resourceService.GetPendingSelfEvaluations(userId);
                 return Ok(resourceList);
             }
             catch (Exception ex)
