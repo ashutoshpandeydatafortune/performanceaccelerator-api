@@ -934,8 +934,8 @@ namespace DF_EvolutionAPI.Services
             {
                 var userKRAList = await _dbcontext.UserKRA
                     .Where(c => c.IsActive == (int)Status.IS_ACTIVE
-                                && c.QuarterId == quarterId)
-                                //&& c.CreateBy == managerId)
+                                && c.QuarterId == quarterId
+                                && c.CreateBy == managerId)
                     .ToListAsync();
                
                 return userKRAList;

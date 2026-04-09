@@ -724,8 +724,7 @@ namespace DF_EvolutionAPI.Services
                         on resource.ResourceId equals userKras.UserId
                     join quarters in _dbcontext.QuarterDetails
                         on userKras.QuarterId equals quarters.Id
-                  //  where resource.ReportingTo == userId
-                    where userKras.CreateBy == userId
+                    where resource.ReportingTo == userId
                           && resource.IsActive == (int)Status.IS_ACTIVE
                           && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                           && userKras.IsActive == (int)Status.IS_ACTIVE
@@ -808,8 +807,7 @@ namespace DF_EvolutionAPI.Services
                         on resource.ResourceId equals userKras.UserId
                     join quarters in _dbcontext.QuarterDetails
                         on userKras.QuarterId equals quarters.Id
-                   // where resource.ReportingTo == userId
-                    where userKras.CreateBy == userId
+                    where resource.ReportingTo == userId
                         && resource.IsActive == (int)Status.IS_ACTIVE
                         && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                         && userKras.FinalRating == null
@@ -886,8 +884,7 @@ namespace DF_EvolutionAPI.Services
                         on resource.ResourceId equals userKras.UserId
                     join quarters in _dbcontext.QuarterDetails
                         on userKras.QuarterId equals quarters.Id
-                    //where resource.ReportingTo == userId 
-                    where userKras.CreateBy == userId
+                    where resource.ReportingTo == userId                     
                       && resource.IsActive == (int)Status.IS_ACTIVE
                       && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                       && userKras.FinalRating == null
