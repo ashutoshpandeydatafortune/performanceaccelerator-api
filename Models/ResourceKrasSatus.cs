@@ -36,6 +36,8 @@ namespace DF_PA_API.Models
         public double? FinalRating { get; set; }
         public int? RejectedBy { get; set; }
         public byte? IsApproved { get; set; }
+        public double? Score { get; set; }
+        public int Weightage { get; set; }
     }
     
     public class FunctionsDesignations

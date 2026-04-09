@@ -596,6 +596,8 @@ namespace DF_EvolutionAPI.Services
                         uk.RejectedBy,
                         uk.FinalComment,
                         uk.IsApproved,
+                        uk.Score,
+                        k.Weightage,
                         ReportingToName = manager.ResourceName, // Manager's name
                         ManagerReportingToName = manager2.ResourceName // Manager's manager name
                     })
@@ -628,6 +630,8 @@ namespace DF_EvolutionAPI.Services
                                     FinalRating = item.FinalRating,
                                     RejectedBy = item.RejectedBy,
                                     IsApproved = item.IsApproved,
+                                    Score = item.Score,
+                                    Weightage = item.Weightage
                                 }).ToList(),
                             }).ToList(),
                         ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
