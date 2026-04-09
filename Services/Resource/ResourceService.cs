@@ -30,14 +30,7 @@ namespace DF_EvolutionAPI.Services
         }
 
         public async Task<Resource> GetResourceByEmailId(string emailId)
-        {
-            // Calculate October 1st of the previous year
-            //var currentDate = DateTime.Parse("2026-04-11");
-            var currentDate = DateTime.Now;
-            var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
-
-            // Calculate the date 6 months ago from today
-            var sixMonthsAgo = currentDate.AddMonths(-6);
+        {        
 
             Resource resource;
 
@@ -48,11 +41,7 @@ namespace DF_EvolutionAPI.Services
                     join designation in _dbcontext.Designations on r.DesignationId equals designation.DesignationId
                     where r.EmailId == emailId && r.IsActive == (int)Status.IS_ACTIVE && r.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
                     && !r.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
-                    && (
-                            r.DateOfJoin == null
-                            || r.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
-                            || (r.DateOfJoin > previousYearOctober1st && r.DateOfJoin <= sixMonthsAgo)
-                        )
+                   
                     select new Resource
                     {
                         FunctionId = r.FunctionId,
@@ -607,6 +596,8 @@ namespace DF_EvolutionAPI.Services
                         uk.RejectedBy,
                         uk.FinalComment,
                         uk.IsApproved,
+                        uk.Score,
+                        k.Weightage,
                         ReportingToName = manager.ResourceName, // Manager's name
                         ManagerReportingToName = manager2.ResourceName // Manager's manager name
                     })
@@ -639,6 +630,8 @@ namespace DF_EvolutionAPI.Services
                                     FinalRating = item.FinalRating,
                                     RejectedBy = item.RejectedBy,
                                     IsApproved = item.IsApproved,
+                                    Score = item.Score,
+                                    Weightage = item.Weightage
                                 }).ToList(),
                             }).ToList(),
                         ReportingToName = g.FirstOrDefault().ReportingToName, // Fetching the manager's name
