@@ -64,7 +64,8 @@ namespace DF_EvolutionAPI
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Application failed to start: " + ex.Message);
+                Console.WriteLine("Application failed to start:");
+                Console.WriteLine(ex.ToString());
             }
         }
 

@@ -326,3 +326,17 @@ __pycache__/
 # tools/
 
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore
+
+# Appsettings
+appsettings.json
+appsettings.Development.json
+
+# Upgrade audit
+upgrade-audit/
+Upgrade-checklist.md
+
+# Sonarqube
+.sonarqube/
+
+#agent skills
+.agents/

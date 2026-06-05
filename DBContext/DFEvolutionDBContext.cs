@@ -210,7 +210,7 @@ namespace DF_EvolutionAPI
                 e.Property(e => e.CompanyURL).HasColumnName("CompanyURL");
                 e.Property(e => e.ActualStartDate).HasColumnName("ActualStartDate");
                 e.Property(e => e.ActualEndDate).HasColumnName("ActualEndDate");
-                e.Property(e => e.AgreementDuration).HasColumnName("AgreementSignedByClient");
+                e.Property(e => e.AgreementDuration).HasColumnName("AgreementDuration");
                 e.Property(e => e.AgreementSignedByClient).HasColumnName("AgreementSignedByClient");
                 e.Property(e => e.AgreementSignedByDF).HasColumnName("AgreementSignedByDF");
                 e.Property(e => e.IsActive).HasColumnName("IsActive");
@@ -230,7 +230,7 @@ namespace DF_EvolutionAPI
                 //Billing
                 e.Property(e => e.CurrencyId).HasColumnName("CurrencyId");
                 e.Property(e => e.HourlyBillingRate).HasColumnName("HourlyBillingRate");
-                e.Property(e => e.WeeklyBillingRate).HasColumnName("HourlyBillingRate");
+                e.Property(e => e.WeeklyBillingRate).HasColumnName("WeeklyBillingRate");
                 e.Property(e => e.MonthlyBillingRate).HasColumnName("MonthlyBillingRate");
                 e.Property(e => e.PaymentCycleId).HasColumnName("PaymentCycleId");
                 e.Property(e => e.NoOfYearsInBusiness).HasColumnName("NoOfYearsInBusiness");

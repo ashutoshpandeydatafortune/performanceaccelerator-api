@@ -15,7 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
+using System.Collections.Generic;
 using System.Text;
 using DF_EvolutionAPI.Services.KRATemplate;
 using DF_PA_API.Services;
@@ -28,31 +29,40 @@ namespace DF_EvolutionAPI
     public class Startup
     {
         public IConfiguration Configuration { get; }
+        private readonly IWebHostEnvironment _env;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
         private void LoadConfiguration()
         {
-            Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"];
+            Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"] ?? string.Empty;
 
-            Constant.SMTP_HOST = Configuration["MAIL:SMTP_HOST"];
-            Constant.SMTP_PASSWORD = Configuration["MAIL:SMTP_PASSWORD"];
-            Constant.SMTP_USERNAME = Configuration["MAIL:SMTP_USERNAME"];
-            Constant.SMTP_PORT = int.Parse(Configuration["MAIL:SMTP_PORT"]);
-            Constant.NO_MAIL_DESIGNATION = Configuration["NO_MAIL_DESIGNATION"]
-                                           .Split(',')
-                                           .Select(designationName => designationName.Trim())
-                                           .ToList();
+            Constant.SMTP_HOST = Configuration["MAIL:SMTP_HOST"] ?? string.Empty;
+            Constant.SMTP_PASSWORD = Configuration["MAIL:SMTP_PASSWORD"] ?? string.Empty;
+            Constant.SMTP_USERNAME = Configuration["MAIL:SMTP_USERNAME"] ?? string.Empty;
+            Constant.SMTP_PORT = int.TryParse(Configuration["MAIL:SMTP_PORT"], out var smtpPort)
+                ? smtpPort
+                : Constant.SMTP_PORT;
 
-            Constant.AZURE_DOMAIN = Configuration["Azure:Domain"];
-            Constant.AZURE_INSTANCE = Configuration["Azure:Instance"];
-            Constant.AZURE_CLIENT_ID = Configuration["Azure:ClientId"];
-            Constant.AZURE_TENANT_ID = Configuration["Azure:TenantId"];
-            Constant.AZURE_CALLBACK_PATH = Configuration["Azure:CallbackPath"];
-            Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"];
+            var noMailDesignation = Configuration["NO_MAIL_DESIGNATION"];
+            Constant.NO_MAIL_DESIGNATION = string.IsNullOrWhiteSpace(noMailDesignation)
+                ? new List<string>()
+                : noMailDesignation
+                    .Split(',')
+                    .Select(designationName => designationName.Trim())
+                    .Where(designationName => !string.IsNullOrWhiteSpace(designationName))
+                    .ToList();
+
+            Constant.AZURE_DOMAIN = Configuration["Azure:Domain"] ?? string.Empty;
+            Constant.AZURE_INSTANCE = Configuration["Azure:Instance"] ?? string.Empty;
+            Constant.AZURE_CLIENT_ID = Configuration["Azure:ClientId"] ?? string.Empty;
+            Constant.AZURE_TENANT_ID = Configuration["Azure:TenantId"] ?? string.Empty;
+            Constant.AZURE_CALLBACK_PATH = Configuration["Azure:CallbackPath"] ?? string.Empty;
+            Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"] ?? string.Empty;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -123,7 +133,7 @@ namespace DF_EvolutionAPI
             }).AddJwtBearer(options =>
             {
                 options.SaveToken = true;
-                options.RequireHttpsMetadata = true;
+                options.RequireHttpsMetadata = !_env.IsDevelopment();
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = true,
@@ -149,11 +159,10 @@ namespace DF_EvolutionAPI
                     var corsOrigins = Configuration["Cors:Origins"]?.Split(',') ?? new string[] { };
 
                     builder
-                        .WithOrigins(corsOrigins) // Use the origins from your .env file
+                        .WithOrigins(corsOrigins)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowCredentials()
-                        .WithMethods("PUT", "DELETE", "GET", "POST", "PATCH");
+                        .AllowCredentials();
                 });
             });
 
@@ -167,19 +176,10 @@ namespace DF_EvolutionAPI
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-                   {
-                     new OpenApiSecurityScheme
-                     {
-                       Reference = new OpenApiReference
-                       {
-                         Type = ReferenceType.SecurityScheme,
-                         Id = "Bearer"
-                       }
-                      },
-                      new string[] { }
-                    }
-                  });
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+                });
             });
 
             services.AddControllers();
@@ -203,7 +203,8 @@ namespace DF_EvolutionAPI
                 });
             }
 
-            app.UseHttpsRedirection();
+            if (!_env.IsDevelopment())
+                app.UseHttpsRedirection();
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
