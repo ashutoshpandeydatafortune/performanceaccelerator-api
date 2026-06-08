@@ -1,3 +1,4 @@
+using System;
 using DF_EvolutionAPI.Services;
 using DF_EvolutionAPI.Services.Designations;
 using DF_EvolutionAPI.Services.History;
@@ -23,6 +24,9 @@ using DF_PA_API.Services;
 using DF_PA_API.Services.RolesMaster;
 using DF_PA_API.Services.DesignatedRoles;
 using System.Linq;
+using DF_EvolutionAPI.Configuration;
+using DF_EvolutionAPI.Models.Response;
+using Microsoft.Extensions.Options;
 
 namespace DF_EvolutionAPI
 {
@@ -35,33 +39,87 @@ namespace DF_EvolutionAPI
             Configuration = configuration;
         }
 
-        private void LoadConfiguration()
+        private void LoadConfiguration(
+            DbOptions dbOptions,
+            MailOptions mailOptions,
+            AzureOptions azureOptions,
+            AppBehaviorOptions appBehaviorOptions)
         {
-            Constant.CONNECTION_STRING = Configuration["DB:ConnectionString"];
+            Constant.CONNECTION_STRING = dbOptions.ConnectionString;
 
-            Constant.SMTP_HOST = Configuration["MAIL:SMTP_HOST"];
-            Constant.SMTP_PASSWORD = Configuration["MAIL:SMTP_PASSWORD"];
-            Constant.SMTP_USERNAME = Configuration["MAIL:SMTP_USERNAME"];
-            Constant.SMTP_PORT = int.Parse(Configuration["MAIL:SMTP_PORT"]);
-            Constant.NO_MAIL_DESIGNATION = Configuration["NO_MAIL_DESIGNATION"]
-                                           .Split(',')
-                                           .Select(designationName => designationName.Trim())
-                                           .ToList();
+            Constant.SMTP_HOST = mailOptions.SMTP_HOST;
+            Constant.SMTP_PASSWORD = mailOptions.SMTP_PASSWORD;
+            Constant.SMTP_USERNAME = mailOptions.SMTP_USERNAME;
+            Constant.SMTP_PORT = mailOptions.SMTP_PORT;
+            Constant.NO_MAIL_DESIGNATION = appBehaviorOptions.NoMailDesignation
+                .Select(designationName => designationName.Trim())
+                .Where(designationName => !string.IsNullOrWhiteSpace(designationName))
+                .ToList();
 
-            Constant.AZURE_DOMAIN = Configuration["Azure:Domain"];
-            Constant.AZURE_INSTANCE = Configuration["Azure:Instance"];
-            Constant.AZURE_CLIENT_ID = Configuration["Azure:ClientId"];
-            Constant.AZURE_TENANT_ID = Configuration["Azure:TenantId"];
-            Constant.AZURE_CALLBACK_PATH = Configuration["Azure:CallbackPath"];
-            Constant.AZURE_STORAGE_CONNECTION_STRING = Configuration["Azure:StorageConnectionString"];
+            Constant.AZURE_DOMAIN = azureOptions.Domain;
+            Constant.AZURE_INSTANCE = azureOptions.Instance;
+            Constant.AZURE_CLIENT_ID = azureOptions.ClientId;
+            Constant.AZURE_TENANT_ID = azureOptions.TenantId;
+            Constant.AZURE_CALLBACK_PATH = azureOptions.CallbackPath;
+            Constant.AZURE_STORAGE_CONNECTION_STRING = azureOptions.StorageConnectionString;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions<DbOptions>()
+                .Bind(Configuration.GetRequiredSection("DB"))
+                .ValidateDataAnnotations()
+                .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionString), "DB:ConnectionString is required.")
+                .ValidateOnStart();
+
+            services.AddOptions<MailOptions>()
+                .Bind(Configuration.GetRequiredSection("Mail"))
+                .ValidateDataAnnotations()
+                .Validate(options => !string.IsNullOrWhiteSpace(options.SMTP_HOST), "MAIL:SMTP_HOST is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.SMTP_USERNAME), "MAIL:SMTP_USERNAME is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.SMTP_PASSWORD), "MAIL:SMTP_PASSWORD is required.")
+                .ValidateOnStart();
+
+            services.AddOptions<AzureOptions>()
+                .Bind(Configuration.GetRequiredSection("Azure"))
+                .ValidateDataAnnotations()
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Instance), "Azure:Instance is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.Domain), "Azure:Domain is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.TenantId), "Azure:TenantId is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Azure:ClientId is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.CallbackPath), "Azure:CallbackPath is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.StorageConnectionString), "Azure:StorageConnectionString is required.")
+                .ValidateOnStart();
+
+            services.AddOptions<AppBehaviorOptions>()
+                .Configure(options =>
+                {
+                    options.NoMailDesignation = ParseCsvSetting("NO_MAIL_DESIGNATION");
+                    options.Origins = ParseCsvSetting("Cors:Origins");
+                })
+                .Validate(options => options.NoMailDesignation.Length > 0, "NO_MAIL_DESIGNATION must contain at least one value.")
+                .Validate(options => options.Origins.Length > 0, "Cors:Origins must contain at least one origin.")
+                .Validate(options => options.Origins.All(origin => Uri.TryCreate(origin, UriKind.Absolute, out _)), "Cors:Origins must contain valid absolute origins.")
+                .ValidateOnStart();
+
             services.AddControllersWithViews();
-            services.Configure<EmailService>(Configuration.GetSection("Mail"));
-            LoadConfiguration();
+            services.Configure<EmailSetting>(Configuration.GetSection("Mail"));
+
+            var dbOptions = Configuration.GetRequiredSection("DB").Get<DbOptions>()
+                ?? throw new InvalidOperationException("DB configuration is missing.");
+            var mailOptions = Configuration.GetRequiredSection("Mail").Get<MailOptions>()
+                ?? throw new InvalidOperationException("Mail configuration is missing.");
+            var azureOptions = Configuration.GetRequiredSection("Azure").Get<AzureOptions>()
+                ?? throw new InvalidOperationException("Azure configuration is missing.");
+            var appBehaviorOptions = new AppBehaviorOptions
+            {
+                NoMailDesignation = ParseCsvSetting("NO_MAIL_DESIGNATION"),
+                Origins = ParseCsvSetting("Cors:Origins")
+            };
+
+            ValidateRequiredSettings(dbOptions, mailOptions, azureOptions, appBehaviorOptions);
+            LoadConfiguration(dbOptions, mailOptions, azureOptions, appBehaviorOptions);
 
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
@@ -146,14 +204,10 @@ namespace DF_EvolutionAPI
                 options.AddPolicy("CorsPolicy",
                 builder =>
                 {
-                    // Read the CORS origins from the environment variable
-                    var corsOrigins = Configuration["Cors:Origins"]?.Split(',') ?? new string[] { };
-
                     builder
-                        .WithOrigins(corsOrigins) // Use the origins from your .env file
+                        .WithOrigins(appBehaviorOptions.Origins)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowCredentials()
                         .WithMethods("PUT", "DELETE", "GET", "POST", "PATCH");
                 });
             });
@@ -210,6 +264,55 @@ namespace DF_EvolutionAPI
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("/index.html");
             });
+        }
+
+        private string[] ParseCsvSetting(string key)
+        {
+            return (Configuration[key] ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(value => value.Trim())
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+        }
+
+        private static void ValidateRequiredSettings(
+            DbOptions dbOptions,
+            MailOptions mailOptions,
+            AzureOptions azureOptions,
+            AppBehaviorOptions appBehaviorOptions)
+        {
+            if (string.IsNullOrWhiteSpace(dbOptions.ConnectionString))
+            {
+                throw new InvalidOperationException("DB:ConnectionString is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(mailOptions.SMTP_HOST) ||
+                string.IsNullOrWhiteSpace(mailOptions.SMTP_USERNAME) ||
+                string.IsNullOrWhiteSpace(mailOptions.SMTP_PASSWORD) ||
+                mailOptions.SMTP_PORT <= 0)
+            {
+                throw new InvalidOperationException("MAIL settings are required: SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD.");
+            }
+
+            if (string.IsNullOrWhiteSpace(azureOptions.Instance) ||
+                string.IsNullOrWhiteSpace(azureOptions.Domain) ||
+                string.IsNullOrWhiteSpace(azureOptions.TenantId) ||
+                string.IsNullOrWhiteSpace(azureOptions.ClientId) ||
+                string.IsNullOrWhiteSpace(azureOptions.CallbackPath) ||
+                string.IsNullOrWhiteSpace(azureOptions.StorageConnectionString))
+            {
+                throw new InvalidOperationException("Azure settings are required: Instance, Domain, TenantId, ClientId, CallbackPath, StorageConnectionString.");
+            }
+
+            if (appBehaviorOptions.NoMailDesignation.Length == 0)
+            {
+                throw new InvalidOperationException("NO_MAIL_DESIGNATION must contain at least one value.");
+            }
+
+            if (appBehaviorOptions.Origins.Length == 0)
+            {
+                throw new InvalidOperationException("Cors:Origins must contain at least one origin.");
+            }
         }
 
 
