@@ -1,6 +1,8 @@
 ﻿using System;
+using DF_EvolutionAPI.Utils;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
@@ -12,10 +14,12 @@ namespace DF_EvolutionAPI.Controllers
     public class QuarterController : ControllerBase
     {
         private IQuarterService _quarterService;
+        private readonly ILogger<QuarterController> _logger;
 
-        public QuarterController(IQuarterService quarterService)
+        public QuarterController(IQuarterService quarterService, ILogger<QuarterController> logger)
         {
             _quarterService = quarterService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,11 +32,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                //_logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var quarters = await _quarterService.GetAllQuarterList(type);
                 return Ok(quarters);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -48,6 +56,8 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var quarterDetails = await _quarterService.GetQuarterDetailsById(quarterId);
                 
                 if (quarterDetails == null) return NotFound();
@@ -56,6 +66,8 @@ namespace DF_EvolutionAPI.Controllers
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -71,11 +83,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _quarterService.CreateorUpdateQuarter(quarterdetailsModel);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -91,11 +107,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _quarterService.DeleteQuarter(quarterId);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -111,11 +131,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _quarterService.GetStatusDetailsByQuarterId(quarterId);
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -131,11 +155,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var model = await _quarterService.GetStatusDetailsByQuarterId(statusId);
                 return Ok(model);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }

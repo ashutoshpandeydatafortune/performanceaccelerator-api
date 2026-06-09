@@ -1,4 +1,7 @@
-﻿namespace DF_EvolutionAPI.Utils
+﻿using System;
+using System.Collections.Generic;
+
+namespace DF_EvolutionAPI.Utils
 {
     public class Constant
     {
@@ -12,8 +15,11 @@
         public static string AZURE_STORAGE_CONNECTION_STRING = "";
 
         public static string EMAIL_FROM = "";
-        public static string SUBJECT_KRA_UPDATED = "KRA Updated";
-        public static string SUBJECT_KRA_CREATED = "KRA Assigned";
+        public static string SUBJECT_KRA_UPDATED_MANAGER = "Evaluation Completed";
+        public static string SUBJECT_KRA_UPDATED_SRMANAGER = "Final Approval for Evaluation ";
+        public static string SUBJECT_KRA_CREATED = "Self-Evaluation Released";
+        public static string SUBJECT_KRA_REJECTED = "KRA Evaluation Rejected - Action Required";
+        public static string SUBJECT_KRA_APPROVED_COMPLETE = "Congratulations! Your KRA Evaluation is Complete";
 
         public static string KRA_UPDATE_ADMIN_APPROVED = "Admin approved KRA";
         public static string KRA_UPDATE_ADMIN_REJECTED = "Admin rejected KRA";
@@ -29,12 +35,21 @@
         public static string KRA_HEADER_TEMPLATE_NAME = "kra-header.html";
         public static string KRA_CREATED_TEMPLATE_NAME = "kra-created.html";
         public static string KRA_HEADER_REJECT_TEMPLATE_NAME = "kra-header-reject.html";
-        public static string KRA_HEADER_APPROVED_TEMPLATE_NAME = "kra-header-approved.html";
-        public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-header-sr-approval.html";
+        public static string KRA_HEADER_REJECTED_TEMPLATE_NAME = "kra-manager-rejected.html";
+        public static string KRA_HEADER_APPROVED_TEMPLATE_NAME = "kra-approved.html";
+        public static string KRA_HEADER_SR_APPROVED_TEMPLATE_NAME = "kra-sr-approval.html";
+        public static string KRA_HEADER_APPROVAL_COMPLETE_TEMPLATE_NAME = "kra-approval-complete.html";
 
         public static string APPLICATION_NAME = "Performance Accelerator";
-        public static string ROLE_NAME = "Developer";
+        public static string ROLE_NAME = "Developer";        
+        public static List<string> NO_MAIL_DESIGNATION = new List<string>();
+        //public static string EMPLOYEE_PREFIX = "VDF";//Contract to hire employees, employeeid start with VDF
+        public static string EMPLOYEE_PREFIX = "DSC";//Contract to hire employees, employeeid start with DSC
+        public static int RESOURCE_BUSINESS_UNIT_ID = 2; // In Prms ReferenceId '2' is set for 'Resource Business Unit'
+        public static string ERROR_MESSAGE = "{0} {1}";
+        public static int LOG_DELETION_DAYS= 10;
 
         public static int DAYS_TO_LOOK_BACK = -7;
+        public static string DUE_DATE = DateTime.Now.ToString("dd-MM-yyyy");
     }
 }

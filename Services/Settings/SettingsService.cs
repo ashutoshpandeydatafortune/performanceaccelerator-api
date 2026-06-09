@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Logging;
 
 
 
@@ -16,11 +18,13 @@ namespace DF_EvolutionAPI.Services
     public class SettingsService : ISettingsService
     {
         private readonly DFEvolutionDBContext _dbcontext; // Database context for accessing the database.
-        
+        private readonly ILogger<SettingsService> _logger;
+
         // Constructor to initialize the database context.
-        public SettingsService(DFEvolutionDBContext dbContext)
+        public SettingsService(DFEvolutionDBContext dbContext, ILogger<SettingsService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
 
         }
 
@@ -65,7 +69,7 @@ namespace DF_EvolutionAPI.Services
             {
                 // Handle exceptions by setting the response model to indicate failure and providing the error message.
                 model.IsSuccess = false;
-                model.Messsage = ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;// Return the response model.
         }
@@ -114,7 +118,7 @@ namespace DF_EvolutionAPI.Services
             {
                 // Handle exceptions by setting the response model to indicate failure and providing the error message.
                 model.IsSuccess = false;
-                model.Messsage = ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;// Return the response model.
         }
@@ -132,7 +136,7 @@ namespace DF_EvolutionAPI.Services
             var query = from userRole in _dbcontext.UserRoles // Adjust based on your DbSet names
                         join user in _dbcontext.AspNetUsers on userRole.UserId equals user.Id
                         join resource in _dbcontext.Resources on user.Email equals resource.EmailId
-                        where resource.IsActive == (int)Status.IS_ACTIVE
+                        where resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID  //fecth the only active record by checking the statusid.
                         join role in _dbcontext.RoleMasters on userRole.RoleId equals role.RoleId
                         where role.IsActive == (int)Status.IS_ACTIVE
                         orderby resource.ResourceName
@@ -192,7 +196,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "An error occurred: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

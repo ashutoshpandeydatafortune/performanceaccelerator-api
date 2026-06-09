@@ -23,7 +23,8 @@ namespace DF_EvolutionAPI.Models
         public int Weightage { get; set; }
         public bool? IsDescriptionRequired { get; set; }
         public int? MinimumRatingForDescription { get; set; }
-        public int? FunctionId { get; set; }       
+        public int? FunctionId { get; set; }        
+        public int? BusinessUnitId { get; set; }
     }
 
     public class KRAList
@@ -38,6 +39,8 @@ namespace DF_EvolutionAPI.Models
         public string Description { get; set; }
         public string FunctionName { get; set; }
         public bool? IsDescriptionRequired { get; set; }
+        public int? BusinessUnitId { get; set; }
+        public string BusinessUnitName { get; set; }
     }
 
     public class AssignedUserKraDetail

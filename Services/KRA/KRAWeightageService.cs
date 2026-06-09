@@ -5,16 +5,20 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 namespace DF_EvolutionAPI.Services
 {
     public class KRAWeightageService: IKRAWeightageService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<KRAWeightageService> _logger;
 
-        public KRAWeightageService(DFEvolutionDBContext dbContext)
+        public KRAWeightageService(DFEvolutionDBContext dbContext, ILogger<KRAWeightageService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<KRAWeightage>> GetAllKRAWeightageList()
@@ -30,8 +34,9 @@ namespace DF_EvolutionAPI.Services
             {
                 weightage = await _dbcontext.FindAsync<KRAWeightage>(weightageId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -79,7 +84,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -112,7 +117,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

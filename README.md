@@ -42,7 +42,7 @@ This README would normally document whatever steps are necessary to get your app
 * Code will automatically deploy when main is merged to production
 
 
-### How to deploy on Azure ###
+### How to deploy on Azure (Stage) ###
 
 * Stage API is running on Azure App Services
 * Create an application under AppServices in Azure
@@ -67,4 +67,12 @@ SMTP_USERNAME=?
 SMTP_PASSWORD=?
 
 * Code will automatically deploy when main is merged to stage
+
+### How to deploy on AWS (Production) ###
+
+At the moment it is not fully automated.
+Login to LightSail RDP and stop the IIS site.
+Merge main into production, Github will push code to Lightsail server.
+Copy .env file from www root directory to performance accelerator directory.
+Start the IIS site.
 

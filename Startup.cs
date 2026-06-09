@@ -21,6 +21,7 @@ using DF_EvolutionAPI.Services.KRATemplate;
 using DF_PA_API.Services;
 using DF_PA_API.Services.RolesMaster;
 using DF_PA_API.Services.DesignatedRoles;
+using System.Linq;
 
 namespace DF_EvolutionAPI
 {
@@ -41,6 +42,10 @@ namespace DF_EvolutionAPI
             Constant.SMTP_PASSWORD = Configuration["MAIL:SMTP_PASSWORD"];
             Constant.SMTP_USERNAME = Configuration["MAIL:SMTP_USERNAME"];
             Constant.SMTP_PORT = int.Parse(Configuration["MAIL:SMTP_PORT"]);
+            Constant.NO_MAIL_DESIGNATION = Configuration["NO_MAIL_DESIGNATION"]
+                                           .Split(',')
+                                           .Select(designationName => designationName.Trim())
+                                           .ToList();
 
             Constant.AZURE_DOMAIN = Configuration["Azure:Domain"];
             Constant.AZURE_INSTANCE = Configuration["Azure:Instance"];
@@ -129,6 +134,12 @@ namespace DF_EvolutionAPI
                 };
             });
 
+            //Enforce Authorization Globally
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = options.DefaultPolicy;
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
@@ -175,11 +186,13 @@ namespace DF_EvolutionAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env )
+
         {
+           
             app.UseCors("CorsPolicy");
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsStaging())
             {
                 app.UseDeveloperExceptionPage();
                     
@@ -197,8 +210,8 @@ namespace DF_EvolutionAPI
 
             app.UseRouting();
 
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

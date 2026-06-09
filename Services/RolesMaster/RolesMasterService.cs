@@ -2,20 +2,25 @@
 using System.Linq;
 using DF_EvolutionAPI;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Services;
 
 namespace DF_PA_API.Services.RolesMaster
 {
     public class RolesMasterService : IRolesMasterService
     {
         private readonly DFEvolutionDBContext _dbContext;
+        private readonly ILogger<RolesMasterService> _logger;
 
-        public RolesMasterService(DFEvolutionDBContext dbContext)
+        public RolesMasterService(DFEvolutionDBContext dbContext, ILogger<RolesMasterService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<ResponseModel> CreateRoleMaster(RoleMaster roleMaster)
@@ -46,7 +51,7 @@ namespace DF_PA_API.Services.RolesMaster
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -92,7 +97,7 @@ namespace DF_PA_API.Services.RolesMaster
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -132,7 +137,7 @@ namespace DF_PA_API.Services.RolesMaster
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error: " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

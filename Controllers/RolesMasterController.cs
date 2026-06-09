@@ -1,7 +1,9 @@
 ﻿using System;
 using DF_PA_API.Models;
+using DF_EvolutionAPI.Utils;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using DF_PA_API.Services.RolesMaster;
 
 namespace DF_PA_API.Controllers
@@ -12,9 +14,11 @@ namespace DF_PA_API.Controllers
     public class RolesMasterController : Controller
     {
         private IRolesMasterService _rolesMasterService;
-        public RolesMasterController(IRolesMasterService rolesMasterService)
+        private readonly ILogger<RolesMasterController> _logger;
+        public RolesMasterController(IRolesMasterService rolesMasterService, ILogger<RolesMasterController> logger)
         {
             _rolesMasterService = rolesMasterService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,11 +32,15 @@ namespace DF_PA_API.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _rolesMasterService.CreateRoleMaster(roleMaster);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }

@@ -6,16 +6,21 @@ using DF_EvolutionAPI.Models;
 using System.Collections.Generic;
 using DF_EvolutionAPI.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using DF_EvolutionAPI.Services.KRATemplate;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;    
 
 namespace DF_EvolutionAPI.Services
 {
     public class StatusService : IStatusService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<StatusService> _logger;
 
-        public StatusService(DFEvolutionDBContext dbContext)
+        public StatusService(DFEvolutionDBContext dbContext, ILogger<StatusService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<StatusLibrary>> GetAllStatusList()
@@ -31,8 +36,9 @@ namespace DF_EvolutionAPI.Services
             {
                 statuslibrary = await _dbcontext.FindAsync<StatusLibrary>(statusId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
             
@@ -81,7 +87,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;
@@ -113,7 +119,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error : " + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
 
             return model;

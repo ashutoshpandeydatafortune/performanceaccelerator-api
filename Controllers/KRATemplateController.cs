@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DF_EvolutionAPI.Models.Response;
 using DF_EvolutionAPI.Services.KRATemplate;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Utils;
 
 
 namespace DF_EvolutionAPI.Controllers
@@ -12,10 +14,12 @@ namespace DF_EvolutionAPI.Controllers
     public class KRATemplateController : Controller
     {
         private IKRATemplateService _kraTemplateService;
+        private readonly ILogger<KRATemplateController> _logger;
 
-        public KRATemplateController(IKRATemplateService kraTemplateService )
+        public KRATemplateController(IKRATemplateService kraTemplateService, ILogger<KRATemplateController> logger)
         {
             _kraTemplateService = kraTemplateService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -29,11 +33,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _kraTemplateService.CreateKraTemplate(paTemplates);
                 return Ok(response);
             }
             catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }            
         }      
@@ -49,11 +55,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _kraTemplateService.UpdateKraTemplate(paTemplates);
                 return Ok(response);
             }
             catch(Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }            
         }
@@ -69,11 +77,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+               
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
+
                 var result = await _kraTemplateService.GetKraTemplateByIdDetails(templateId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }           
         }
@@ -89,11 +101,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var result = await _kraTemplateService.GetKraTemplateById(templateId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -108,12 +122,16 @@ namespace DF_EvolutionAPI.Controllers
         public async Task<IActionResult> GetAllTemplates()
         {
             try
+                
             {
+               
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var result = await _kraTemplateService.GetAllTemplates();
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }            
         }
@@ -129,11 +147,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var result = await _kraTemplateService.DeleteKraTemplateById(id);
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }            
         }
@@ -149,11 +169,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _kraTemplateService.AssignDesingations(paTemplateDesignation);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -169,11 +191,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _kraTemplateService.AssignKRAs(paTemplateKras);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -189,11 +213,13 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var result = await _kraTemplateService.GetAssignedKRAsByDesignationId(designationId);
                 return Ok(result);
             }
             catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -209,7 +235,49 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var result = await _kraTemplateService.GetAssignedUserKrasByDesignationId(designationId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Displaying templates list function wise..
+        /// </summary>
+        /// <param functionId=""></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllTemplatesByFunctionId/{functionId}")]
+        public async Task<IActionResult> GetAllTemplatesByFunctionId(int functionId)
+        {
+            try
+            {
+                var result = await _kraTemplateService.GetAllTemplatesByFunctionId(functionId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Displaying templates list businessUnit wise..
+        /// </summary>
+        /// <param businessUnitId=""></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetAllTemplatesByBusinessUnitId/{businessUnitId}")]
+        public async Task<IActionResult> GetAllTemplatesByBusinessUnitId(int businessUnitId)
+        {
+            try
+            {
+                var result = await _kraTemplateService.GetAllTemplatesByBusinessUnitId(businessUnitId);
                 return Ok(result);
             }
             catch (Exception ex)

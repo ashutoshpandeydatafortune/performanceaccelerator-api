@@ -1,8 +1,10 @@
-﻿using DF_EvolutionAPI.Models;
+﻿using System;
+using DF_EvolutionAPI.Utils;
+using System.Threading.Tasks;
+using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Controllers
 {
@@ -12,10 +14,12 @@ namespace DF_EvolutionAPI.Controllers
     {
 
        private ISubSkillService _subSkillService;
+        private readonly ILogger<SubSkillController> _logger;
 
-        public SubSkillController(ISubSkillService subSkillService)
+        public SubSkillController(ISubSkillService subSkillService, ILogger<SubSkillController> logger)
         {
             _subSkillService = subSkillService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -29,11 +33,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _subSkillService.CreateSubSkill(subSkillModel);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -49,11 +57,15 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _subSkillService.UpdateBySubSkillId(subSkillModel);
                 return Ok(response);
             }
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -69,12 +81,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _subSkillService.GetAllSubSkills();
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -90,12 +106,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _subSkillService.GetSubSkillById(id);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }
@@ -111,12 +131,16 @@ namespace DF_EvolutionAPI.Controllers
         {
             try
             {
+                // Log the API endpoint path being hit for request tracing and monitoring
+                _logger.LogInformation("{{API:{Path}}}", HttpContext.Request.Path.Value);
                 var response = await _subSkillService.DeleteSubSkillById(id);
                 return Ok(response);
             }
 
             catch (Exception ex)
             {
+                // Log detailed error information including exception message and stack trace
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return BadRequest(ex.Message);
             }
         }

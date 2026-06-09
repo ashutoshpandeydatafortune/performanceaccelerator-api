@@ -6,18 +6,24 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models;
+using DF_EvolutionAPI.Utils;
+using Microsoft.Extensions.Logging;
+using DF_EvolutionAPI.Services.Submission;
+using NuGet.LibraryModel;
+using System.Resources;
 
 namespace DF_PA_API.Services.DesignatedRoles
 {
     public class DesignatedRoleService : IDesignatedRoleService
     {
         private readonly DFEvolutionDBContext _dbcontext;
+        private readonly ILogger<DesignatedRoleService> _logger;
 
-        public DesignatedRoleService(DFEvolutionDBContext dbContext)
+        public DesignatedRoleService(DFEvolutionDBContext dbContext, ILogger<DesignatedRoleService> logger)
         {
             _dbcontext = dbContext;
+            _logger = logger;
         }
-
 
         public async Task<List<DesignatedRole>> GetAllDesignatedRoles()
         {
@@ -37,8 +43,9 @@ namespace DF_PA_API.Services.DesignatedRoles
                         UpdateDate = pr.UpdateDate,
                     }).ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
         }
@@ -87,6 +94,58 @@ namespace DF_PA_API.Services.DesignatedRoles
 
                                   }).ToListAsync();
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                    throw;
+                }
+            }
+        }
+
+        //Displayed all designatedRole by businessunit id.
+        public async Task<List<DesignatedRole>> GetDesignatedRolesByBusinessunitId(int? businessUnitId)
+        {
+            {
+                try
+                {
+                    return await (from designatedRole in _dbcontext.DesignatedRoles
+                                  join resource in _dbcontext.Resources
+                                      on designatedRole.DesignatedRoleId equals resource.DesignatedRoleId
+                                  where resource.BusinessUnitId == businessUnitId
+                                        && resource.IsActive == (int)Status.IS_ACTIVE
+                                        // Exclude those Designations that are already assigned to an active template
+                                        && !_dbcontext.PA_TemplateDesignations
+                                            .Any(templateDesignation => templateDesignation.DesignatedRoleId == designatedRole.DesignatedRoleId && templateDesignation.IsActive == 1
+                                             // Check if there exists any active template (PA_Templates)
+                                             && _dbcontext.PATemplates.Any(template => template.TemplateId == templateDesignation.TemplateId && template.BusinessUnitId == businessUnitId && template.IsActive == 1))
+                                  // Group by the relevant columns from the Designation table
+                                  group new { designatedRole, resource } by new
+                                  {
+                                      designatedRole.DesignatedRoleId,
+                                      designatedRole.DesignatedRoleName,
+                                      designatedRole.Description,
+                                      designatedRole.IsActive,
+                                      designatedRole.CreateBy,
+                                      designatedRole.UpdateBy,
+                                      designatedRole.CreateDate,
+                                      designatedRole.UpdateDate
+                                  } into grouped
+                                  // Order the grouped data by DesignationName in ascending order
+                                  orderby grouped.Key.DesignatedRoleName ascending
+                                  // Project the grouped data into a new Designation object
+                                  select new DesignatedRole
+                                  {
+                                      DesignatedRoleId = grouped.Key.DesignatedRoleId,
+                                      DesignatedRoleName = grouped.Key.DesignatedRoleName,
+                                      Description = grouped.Key.Description,
+                                      IsActive = grouped.Key.IsActive,
+                                      CreateBy = grouped.Key.CreateBy,
+                                      UpdateBy = grouped.Key.UpdateBy,
+                                      CreateDate = grouped.Key.CreateDate,
+                                      UpdateDate = grouped.Key.UpdateDate
+
+                                  }).ToListAsync();
+                }
                 catch (Exception)
                 {
                     throw;
@@ -98,21 +157,36 @@ namespace DF_PA_API.Services.DesignatedRoles
         {
             List<DesignatedRole> designations = new List<DesignatedRole>();
 
+            // Calculate October 1st of the previous year
+            //var currentDate = DateTime.Parse("2026-04-14");
+            var currentDate = DateTime.Now;
+            var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
+
+            // Calculate the date 6 months ago from today
+            var sixMonthsAgo = currentDate.AddMonths(-6);
+
+
             try
             {
                 designations = await (
                     from designation in _dbcontext.DesignatedRoles
                     join resource in _dbcontext.Resources on designation.DesignatedRoleId equals resource.DesignatedRoleId
                     join reportingto in _dbcontext.Resources on resource.ReportingTo equals reportingto.ResourceId
-                    where reportingto.EmailId.Equals(userName)
+                    where reportingto.EmailId.Equals(userName) && resource.IsActive == (int)Status.IS_ACTIVE && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    && (
+                            resource.DateOfJoin == null
+                            || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
+                            || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
+                        )
                     select new DesignatedRole
                     {
                         DesignatedRoleId = designation.DesignatedRoleId,
                         DesignatedRoleName = designation.DesignatedRoleName
                     }).Distinct().ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -136,7 +210,8 @@ namespace DF_PA_API.Services.DesignatedRoles
 
                 if (designation != null)
                 {
-                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId)
+                    resources = await _dbcontext.Resources.Where(a => a.DesignatedRoleId == designation.DesignationId && a.ReportingTo == resourceId &&
+                                a.IsActive == (int)Status.IS_ACTIVE && a.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID && !a.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX))
                                 .Select(x => new Resource
                                 {
                                     ResourceId = x.ResourceId,
@@ -154,8 +229,110 @@ namespace DF_PA_API.Services.DesignatedRoles
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
+            return resources;
+        }
+
+        //Fetch Resource according to the Reportee to
+        public async Task<List<ResourceReportee>> GetReporteesByManagerId(int resourceId)
+        {
+            List<ResourceReportee> resources = new List<ResourceReportee>();
+
+            try
+            {
+                // Calculate October 1st of the previous year
+                //var currentDate = DateTime.Parse("2026-04-14");
+                var currentDate = DateTime.Now;
+                var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
+
+                // Calculate the date 6 months ago from today
+                var sixMonthsAgo = currentDate.AddMonths(-6);
+
+                // Join Resources with DesignatedRoles and filter based on the given manager ID
+                resources = await (
+                    from resource in _dbcontext.Resources
+                    join designation in _dbcontext.DesignatedRoles
+                        on resource.DesignatedRoleId equals designation.DesignatedRoleId
+                    where resource.ReportingTo == resourceId
+                        && resource.IsActive == (int)Status.IS_ACTIVE
+                        && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                        && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                    && (
+                            resource.DateOfJoin == null
+                            || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
+                            || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
+                        )
+
+                    select new ResourceReportee
+                    {
+                        ResourceId = resource.ResourceId,
+                        ResourceName = resource.ResourceName,
+                        DesignationId = resource.DesignatedRoleId,
+                        DesignationName = designation.DesignatedRoleName
+                    }
+                ).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
+            return resources;
+        }
+
+        //Fetch Resource according to the designationated role
+        public async Task<List<ResourceReportee>> GetReporteesByDesignationRole(int resourceId, string designationName)
+        {
+            List<ResourceReportee> resources = new List<ResourceReportee>();
+
+            try
+            {
+                // Calculate October 1st of the previous year
+                //var currentDate = DateTime.Parse("2026-04-11");
+                var currentDate = DateTime.Now;
+                var previousYearOctober1st = new DateTime(currentDate.Year - 1, 10, 1);
+
+                // Calculate the date 6 months ago from today
+                var sixMonthsAgo = currentDate.AddMonths(-6);
+
+                // Base query for reportees under the given manager ID
+                var query = from resource in _dbcontext.Resources
+                            join designation in _dbcontext.DesignatedRoles
+                                on resource.DesignatedRoleId equals designation.DesignatedRoleId
+                            where resource.ReportingTo == resourceId
+                                && resource.IsActive == (int)Status.IS_ACTIVE
+                                && resource.StatusId == (int)Status.ACTIVE_RESOURCE_STATUS_ID
+                                && !resource.EmployeeId.StartsWith(Constant.EMPLOYEE_PREFIX)
+                                 && (
+                                        resource.DateOfJoin == null
+                                        || resource.DateOfJoin < previousYearOctober1st   // before Oct 1 → always visible
+                                        || (resource.DateOfJoin > previousYearOctober1st && resource.DateOfJoin <= sixMonthsAgo)
+                                     )
+                            select new ResourceReportee
+                            {
+                                ResourceId = resource.ResourceId,
+                                ResourceName = resource.ResourceName,
+                                DesignationId = resource.DesignatedRoleId,
+                                DesignationName = designation.DesignatedRoleName
+                            };
+
+                // Apply optional filter on DesignationName if provided
+                if (!string.IsNullOrEmpty(designationName))
+                {
+                    query = query.Where(r => r.DesignationName == designationName);
+                }
+
+                resources = await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 throw;
             }
 
@@ -163,18 +340,51 @@ namespace DF_PA_API.Services.DesignatedRoles
         }
 
         // GetAssignedSpecialKRAs is made for displaying the special kra for particular resource.
-        private List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
+        public List<AssignedSpecialKRA> GetAssignedSpecialKRAs(int resourceId)
         {
-            var specialKra = (from userKras in _dbcontext.UserKRA
-                              join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
-                              where kraLibrary.IsSpecial == 1 && userKras.UserId == resourceId
-                              select new AssignedSpecialKRA
-                              {
-                                  KRAId = kraLibrary.Id,
-                                  KraName = kraLibrary.Name,
-                              });
 
-            return specialKra.ToList();
+            try
+            {
+                var specialKra = (from userKras in _dbcontext.UserKRA
+                                  join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                                  where kraLibrary.IsSpecial == 1 && userKras.UserId == resourceId
+                                  select new AssignedSpecialKRA
+                                  {
+                                      KRAId = kraLibrary.Id,
+                                      KraName = kraLibrary.Name,
+                                  });
+
+                return specialKra.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
+
+        }
+
+        // Get AssignedKRAs of resource.
+        public List<AssignedSpecialKRA> GetAssignedKRAs(int resourceId)
+        {
+            try
+            {
+                var specialKra = (from userKras in _dbcontext.UserKRA
+                                  join kraLibrary in _dbcontext.KRALibrary on userKras.KRAId equals kraLibrary.Id
+                                  where userKras.UserId == resourceId
+                                  select new AssignedSpecialKRA
+                                  {
+                                      KRAId = kraLibrary.Id,
+                                      KraName = kraLibrary.Name,
+                                  });
+
+                return specialKra.ToList();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
+                throw;
+            }
         }
 
     }

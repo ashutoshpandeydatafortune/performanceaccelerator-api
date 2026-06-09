@@ -9,6 +9,7 @@ namespace DF_EvolutionAPI.Services
         public Task<List<BusinessUnit>> GetAllBusinessUnits();
         public Task<List<Client>> GetAllClientsBusinessUnitId(int? businessUnitId);
         public Task<List<BusinessUnit>> GetAllClientsBusinessUnits(int? businessUnitId);
+        public Task<List<BusinesssUnits>> GetAllBusinessUnitsById(int? functionId);
 
     }
 }

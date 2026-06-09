@@ -7,15 +7,18 @@ using DF_EvolutionAPI.ViewModels;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using DF_PA_API.Models;
+using Microsoft.Extensions.Logging;
 
 namespace DF_EvolutionAPI.Services
 {
     public class NotificationService : INotificationService
     {
         private readonly DFEvolutionDBContext _dbContext;
-        public NotificationService(DFEvolutionDBContext dbContext)
+        private readonly ILogger<NotificationService> _logger;
+        public NotificationService(DFEvolutionDBContext dbContext, ILogger<NotificationService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<ResponseModel> CreateNotification(Notification notificationModel)
@@ -38,7 +41,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 model.IsSuccess = false;
-                model.Messsage = "Error :" + ex.Message;
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
             }
             return model;
         }
@@ -61,7 +64,7 @@ namespace DF_EvolutionAPI.Services
             catch (Exception ex)
             {
                 // Handle the exception here, log it, or return an error response
-                Console.WriteLine($"An error occurred while getting notifications: {ex.Message}");
+                _logger.LogError(string.Format(Constant.ERROR_MESSAGE, ex.Message, ex.StackTrace));
                 return new List<Notification>();
             }
         }

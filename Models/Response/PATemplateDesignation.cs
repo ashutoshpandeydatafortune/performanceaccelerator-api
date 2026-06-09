@@ -24,8 +24,8 @@ namespace DF_EvolutionAPI.Models.Response
         [JsonIgnore]
         public PATemplate PATemplate { get; set; }
 
-        [ForeignKey("Designation")]
-        public int DesignationId { get; set; }
+       // [ForeignKey("Designation")]
+        public int? DesignationId { get; set; }
         public Designation Designation { get; set; }
 
         [ForeignKey("DesignatedRole")]
@@ -38,7 +38,7 @@ namespace DF_EvolutionAPI.Models.Response
     {
         public int TemplateId { get; set; }
         public int CreateBy { get; set; }
-        public List<int> DesignationIds { get; set; }
+        public List<int?> DesignationIds { get; set; }
         public List<int> DesignatedRoleIds { get; set; }
     }
 }

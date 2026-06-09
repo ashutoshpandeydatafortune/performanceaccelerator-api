@@ -22,9 +22,9 @@ namespace DF_EvolutionAPI.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal? Rate { get; set; }
         public string ResourceRole { get; set; }
-
         public byte IsActive { get; set; }
 
+        public DateTime? AssignmentDate { get; set; }
         [NotMapped]
         public List<Project> ProjectList { get; set; }
     }
