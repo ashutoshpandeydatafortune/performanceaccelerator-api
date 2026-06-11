@@ -69,8 +69,7 @@ namespace DF_EvolutionAPI
 
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Is(logLevel)
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                .MinimumLevel.Override("System", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .WriteTo.Console();
 
             if (string.Equals(environmentName, "Development", StringComparison.OrdinalIgnoreCase))
