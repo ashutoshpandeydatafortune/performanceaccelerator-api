@@ -9,6 +9,7 @@ using DF_EvolutionAPI.Models;
 using DF_EvolutionAPI.Utils;
 using Microsoft.Extensions.Logging;
 using DF_EvolutionAPI.Services.Submission;
+using NuGet.LibraryModel;
 using System.Resources;
 
 namespace DF_PA_API.Services.DesignatedRoles
