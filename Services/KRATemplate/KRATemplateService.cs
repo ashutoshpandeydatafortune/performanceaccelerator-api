@@ -10,7 +10,6 @@ using DF_EvolutionAPI.ViewModels;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using DF_EvolutionAPI.Models.Response;
-using Sprache;
 
 namespace DF_EvolutionAPI.Services.KRATemplate
 {
