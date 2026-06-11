@@ -67,16 +67,22 @@ namespace DF_EvolutionAPI
                 ? parsedValue
                 : Constant.LOG_DELETION_DAYS;
 
-            return new LoggerConfiguration()
+            var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Is(logLevel)
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("System", LogEventLevel.Warning)
-                .WriteTo.File(
+                .WriteTo.Console();
+
+            if (string.Equals(environmentName, "Development", StringComparison.OrdinalIgnoreCase))
+            {
+                loggerConfig = loggerConfig.WriteTo.File(
                     new CustomJsonFormatter(),
                     "Logs/log.json",
                     rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: logDeletionDays)
-                .CreateLogger();
+                    retainedFileCountLimit: logDeletionDays);
+            }
+
+            return loggerConfig.CreateLogger();
         }
     }
 }
