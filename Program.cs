@@ -25,6 +25,7 @@ namespace DF_EvolutionAPI
             catch (Exception ex)
             {
                 Log.Fatal(ex, "Application failed to start");
+                Environment.ExitCode = 1;
             }
             finally
             {
